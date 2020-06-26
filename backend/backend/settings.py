@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from backend import CONFIG
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'authentication',
+    'root',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +80,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': CONFIG.DATABASE['ENGINE'],
+        'NAME': CONFIG.DATABASE['NAME'],
+        'USER': CONFIG.DATABASE['USER'],
+        'PASSWORD': CONFIG.DATABASE['PASSWORD'],
+        'HOST': CONFIG.DATABASE['HOST'],
+        'PORT': CONFIG.DATABASE['PORT'],
     }
 }
 
@@ -113,8 +122,20 @@ USE_L10N = True
 
 USE_TZ = True
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = CONFIG.EMAIL_HOST
+EMAIL_HOST_USER = CONFIG.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = CONFIG.EMAIL_HOST_PASSWORD
+EMAIL_PORT = CONFIG.EMAIL_PORT
+EMAIL_USE_TLS = CONFIG.EMAIL_USE_TLS
+
+DEFAULT_FROM_EMAIL = CONFIG.DEFAULT_FROM_EMAIL
+HELLO_RECIPIENTS = CONFIG.HELLO_RECIPIENTS
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")

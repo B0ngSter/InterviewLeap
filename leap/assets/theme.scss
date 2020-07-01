@@ -1,0 +1,29 @@
+@import url("https://use.typekit.net/dbc5qdv.css");
+@import 'colors.scss';
+
+$enable-rounded: false;
+
+/* Color overrides */
+//$body-bg:                   #000;
+//$body-color:                #111;
+$primary:                     $smiley-green;
+//$secondary:                 $gray-600;
+$success:                     $secure-green;
+$info:                        $dark-aqua;
+//$warning:                   $yellow;
+$danger:                      $happy-orange;
+$light:                       $grin-grey;
+$dark:                        $smart-dark;
+
+$font-family-base:            "aktiv-grotesk",sans-serif;
+$btn-padding-y:               1.375rem;
+
+// Bootstrap and its default variables
+@import '../node_modules/bootstrap/scss/bootstrap';
+// BootstrapVue and its default variables
+@import '../node_modules/bootstrap-vue/src/index.scss';
+
+.btn {
+  line-height:                1rem;
+  color:                      $white;
+}

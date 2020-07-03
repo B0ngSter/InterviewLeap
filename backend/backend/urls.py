@@ -40,5 +40,5 @@ urlpatterns = [
 
 urlpatterns += [
     path('admin/', admin.site.urls),
-    path('v1/', include(auth_urls)),
+    path('auth/', include(auth_urls)),
 ]

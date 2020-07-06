@@ -56,7 +56,11 @@ export default {
     // Doc: https://bootstrap-vue.js.org
     'bootstrap-vue/nuxt',
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    "@nuxtjs/toast",
+    'cookie-universal-nuxt',
+    'js-cookie',
+    'cookieparser'
   ],
   /*
   ** Axios module configuration
@@ -65,6 +69,11 @@ export default {
   axios: {
     baseURL: process.env.NODE_ENV === 'dev' ? 'http://localhost:8000' : 'https://api.interviewleap.com'
   },
+  toast: {
+    position: "bottom-center",
+    duration: 5000 // default timeout of 5 seconds
+  },
+  
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/

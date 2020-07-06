@@ -84,6 +84,36 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+    ]
+}
+AUTH_USER_MODEL = 'authentication.User'
+
+SIMPLE_JWT = {
+   'AUTH_HEADER_TYPES': ('JWT',),
+}
+
+
+DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SEND_CONFIRMATION_EMAIL': True,
+    'EMAIL': {'confirmation': 'authentication.views.ConfirmationEmail'},
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    }
+
 }
 
 # Database
@@ -143,6 +173,8 @@ EMAIL_USE_TLS = CONFIG.EMAIL_USE_TLS
 DEFAULT_FROM_EMAIL = CONFIG.DEFAULT_FROM_EMAIL
 HELLO_RECIPIENTS = CONFIG.HELLO_RECIPIENTS
 
+FRONTEND_URL = CONFIG.FRONTEND_URL
+PROFILE_PICTURE = 'profile_picture'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -150,3 +182,6 @@ HELLO_RECIPIENTS = CONFIG.HELLO_RECIPIENTS
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

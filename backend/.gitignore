@@ -1,2 +1,3 @@
 **/migrations/0*.py
 **/config.py
+venv/

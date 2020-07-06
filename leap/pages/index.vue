@@ -2,20 +2,30 @@
   <div class="container">
     <div>
       <Logo />
-      <h1 class="title">
+      <h1 class="title" v-if="$store.state.auth">
         InterviewLeap
       </h1>
+      <!-- <div class="links" v-else> -->
       <div class="links">
         <b-button variant="primary" to="/test">
           Test App page
         </b-button>
+      <NuxtLink to="/auth/login">
+        login
+      </NuxtLink>
+      <NuxtLink to="/auth/signup">
+        Sign Up
+      </NuxtLink>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  methods: {
+  }
+}
 </script>
 
 <style>

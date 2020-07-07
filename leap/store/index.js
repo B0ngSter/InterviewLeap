@@ -117,7 +117,7 @@ export const actions = {
   },
   google_auth (context, IDToken) {
     context.commit('start_google_authenticating')
-    this.$axios.post('/auth/google-signin/', { id_token: IDToken })
+    this.$axios.post('/auth/google-signin', { id_token: IDToken })
       .then((response) => {
         if (response.status === 200) {
           if (response.data.access_token) {

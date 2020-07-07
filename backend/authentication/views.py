@@ -74,7 +74,6 @@ class SignupView(CreateAPIView):
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
     def account_email_verify_token(self, request, token, data):
-        # import pdb; pdb.set_trace()
         try:
             email = data.get('email')
             first_name = data.get('first_name')
@@ -168,19 +167,24 @@ class MyTokenObtainPairView(TokenObtainPairView):
                 "meta_data": {"role": user.role, "full_name": user.get_full_name(), "is_profile_completed": is_profile_completed}
                 }
             try:
-                # add check for candidate and add meta data
-                pass
-                # user_profile = CandidateProfile.objects.get(user=user.id)
-                # if user_profile:
-                #     is_profile_completed = user_profile.is_profile_completed
-                #     meta_data['meta_data']['is_profile_completed'] = is_profile_completed
-                #     if user.profile_picture:
-                #         meta_data['meta_data']['profile_picture'] = user.profile_picture.url
-                #     else:
-                #         meta_data['meta_data']['profile_picture'] = None
+                candidate_profile = CandidateProfile.objects.get(user=user.id)
+                if candidate_profile:
+                    is_profile_completed = True
+                    meta_data['meta_data']['is_profile_completed'] = is_profile_completed
+                    if user.profile_picture:
+                        meta_data['meta_data']['profile_picture'] = user.profile_picture.url
+                else:
+                    meta_data['meta_data']['profile_picture'] = None
             except ObjectDoesNotExist:
-                # add check for interviewer and add meta data
-                pass
+                interviewer_profile = InterviewerProfile.objects.filter(user=user.id).exists()
+                if interviewer_profile:
+                    is_profile_completed = True
+                    meta_data['meta_data']['is_profile_completed'] = is_profile_completed
+                    if user.profile_picture:
+                        meta_data['meta_data']['profile_picture'] = user.profile_picture.url
+                else:
+                    meta_data['meta_data']['profile_picture'] = None
+
             response = serializer.validated_data
             response.update(meta_data)
             return Response(response, status=status.HTTP_200_OK)

@@ -27,7 +27,7 @@ from .models import User, CandidateProfile, InterviewerProfile
 
 # Create your views here.
 from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
-    CandidateProfileDetailtSerializer, InterviewerProfileDetailSerializer
+    CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer
 
 
 def generate_token(user):
@@ -329,11 +329,16 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
                 """
     serializer_class = InterviewerProfileCreateListSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        interviewers = InterviewerProfile.objects.all()
+        return interviewers
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=profile_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -364,11 +369,26 @@ class CandidateProfileDetailView(RetrieveUpdateAPIView):
                """
 
     lookup_field = 'pk'
-    serializer_class = CandidateProfileDetailtSerializer
+    serializer_class = CandidateProfileDetailSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         candidate = CandidateProfile.objects.all()
         return candidate
+
+    def update(self, request, *args, **kwargs):
+        profile_data = request.data.dict()
+        candidate_obj = self.get_object()
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        serializer = self.get_serializer(candidate_obj, data=profile_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InterviewerProfileDetailView(RetrieveUpdateAPIView):
@@ -393,7 +413,23 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
 
     lookup_field = 'pk'
     serializer_class = InterviewerProfileDetailSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         interviewer = InterviewerProfile.objects.all()
         return interviewer
+
+    def update(self, request, *args, **kwargs):
+        profile_data = request.data.dict()
+        interviewer_obj = self.get_object()
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        serializer = self.get_serializer(interviewer_obj, data=profile_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+

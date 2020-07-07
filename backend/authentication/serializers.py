@@ -55,7 +55,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class CandidateSkillSerializer(serializers.ModelSerializer):
+# class SkillReadSerializer(serializers.ModelSerializer):
+#     title = serializers.SerializerMethodField()
+# 
+#     def get_title(self, obj):
+#         return obj.title
+# 
+#     class Meta:
+#         model = Skill
+#         fields = ['title']
+
+
+class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
@@ -63,7 +74,7 @@ class CandidateSkillSerializer(serializers.ModelSerializer):
 
 
 class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
-    skills = CandidateSkillSerializer(many=True)
+    skills = SkillSerializer(many=True)
 
     class Meta:
         model = CandidateProfile
@@ -79,6 +90,7 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
 
 class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
 
     class Meta:
         model = InterviewerProfile
@@ -93,15 +105,33 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
         return interviewer
 
 
-class CandidateProfileDetailtSerializer(serializers.ModelSerializer):
+class CandidateProfileDetailSerializer(serializers.ModelSerializer):
+
+    skills = SkillSerializer(many=True)
 
     class Meta:
         model = CandidateProfile
         fields = ['education', 'college', 'year_of_passing', 'job_title', 'resume', 'linkedin', 'skills']
 
+    def update(self, instance, validated_data):
+        skills = validated_data.pop('skills')
+        skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+        instance.skills.set(skill_obj)
+        instance.save()
+        return instance
+
 
 class InterviewerProfileDetailSerializer(serializers.ModelSerializer):
+
+    skills = SkillSerializer(many=True)
 
     class Meta:
         model = InterviewerProfile
         fields = ['industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills']
+
+    def update(self, instance, validated_data):
+        skills = validated_data.pop('skills')
+        skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+        instance.skills.set(skill_obj)
+        instance.save()
+        return instance

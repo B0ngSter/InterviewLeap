@@ -1,5 +1,7 @@
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from rest_framework import status
 from django.conf import settings
 from datetime import datetime, timedelta
@@ -20,6 +22,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
+from .serializers import RegistrationSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 
 # Create your views here.
@@ -32,6 +35,73 @@ def generate_token(user):
     token = str(refresh.access_token)
 
     return token
+
+
+class SignupView(CreateAPIView):
+    """
+        create   -- Any user can Signup!
+        actions -- send mail to the mentioned email id.
+        Request params -- {
+                              "email": "string",
+                              "password": "string",
+                              "re_password": "string",
+                              "first_name": "string",
+                              "last_name": "string",
+                              "role": "string"
+                            }
+        Response Status -- 201 Ok
+        Error Code -- 400 Bad Request
+
+    """
+
+    permission_classes = (AllowAny,)
+    serializer_class = RegistrationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            user = User.objects.get(email=serializer.data['email'])
+            token = generate_token(user)
+            self.account_email_verify_token(request, token, serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            if serializer.errors.get('message'):
+                error_message = serializer.errors.get('message')[0]
+            else:
+                error_message = ", ".join([error for error in serializer.errors.keys()])
+                error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+    def account_email_verify_token(self, request, token, data):
+        # import pdb; pdb.set_trace()
+        try:
+            email = data.get('email')
+            first_name = data.get('first_name')
+            frontend_url = settings.FRONTEND_URL
+            send_by = settings.DEFAULT_FROM_EMAIL
+
+            verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+                                                                                 token=str(token))
+            print(verification_url)
+            context = {
+                'name': first_name,
+                'site_name': 'Interview Leap',
+                'verification_url': verification_url,
+                'email': email
+            }
+
+            email_plaintext_message = render_to_string('confirmation_email.html', context)
+            msg = EmailMultiAlternatives(
+                "Welcome to {title}".format(title="Interview Leap!"),
+                "",
+                send_by,
+                [email]
+            )
+            msg.attach_alternative(email_plaintext_message, 'text/html')
+            msg.send()
+        except:
+            raise exceptions.ValidationError
 
 
 class ConfirmationEmail(BaseEmailMessage):
@@ -82,15 +152,12 @@ class MyTokenObtainPairView(TokenObtainPairView):
             elif not user.check_password(password):
                 error_message['message'] = "Invalid password."
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
-            elif not user.email_verified:
-                error_message['message'] = "Email is not verified!"
-                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
             elif not user.role:
                 error_message['message'] = "Role is not set for the User."
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
         except ObjectDoesNotExist:
-            error_message['message'] = "User Doest Not Exist!"
+            error_message['message'] = "User does not exist!"
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=request.data)
@@ -215,7 +282,7 @@ class CandidateProfileCreateListView(ListCreateAPIView):
                                   "resume": "file field"
                                   "linkedin": "valid url in string"
                                   "skills": "comma separated values in string"
-                                  
+
                                 }
             Response Status -- 200 Ok along with candidateprofile details
             Error Code -- 400 Bad Request

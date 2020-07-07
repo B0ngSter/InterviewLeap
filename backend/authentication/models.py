@@ -18,13 +18,13 @@ class MyUserManager(BaseUserManager):
     instead of usernames. The default that's used is "UserManager"
     """
 
-    def create_user(self, email, password=None, first_name=None, last_name=None, role=None):
+    def create_user(self, username, email, password=None, first_name=None, last_name=None):
         """Create and return a `User` with an email, username and password."""
 
         if email is None:
             raise TypeError('Users must have an email address.')
 
-        user = self.model(username=email, email=self.normalize_email(email), first_name=first_name, last_name=last_name, role=role)
+        user = self.model(username=self.normalize_email(email), email=self.normalize_email(email), first_name=first_name, last_name=last_name)
         user.set_password(password)
         user.save()
 
@@ -48,8 +48,8 @@ class MyUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    first_name = models.CharField(max_length=40)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=40, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(
         _('staff status'),
@@ -63,10 +63,9 @@ class User(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
-    role = models.CharField(max_length=20, choices=(['candidate', 'candidate'], ['interviewer', 'interviewer']))
+    role = models.CharField(max_length=20, choices=(['candidate', 'candidate'], ['interviewer', 'interviewer']), null=True, blank=True)
     profile_picture = models.FileField(upload_to=settings.PROFILE_PICTURE, null=True, blank=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
     date_joined = models.DateTimeField(auto_now_add=True)
     objects = MyUserManager()
 

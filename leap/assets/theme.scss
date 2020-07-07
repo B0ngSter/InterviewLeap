@@ -8,15 +8,16 @@ $enable-rounded: false;
 //$body-color:                #111;
 $primary:                     $smiley-green;
 //$secondary:                 $gray-600;
-$success:                     $secure-green;
-$info:                        $dark-aqua;
+$success:                     $fortune-green;
+$info:                        $aqua-blue;
 //$warning:                   $yellow;
-$danger:                      $happy-orange;
+$danger:                      $happy-orange-light;
 $light:                       $grin-grey;
 $dark:                        $smart-dark;
 
 $font-family-base:            "aktiv-grotesk",sans-serif;
 $btn-padding-y:               1.375rem;
+$btn-padding-x:               3rem;
 
 // Bootstrap and its default variables
 @import '../node_modules/bootstrap/scss/bootstrap';
@@ -26,4 +27,18 @@ $btn-padding-y:               1.375rem;
 .btn {
   line-height:                1rem;
   color:                      $white;
+  font-family:                "aktiv-grotesk", sans-serif;
+  font-weight:                bold;
+  &.btn-danger {
+    color: $happy-orange
+  }
+  &.btn-success {
+    color: $smiley-green
+  }
+  &.btn-info {
+    color: $dark-aqua
+  }
+}
+.btn-danger, .btn-info, .btn-success {
+  min-width:                160px;
 }

@@ -175,6 +175,7 @@ HELLO_RECIPIENTS = CONFIG.HELLO_RECIPIENTS
 
 FRONTEND_URL = CONFIG.FRONTEND_URL
 PROFILE_PICTURE = 'profile_picture'
+RESUME_STORE = 'resumes'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

@@ -78,3 +78,37 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.first_name
+
+
+class Skill(models.Model):
+    title = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.title = self.title.lower()
+        return super(Skill, self).save(*args, **kwargs)
+
+
+class CandidateProfile(models.Model):
+    education = models.CharField(max_length=128, null=True, blank=True)
+    college = models.CharField(max_length=128, null=True, blank=True)
+    year_of_passing = models.CharField(max_length=54, null=True, blank=True)
+    job_title = models.CharField(max_length=256)
+    resume = models.FileField(upload_to=settings.RESUME_STORE)
+    linkedin = models.URLField(max_length=256, null=True, blank=True)
+    skills = models.ManyToManyField(to=Skill)
+
+
+class InterviewerProfile(models.Model):
+    industry = models.CharField(max_length=256, null=True, blank=True)
+    designation = models.CharField(max_length=256, null=True, blank=True)
+    company = models.CharField(max_length=256, null=True, blank=True)
+    exp_years = models.IntegerField(null=True, blank=True, validators=[
+        MinValueValidator(0, message='Enter a whole number')])
+    resume = models.FileField(upload_to=settings.RESUME_STORE)
+    linkedin = models.URLField(max_length=256, null=True, blank=True)
+    skills = models.ManyToManyField(to=Skill)
+
+

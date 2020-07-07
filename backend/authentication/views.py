@@ -20,9 +20,11 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .models import User
+from .models import User, CandidateProfile, InterviewerProfile
 
 # Create your views here.
+from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
+    CandidateProfileDetailtSerializer, InterviewerProfileDetailSerializer
 
 
 def generate_token(user):
@@ -199,3 +201,132 @@ class GoogleView(APIView):
             }
         response.update({"meta_data": meta_data})
         return Response(response, status=status.HTTP_200_OK)
+
+
+class CandidateProfileCreateListView(ListCreateAPIView):
+    """
+            CandidateProfile   -- Authenticated user can create profile!
+            actions -- POST -- Profile Creation(Candidate)
+            Request params -- {
+                                  "education": "string",
+                                  "college": "string"
+                                  "years_of_passing": "string"
+                                  "job_title": "string"
+                                  "resume": "file field"
+                                  "linkedin": "valid url in string"
+                                  "skills": "comma separated values in string"
+                                  
+                                }
+            Response Status -- 200 Ok along with candidateprofile details
+            Error Code -- 400 Bad Request
+            Error message -- Raise proper error messages
+
+            """
+    serializer_class = CandidateProfileCreateListSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        candidates = CandidateProfile.objects.all()
+        return candidates
+
+    def create(self, request, *args, **kwargs):
+        profile_data = request.data.dict()
+        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        serializer = self.get_serializer(data=profile_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InterviewerProfileCreateListView(ListCreateAPIView):
+    """
+                InterviewerProfile   -- Authenticated user can create profile!
+                actions -- POST -- Profile Creation(Interviewer)
+                Request params -- {
+                                      "industry": "string",
+                                      "designation": "string"
+                                      "company": "string"
+                                      "exp_years": "integer"
+                                      "resume": "file field"
+                                      "linkedin": "valid url in string"
+                                      "skills": "comma separated values in string"
+
+                                    }
+                Response Status -- 200 Ok along with interviewerprofile details
+                Error Code -- 400 Bad Request
+                Error message -- Raise proper error messages
+
+                """
+    serializer_class = InterviewerProfileCreateListSerializer
+
+    def create(self, request, *args, **kwargs):
+        profile_data = request.data.dict()
+        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CandidateProfileDetailView(RetrieveUpdateAPIView):
+    """
+               CandidateProfile   -- Authenticated user can GET Candidate profile details!
+               actions -- GET -- Profile Details(Candidate)
+               Response params -- {
+                                     "education": "string",
+                                     "college": "string"
+                                     "years_of_passing": "string"
+                                     "job_title": "string"
+                                     "resume": "file field"
+                                     "linkedin": "valid url in string"
+                                     "skills": "comma separated values in string"
+
+                                   }
+               Response Status -- 200 Ok along with candidateprofile details
+               Error Code -- 400 Bad Request
+               Error message -- Raise proper error messages
+
+               """
+
+    lookup_field = 'pk'
+    serializer_class = CandidateProfileDetailtSerializer
+
+    def get_queryset(self):
+        candidate = CandidateProfile.objects.all()
+        return candidate
+
+
+class InterviewerProfileDetailView(RetrieveUpdateAPIView):
+    """
+                   InterviewerProfile   -- Authenticated user can GET Interveiwer profile details!
+                   actions -- GET -- Profile Details(Interviewer)
+                   Response params -- {
+                                      "industry": "string",
+                                      "designation": "string"
+                                      "company": "string"
+                                      "exp_years": "integer"
+                                      "resume": "file field"
+                                      "linkedin": "valid url in string"
+                                      "skills": "comma separated values in string"
+
+                                    }
+                   Response Status -- 200 Ok along with interveiwerprofile details
+                   Error Code -- 400 Bad Request
+                   Error message -- Raise proper error messages
+
+                   """
+
+    lookup_field = 'pk'
+    serializer_class = InterviewerProfileDetailSerializer
+
+    def get_queryset(self):
+        interviewer = InterviewerProfile.objects.all()
+        return interviewer

@@ -91,6 +91,7 @@ class Skill(models.Model):
 
 
 class CandidateProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     education = models.CharField(max_length=128, null=True, blank=True)
     college = models.CharField(max_length=128, null=True, blank=True)
     year_of_passing = models.CharField(max_length=54, null=True, blank=True)
@@ -101,6 +102,7 @@ class CandidateProfile(models.Model):
 
 
 class InterviewerProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     industry = models.CharField(max_length=256, null=True, blank=True)
     designation = models.CharField(max_length=256, null=True, blank=True)
     company = models.CharField(max_length=256, null=True, blank=True)

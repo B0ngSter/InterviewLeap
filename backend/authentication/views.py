@@ -200,6 +200,7 @@ class GoogleView(APIView):
 
     def post(self, request):
         id_token = request.data['id_token']
+        role = request.data.get('role')
         idinfo = requests.get("https://oauth2.googleapis.com/tokeninfo?id_token={}".format(id_token))
         data = json.loads(idinfo.text)
 
@@ -210,27 +211,31 @@ class GoogleView(APIView):
 
         try:
             user = User.objects.get(email=data.get('email'))
-            if not user.role:
-                token = generate_token(user)
-                response["verification_token"] = token
-            else:
-                token = RefreshToken.for_user(user)  # generate token manually without username & password
-                response['access_token'] = str(token.access_token)
             if user.profile_picture:
                 profile_picture = user.profile_picture.url
             else:
                 profile_picture = None
             try:
-                # candidate: check and add is profile completed
-                pass
-                # user_profile = CandidateProfile.objects.get(user=user.id)
-                # if user_profile:
-                #     is_profile_completed = user_profile.is_profile_completed
-                # else:
-                #     is_profile_completed = False
+                candidate_profile = CandidateProfile.objects.get(user=user.id).exists()
+                if candidate_profile:
+                    token = RefreshToken.for_user(user)  # generate token manually without username & password
+                    response['access_token'] = str(token.access_token)
+                    is_profile_completed = True
+                else:
+                    token = generate_token(user)
+                    response["verification_token"] = token
+                    is_profile_completed = False
+
             except ObjectDoesNotExist:
-                # interviewer: check and add is profile completed
-                pass
+                interviewer_profile = InterviewerProfile.objects.get(user=user.id).exists()
+                if interviewer_profile:
+                    token = RefreshToken.for_user(user)  # generate token manually without username & password
+                    response['access_token'] = str(token.access_token)
+                    is_profile_completed = True
+                else:
+                    token = generate_token(user)
+                    response["verification_token"] = token
+                    is_profile_completed = False
         except ObjectDoesNotExist:
             user = User()
             user.username = data['email']
@@ -238,7 +243,7 @@ class GoogleView(APIView):
             user.first_name = data.get('given_name')
             user.last_name = data.get('family_name')
             user.email = data['email']
-            # user.role = data['role']           #check api will give custom fields like role and add in User table
+            user.role = role
 
             if 'picture' in data.keys():
                 image_url = data.get('picture')
@@ -264,7 +269,7 @@ class GoogleView(APIView):
                 "role": user.role,
                 "full_name": user.get_full_name(),
                 "profile_picture": profile_picture,
-                "is_profile_completed": False,          # check profile and update this boolean
+                "is_profile_completed": is_profile_completed,          # check profile and update this boolean
             }
         response.update({"meta_data": meta_data})
         return Response(response, status=status.HTTP_200_OK)

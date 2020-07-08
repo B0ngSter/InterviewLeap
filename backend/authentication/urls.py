@@ -9,7 +9,7 @@ urlpatterns = [
     path('login', MyTokenObtainPairView.as_view()),
     path('google-signin', GoogleView.as_view()),
     path('candidate-profile/', CandidateProfileCreateListView.as_view()),
-    path('candidate-profile/<int:pk>/', CandidateProfileDetailView.as_view()),
     path('interviewer-profile/', InterviewerProfileCreateListView.as_view()),
+    path('candidate-profile/<int:pk>/', CandidateProfileDetailView.as_view()),
     path('interviewer-profile/<int:pk>/', InterviewerProfileDetailView.as_view())
 ]

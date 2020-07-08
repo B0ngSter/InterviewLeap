@@ -58,7 +58,6 @@ export const actions = {
             is_profile_completed: response.data.meta_data.is_profile_completed,
             full_name: response.data.meta_data.full_name
           }
-          debugger
           context.commit('set_role', response.data.meta_data.role)
           if (response.data.meta_data.is_profile_completed) {
             context.commit('profile_status')
@@ -93,18 +92,16 @@ export const actions = {
     this.$router.push(nextRoute)
   },
   google_auth (context, payload) {
-    debugger
     this.$axios.post('/auth/google-signin', payload)
       .then((response) => {
         console.log(response)
-        debugger
         if (response.status === 200) {
           if (response.data.access_token) {
             context.dispatch('set_auth_cookie', response.data.access_token)
             context.dispatch('set_meta_data_cookie', response.data.meta_data)
             // context.dispatch('post_login_routing')
-            this.$router.push('/auth/email-sent')
           }
+          this.$router.push('/auth/email-sent')
         } else {
           this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
             action: {

@@ -68,13 +68,11 @@ export default {
       this.show = true
       const authResponse = googleUser.getAuthResponse()
       this.auth_token = authResponse.id_token
-      debugger
     },
     continue_with_role () {
       this.show = false
-      debugger
       this.$store.dispatch('google_auth', {
-        token: this.auth_token,
+        id_token: this.auth_token,
         role: this.selected_role
       })
     },

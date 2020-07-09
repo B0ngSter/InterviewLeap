@@ -37,6 +37,7 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
+    { src: "~/plugins/init_auth_setup.js", ssr: false }
   ],
   /*
   ** Auto import components

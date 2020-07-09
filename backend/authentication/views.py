@@ -368,7 +368,7 @@ class ResetPasswordConfirm(GenericAPIView):
 class CandidateProfileCreateListView(ListCreateAPIView):
     """
             CandidateProfile   -- Authenticated user can create profile!
-            actions -- POST -- Profile Creation(Candidate)
+            actions -- POST -- Profile Creation/Updation(Candidate), If profile exists it updates the profile.
             Request params -- {
                                   "education": "string",
                                   "college": "string"
@@ -385,7 +385,6 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 
             """
     serializer_class = CandidateProfileCreateListSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         candidates = CandidateProfile.objects.all()
@@ -393,8 +392,9 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
+        profile_data['user'] = request.user.id
         profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=profile_data)
+        serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -407,7 +407,7 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 class InterviewerProfileCreateListView(ListCreateAPIView):
     """
                 InterviewerProfile   -- Authenticated user can create profile!
-                actions -- POST -- Profile Creation(Interviewer)
+                actions -- POST -- Profile Creation/Updation(Interviewer), If profile exists it updates the profile.
                 Request params -- {
                                       "industry": "string",
                                       "designation": "string"
@@ -424,7 +424,6 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
                 """
     serializer_class = InterviewerProfileCreateListSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         interviewers = InterviewerProfile.objects.all()
@@ -432,8 +431,9 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
+        profile_data['user'] = request.user.id
         profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=profile_data)
+        serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -465,7 +465,6 @@ class CandidateProfileDetailView(RetrieveUpdateAPIView):
 
     lookup_field = 'pk'
     serializer_class = CandidateProfileDetailSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         candidate = CandidateProfile.objects.all()
@@ -508,7 +507,6 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
 
     lookup_field = 'pk'
     serializer_class = InterviewerProfileDetailSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         interviewer = InterviewerProfile.objects.all()

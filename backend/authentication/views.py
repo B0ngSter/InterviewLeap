@@ -239,7 +239,7 @@ class GoogleView(APIView):
                     is_profile_completed = False
 
             except ObjectDoesNotExist:
-                interviewer_profile = InterviewerProfile.objects.get(user=user.id).exists()
+                interviewer_profile = InterviewerProfile.objects.filter(user=user.id).exists()
                 if interviewer_profile:
                     token = RefreshToken.for_user(user)  # generate token manually without username & password
                     response['access_token'] = str(token.access_token)

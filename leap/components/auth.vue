@@ -40,55 +40,29 @@
           </b-col>
         </b-row>
         <b-row align-h="center">
-          <b-col cols="8 mt-4">
+          <b-col :cols="action === 'login' ? 6 : 8" class="mt-4">
               <b-form-input
                 class="inputs bg-light form-control-lg"
                 v-model="userInfo.email"
                 type="email"
-                v-if="action === 'signup'"
                 required
-                placeholder="email"
-              ></b-form-input>
-          </b-col>
-        </b-row>
-        <b-row align-h="center">
-          <b-col cols="6">
-              <b-form-input
-                class="inputs bg-light form-control-lg"
-                v-model="userInfo.email"
-                type="email"
-                v-if="action === 'login'"
-                required
-                placeholder="email"
+                placeholder="Email ID"
               ></b-form-input>
           </b-col>
         </b-row>
         <b-row align-h="center" >
-          <b-col cols="6 mt-4">
+          <b-col :cols="action === 'login' ? 6 : 4" class="mt-4">
               <b-form-input
                 class="inputs bg-light form-control-lg"
                 v-model="userInfo.password"
-                v-if="action === 'login'"
-                required
-                placeholder="Passwordw"
-              ></b-form-input>
-          </b-col>
-        </b-row>
-        <b-row align-h="center" v-if="action === 'signup'">
-          <b-col cols="4">
-              <b-form-input
-                class="inputs bg-light form-control-lg"
-                v-model="userInfo.password"
-                v-if="action === 'signup'"
                 required
                 placeholder="Password"
               ></b-form-input>
           </b-col>
-          <b-col cols="4">
+          <b-col cols="4" v-if="action === 'signup'">
               <b-form-input
-                class="inputs bg-light form-control-lg"
+                class="inputs bg-light form-control-lg mt-4"
                 v-model="userInfo.re_password"
-                v-if="action === 'signup'"
                 required
                 placeholder="Confirm Password"
               ></b-form-input>
@@ -107,14 +81,7 @@
             <b-form-radio v-model="userInfo.role" name="role_btn"  value="Interviewer" size="md">Interviewer</b-form-radio>
           </b-col>
         </b-row>
-        <b-row class="mt-2" v-if="action === 'login'">
-          <b-col offset-md="5">
-            <b-button class="submit_btn" @click="submitForm" variant="primary">
-              Submit
-            </b-button>
-          </b-col>
-        </b-row>
-        <b-row class="mt-5" v-if="action === 'signup'">
+        <b-row :class="action === 'login' ? 'mt-2' : 'mt-5'">
           <b-col offset-md="5">
             <b-button class="submit_btn" @click="submitForm" variant="primary">
               Submit

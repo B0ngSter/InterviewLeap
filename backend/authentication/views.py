@@ -440,3 +440,16 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class IndustryListView(APIView):
+    """
+       Retrieve -- Retrieve list of Industries.
+       Actions -- GET method
+       Response Status -- 200 Ok
+    """
+
+    def get(self, request, *args, **kwargs):
+        industries = settings.INDUSTRY_CHOICES
+        industries = [industry[0] for industry in industries]
+        return Response({"industries": industries})
+

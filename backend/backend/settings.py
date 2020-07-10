@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 from backend import CONFIG
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_rest_passwordreset',
     'corsheaders',
     'drf_yasg',
     'djoser',
@@ -103,7 +105,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.User'
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    # 'AUTH_HEADER_TYPES': ('JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
 }
 
 
@@ -113,6 +116,13 @@ DJOSER = {
     'EMAIL': {'confirmation': 'authentication.views.ConfirmationEmail'},
 }
 
+DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
+    "CLASS": "django_rest_passwordreset.tokens.RandomNumberTokenGenerator",
+    "OPTIONS": {
+        "min_number": 10000,
+        "max_number": 99999
+    }
+}
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'api_key': {

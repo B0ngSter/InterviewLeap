@@ -45,3 +45,11 @@ $input-padding-x:             1.25rem;  // 20px with the base 16px
 .btn-danger, .btn-info, .btn-success {
   min-width:                160px;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-danger-dark {
+  color: $happy-orange
+}

@@ -55,7 +55,11 @@ export default {
   */
   modules: [
     // Doc: https://bootstrap-vue.js.org
-    'bootstrap-vue/nuxt',
+    [
+      'bootstrap-vue/nuxt', {
+        icons: true,
+      }
+    ],
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
     "@nuxtjs/toast",
@@ -74,7 +78,7 @@ export default {
     position: "bottom-center",
     duration: 5000 // default timeout of 5 seconds
   },
-  
+
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/

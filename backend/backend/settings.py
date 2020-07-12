@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 from backend import CONFIG
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_rest_passwordreset',
     'corsheaders',
     'drf_yasg',
     'djoser',
@@ -103,7 +105,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'authentication.User'
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+    # 'AUTH_HEADER_TYPES': ('JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
 }
 
 
@@ -113,6 +116,13 @@ DJOSER = {
     'EMAIL': {'confirmation': 'authentication.views.ConfirmationEmail'},
 }
 
+DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
+    "CLASS": "django_rest_passwordreset.tokens.RandomNumberTokenGenerator",
+    "OPTIONS": {
+        "min_number": 10000,
+        "max_number": 99999
+    }
+}
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'api_key': {
@@ -123,6 +133,66 @@ SWAGGER_SETTINGS = {
     }
 
 }
+
+
+INDUSTRY_CHOICES = [('Accounting/Taxation', 'Accounting/Taxation'), ('Auditing', 'Auditing'), ('Admin', 'Admin'),
+                    ('Agent', 'Agent'),
+                    ('Airline Reservation/ticketing/travel', 'Airline Reservation/ticketing/travel'),
+                    ('Analytics/Business Intelligence', 'Analytics/Business Intelligence'),
+                    ('Anchoring/TV/Films/Production', 'Anchoring/TV/Films/Production'),
+                    ('Architecture/Interior Design', 'Architecture/Interior Design'),
+                    ('Art Director/Graphic/Web Designer', 'Art Director/Graphic/Web Designer'),
+                    ('Backend Operations', 'Backend Operations'), ('Banking/Insurance', 'Banking/Insurance'),
+                    ('Beauty/Fitness/Spa services', 'Beauty/Fitness/Spa services'),
+                    ('Company secretary (CS)', 'Company secretary (CS)'), ('Computer Operator', 'Computer Operator'),
+                    ('Consulting', 'Consulting'),
+                    ('Content Writer/Editor/Journalist', 'Content Writer/Editor/Journalist'),
+                    ('Corporate Planning/Consulting', 'Corporate Planning/Consulting'),
+                    ('CSR/Sustainability', 'CSR/Sustainability'), ('Customer Service', 'Customer Service'),
+                    ('Database Administrator (DBA)', 'Database Administrator (DBA)'), ('Data entry', 'Data entry'),
+                    ('Digital Marketing/SEM', 'Digital Marketing/SEM'),
+                    ('Engineering Design / R & D', 'Engineering Design / R & D'), ('ERP/CRM', 'ERP/CRM'),
+                    ('Export/Import Merchandising', 'Export/Import Merchandising'),
+                    ('Fashion Designer', 'Fashion Designer'),
+                    ('Fashion/Garments merchandising', 'Fashion/Garments merchandising'), ('Finance', 'Finance'),
+                    ('Fresher', 'Fresher'), ('Hotel/Restaurant Management', 'Hotel/Restaurant Management'),
+                    ('Hotels/Restaurants', 'Hotels/Restaurants'),
+                    ('HR - Payroll/Business Partner/General', 'HR - Payroll/Business Partner/General'),
+                    ('HR - Recruiter', 'HR - Recruiter'),
+                    ('HR/Administration/International Services', 'HR/Administration/International Services'), (
+                        'IT Software - Application Programming/Maintenance',
+                        'IT Software - Application Programming/Maintenance'),
+                    ('IT Software - Client Server', 'IT Software - Client Server'),
+                    ('IT Software - DBA/Data warehousing', 'IT Software - DBA/Data warehousing'), (
+                        'IT Software - Embedded/EDA/VLSI/ASIC/Chip Design',
+                        'IT Software - Embedded/EDA/VLSI/ASIC/Chip Design'),
+                    ('IT/Hardware/telecom/Technical Staff/Support', 'IT/Hardware/telecom/Technical Staff/Support'),
+                    ('ITES/BPO/KPO/Customer Service/Operations', 'ITES/BPO/KPO/Customer Service/Operations'),
+                    ('Language Specialist', 'Language Specialist'), ('Legal', 'Legal'), ('Mainframes', 'Mainframes'),
+                    ('Marketing/Advertising/Market Research', 'Marketing/Advertising/Market Research'),
+                    ('Media Planning', 'Media Planning'), ('Medical Professional/Healthcare practitioner/Technician',
+                                                           'Medical Professional/Healthcare practitioner/Technician'),
+                    ('Middleware', 'Middleware'), ('Mobile', 'Mobile'),
+                    ('Network administration', 'Network administration'), ('Network security', 'Network security'),
+                    ('Other', 'Other'), ('Packaging', 'Packaging'), ('Personal Assistant', 'Personal Assistant'),
+                    ('Pharma/Biotech/Healthcare/Medical/R&D', 'Pharma/Biotech/Healthcare/Medical/R&D'),
+                    ('PR/Corporate Communication', 'PR/Corporate Communication'),
+                    ('Procurement Jobs', 'Procurement Jobs'), ('Product Management', 'Product Management'),
+                    ('Production/Maintenance/Quality', 'Production/Maintenance/Quality'),
+                    ('Program Management', 'Program Management'), ('Project Management', 'Project Management'),
+                    ('Purchase/Logistics/Supply Chain', 'Purchase/Logistics/Supply Chain'),
+                    ('QA/Testing', 'QA/Testing'), ('Quality Control Jobs', 'Quality Control Jobs'),
+                    ('Research & Development (R&D)', 'Research & Development (R&D)'),
+                    ('Sales/BD/Client Servicing', 'Sales/BD/Client Servicing'),
+                    ('Secretary/Front Office', 'Secretary/Front Office'),
+                    ('Software Development', 'Software Development'),
+                    ('Self employed/Consultants', 'Self employed/Consultants'),
+                    ('Service Engineering', 'Service Engineering'), ('Shipping', 'Shipping'),
+                    ('Site engineering', 'Site engineering'), ('System Programming', 'System Programming'),
+                    ('Systems/EDP/MIS', 'Systems/EDP/MIS'), ('Teaching/Education', 'Teaching/Education'),
+                    ('Telecalling', 'Telecalling'), ('Telecom Software', 'Telecom Software'),
+                    ('Ticketing/Travel/Airlines', 'Ticketing/Travel/Airlines'),
+                    ('Web Designer/UI/UX Designer', 'Web Designer/UI/UX Designer')]
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

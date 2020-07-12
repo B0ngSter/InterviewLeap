@@ -1,16 +1,22 @@
-from django.core.mail import EmailMultiAlternatives
+from django.contrib.auth.password_validation import validate_password, get_password_validators
+from django.core.mail import EmailMultiAlternatives, BadHeaderError
+from django.dispatch import receiver
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django_rest_passwordreset.models import get_password_reset_token_expiry_time, ResetPasswordToken
+from django_rest_passwordreset.serializers import PasswordTokenSerializer
 from rest_framework import status
 from django.conf import settings
 from datetime import datetime, timedelta
+from django.utils import timezone
+from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
 from django.utils.translation import ugettext as _
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView, GenericAPIView
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,12 +25,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 import tempfile
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.hashers import make_password
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
 from .serializers import RegistrationSerializer
 from .models import User, CandidateProfile, InterviewerProfile
-
+from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
+from django.views.decorators.csrf import csrf_protect
 # Create your views here.
 from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
     CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer
@@ -90,7 +97,7 @@ class SignupView(CreateAPIView):
                 'email': email
             }
 
-            email_plaintext_message = render_to_string('confirmation_email.html', context)
+            email_plaintext_message = render_to_string('email/confirmation_email.html', context)
             msg = EmailMultiAlternatives(
                 "Welcome to {title}".format(title="Interview Leap!"),
                 "",
@@ -99,12 +106,13 @@ class SignupView(CreateAPIView):
             )
             msg.attach_alternative(email_plaintext_message, 'text/html')
             msg.send()
-        except:
-            raise exceptions.ValidationError
+        except BadHeaderError:
+            message = "Invalid header found."
+            return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
 
 
 class ConfirmationEmail(BaseEmailMessage):
-    template_name = "confirmation_email.html"
+    template_name = "email/confirmation_email.html"
 
     def get_context_data(self, **kwargs):
         frontend_url = settings.FRONTEND_URL
@@ -231,7 +239,7 @@ class GoogleView(APIView):
                     is_profile_completed = False
 
             except ObjectDoesNotExist:
-                interviewer_profile = InterviewerProfile.objects.get(user=user.id).exists()
+                interviewer_profile = InterviewerProfile.objects.filter(user=user.id).exists()
                 if interviewer_profile:
                     token = RefreshToken.for_user(user)  # generate token manually without username & password
                     response['access_token'] = str(token.access_token)
@@ -279,10 +287,88 @@ class GoogleView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+@csrf_protect
+@api_view()
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    try:
+        frontend_url = settings.FRONTEND_URL
+        send_by = settings.DEFAULT_FROM_EMAIL
+        host_link = "{frontend_url}/auth/password-reset/".format(frontend_url=frontend_url)
+
+        context = {
+            'current_user': reset_password_token.user,
+            'name': reset_password_token.user.first_name,
+            'email': reset_password_token.user.email,
+            'reset_password_url': host_link + "?token={token}".format(token=reset_password_token.key)
+
+        }
+        email_plaintext_message = render_to_string('email/reset_password.html', context)
+        msg = EmailMultiAlternatives(
+            "Password Reset for {title}".format(title="Interview Leap"),
+            "",
+            send_by,
+            [reset_password_token.user.email]
+        )
+        msg.attach_alternative(email_plaintext_message, 'text/html')
+        msg.send()
+    except BadHeaderError:
+        message = "Invalid header found."
+        return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
+
+
+class ResetPasswordConfirm(GenericAPIView):
+    """
+        An Api View which provides a method to reset a password based on a unique token
+        Request params -- {
+                          "token": "string",
+                          "password": "string",
+                        }
+        Response Status --  {status: OK}
+        Error Code -- 400 Bad Request
+        Raise error with message
+
+    """
+    throttle_classes = ()
+    permission_classes = ()
+    serializer_class = PasswordTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.validated_data['password']
+        token = serializer.validated_data['token']
+        password_reset_token_validation_time = get_password_reset_token_expiry_time()
+        reset_password_token = ResetPasswordToken.objects.filter(key=token).first()
+        if reset_password_token is None:
+            return Response({'status': 'notfound'}, status=status.HTTP_404_NOT_FOUND)
+        expiry_date = reset_password_token.created_at + timedelta(hours=password_reset_token_validation_time)
+        if timezone.now() > expiry_date:
+            reset_password_token.delete()
+            return Response({'status': 'expired'}, status=status.HTTP_404_NOT_FOUND)
+        if reset_password_token.user.eligible_for_reset():
+            pre_password_reset.send(sender=self.__class__, user=reset_password_token.user)
+            try:
+                validate_password(
+                    password,
+                    user=reset_password_token.user,
+                    password_validators=get_password_validators(settings.AUTH_PASSWORD_VALIDATORS)
+                )
+            except ValidationError as e:
+                raise exceptions.ValidationError({
+                    'message': " ,".join(e.messages)
+                })
+            reset_password_token.user.set_password(password)
+            reset_password_token.user.save()
+            post_password_reset.send(sender=self.__class__, user=reset_password_token.user)
+        ResetPasswordToken.objects.filter(user=reset_password_token.user).delete()
+        return Response({'status': 'OK'})
+
+
 class CandidateProfileCreateListView(ListCreateAPIView):
     """
             CandidateProfile   -- Authenticated user can create profile!
-            actions -- POST -- Profile Creation(Candidate)
+            actions -- POST -- Profile Creation/Updation(Candidate), If profile exists it updates the profile.
             Request params -- {
                                   "education": "string",
                                   "college": "string"
@@ -299,7 +385,6 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 
             """
     serializer_class = CandidateProfileCreateListSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         candidates = CandidateProfile.objects.all()
@@ -307,8 +392,9 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
+        profile_data['user'] = request.user.id
         profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=profile_data)
+        serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -321,7 +407,7 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 class InterviewerProfileCreateListView(ListCreateAPIView):
     """
                 InterviewerProfile   -- Authenticated user can create profile!
-                actions -- POST -- Profile Creation(Interviewer)
+                actions -- POST -- Profile Creation/Updation(Interviewer), If profile exists it updates the profile.
                 Request params -- {
                                       "industry": "string",
                                       "designation": "string"
@@ -338,7 +424,6 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
                 """
     serializer_class = InterviewerProfileCreateListSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         interviewers = InterviewerProfile.objects.all()
@@ -346,8 +431,9 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
+        profile_data['user'] = request.user.id
         profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=profile_data)
+        serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -379,7 +465,6 @@ class CandidateProfileDetailView(RetrieveUpdateAPIView):
 
     lookup_field = 'pk'
     serializer_class = CandidateProfileDetailSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         candidate = CandidateProfile.objects.all()
@@ -422,7 +507,6 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
 
     lookup_field = 'pk'
     serializer_class = InterviewerProfileDetailSerializer
-    permission_classes = [AllowAny]
 
     def get_queryset(self):
         interviewer = InterviewerProfile.objects.all()
@@ -441,4 +525,17 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IndustryListView(APIView):
+    """
+       Retrieve -- Retrieve list of Industries.
+       Actions -- GET method
+       Response Status -- 200 Ok
+    """
+
+    def get(self, request, *args, **kwargs):
+        industries = settings.INDUSTRY_CHOICES
+        industries = [industry[0] for industry in industries]
+        return Response({"industries": industries})
 

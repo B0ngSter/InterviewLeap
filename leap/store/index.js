@@ -1,46 +1,36 @@
-const cookieparser = require('cookieparser')
 const Cookie = process.client ? require('js-cookie') : undefined
 
 export const state = () => {
   return {
-    auth: null,
+    access_token: null,
     is_authenticated: false,
-    role: 'candidate',
+    role: null,
     full_name: null,
-    is_profile_completed: null,
-    google_login: false,
-    is_candidate: null,
-    is_interviewer: null
+    is_profile_completed: null
   }
 }
 export const mutations = {
-  setAuth (state, auth) {
-    state.auth = auth
-  },
-  start_google_authenticating (state) {
-    state.google_login = true
+  setAuth (state, payload) {
+    state.access_token = payload.access_token
+    state.is_authenticated = payload.is_authenticated
+    state.role = payload.role
+    state.is_profile_completed = payload.is_profile_completed
+    state.full_name = payload.full_name
   },
   end_google_authenticating (state) {
     state.google_login = false
   },
-  login_candidate (state) {
-    state.is_candidate = true
-  },
-  login_interviewer (state) {
-    state.is_interviewer = true
-  },
   profile_status (state) {
     state.is_profile_completed = true
-  },
-  role_for_google_signup (state, googleSignupRole) {
-    googleSignupRole ? state.role = 'candidate' : state.role = 'interviewer'
   }
 }
 export const actions = {
   signup (context, signupArgs) {
-    this.$axios.post('/auth/signup', signupArgs.payload)
+    this.$axios.post('/auth/signup', signupArgs)
       .then((response) => {
-        signupArgs.callback()
+        context.dispatch('set_auth_cookie', response.data.access_token)
+        context.dispatch('set_meta_data_cookie', response.data.meta_data)
+        this.$router.push('/auth/email-sent')
       })
       .catch((errorResponse) => {
         this.$toast.error(
@@ -62,18 +52,17 @@ export const actions = {
         console.log(response)
         if (response.status === 200) {
           const auth = {
-            accessToken: response.data.access
+            access_token: response.data.access_token,
+            is_authenticated: true,
+            role: response.data.meta_data.role,
+            is_profile_completed: response.data.meta_data.is_profile_completed,
+            full_name: response.data.meta_data.full_name
           }
-          debugger
-          if (response.data.meta_data.role === 'candidate') {
-            context.commit('login_candidate')
-          } else if (response.data.meta_data.role === 'interviewer') {
-            context.commit('login_interviewer')
-          }
+          context.commit('set_role', response.data.meta_data.role)
           if (response.data.meta_data.is_profile_completed) {
             context.commit('profile_status')
           }
-          debugger
+          this.$router.push('/auth/email-sent')
           context.dispatch('post_login_routing')
           this.$store.commit('setAuth', auth)
           Cookie.set('auth', auth)
@@ -96,34 +85,22 @@ export const actions = {
   post_login_routing (context) {
     let nextRoute = ''
     if (context.getters.is_candidate) {
-      nextRoute = '/Dashboard/'
+      nextRoute = '/dashboard/'
     } else if (context.getters.is_interviewer) {
       nextRoute = '/kuch or'
     }
     this.$router.push(nextRoute)
   },
-  nuxtServerInit ({ commit }, { req }) {
-    let auth = null
-    debugger
-    if (req.headers.cookie) {
-      const parsed = cookieparser.parse(req.headers.cookie)
-      try {
-        auth = JSON.parse(parsed.auth)
-      } catch (err) {
-        // No valid cookie found
-      }
-    }
-    commit('setAuth', auth)
-  },
-  google_auth (context, IDToken) {
-    context.commit('start_google_authenticating')
-    this.$axios.post('/auth/google-signin', { id_token: IDToken })
+  google_auth (context, payload) {
+    this.$axios.post('/auth/google-signin', payload)
       .then((response) => {
+        console.log(response)
         if (response.status === 200) {
+          this.$router.push('/auth/google_login')
           if (response.data.access_token) {
             context.dispatch('set_auth_cookie', response.data.access_token)
             context.dispatch('set_meta_data_cookie', response.data.meta_data)
-            context.dispatch('post_login_routing')
+            // context.dispatch('post_login_routing')
           }
         } else {
           this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
@@ -164,6 +141,33 @@ export const actions = {
       path: '/',
       maxAge: 60 * 60 * 24 * 7
     })
+    context.commit('update_meta_data_from_cookie')
+  },
+  update_meta_data_from_cookie (state) {
+    let metaData = this.$cookies.get('meta_data')
+    try {
+      if (!metaData) {
+        throw new Error('Token not found')
+      }
+      if (typeof metaData === 'string') {
+        metaData = JSON.parse(metaData)
+      }
+      state.role = metaData.role
+      state.is_profile_completed = metaData.is_profile_completed
+    } catch (err) {
+      state.role = null
+      state.is_profile_complete = null
+    }
+    const token = this.$cookies.get('auth_token')
+    state.is_authenticated = !!token
+    if (state.is_authenticated) {
+      this.$axios.setToken(token, 'Bearerw')
+    } else {
+      this.$axios.setToken(null)
+    }
+  },
+  set_industry_choices (state, industriesData) {
+    state.industry_choices = industriesData
   }
 }
 export const getters = {

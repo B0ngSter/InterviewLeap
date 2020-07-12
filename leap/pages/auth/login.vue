@@ -1,6 +1,10 @@
 <template>
-  <b-container>
-    <auth :submitForm="loginUser" login="true" />
+  <b-container class="Container">
+    <b-row align-v="center">
+      <auth
+        action="login"
+      />
+    </b-row>
   </b-container>
 </template>
 
@@ -8,7 +12,7 @@
 import auth from '~/components/auth'
 
 export default {
-  middleware: 'notAuthenticated',
+  layout: 'auth',
   data () {
     return {
     }
@@ -25,3 +29,8 @@ export default {
   }
 }
 </script>
+<style>
+.Container {
+  margin-top: 10vh;
+}
+</style>

@@ -83,7 +83,7 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        candidate = CandidateProfile.objects.create(**validated_data)
+        candidate, created = CandidateProfile.objects.get_or_create(user=self.context['request'].user)
         candidate.skills.set(skill_obj)
         candidate.save()
         return candidate
@@ -99,7 +99,7 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        interviewer = InterviewerProfile.objects.create(**validated_data)
+        interviewer, created = InterviewerProfile.objects.get_or_create(user=self.context['request'].user)
         interviewer.skills.set(skill_obj)
         interviewer.save()
         return interviewer

@@ -487,23 +487,21 @@ class CandidateProfileDetailView(RetrieveUpdateAPIView):
 
 class InterviewerProfileDetailView(RetrieveUpdateAPIView):
     """
-                   InterviewerProfile   -- Authenticated user can GET Interveiwer profile details!
-                   actions -- GET -- Profile Details(Interviewer)
-                   Response params -- {
-                                      "industry": "string",
-                                      "designation": "string"
-                                      "company": "string"
-                                      "exp_years": "integer"
-                                      "resume": "file field"
-                                      "linkedin": "valid url in string"
-                                      "skills": "comma separated values in string"
-
-                                    }
-                   Response Status -- 200 Ok along with interveiwerprofile details
-                   Error Code -- 400 Bad Request
-                   Error message -- Raise proper error messages
-
-                   """
+    InterviewerProfile   -- Authenticated user can GET Interveiwer profile details!
+    actions -- GET -- Profile Details(Interviewer)
+    Response params -- {
+        "industry": "string",
+        "designation": "string"
+        "company": "string"
+        "exp_years": "integer"
+        "resume": "file field"
+        "linkedin": "valid url in string"
+        "skills": "comma separated values in string"
+    }
+    Response Status -- 200 Ok along with interveiwerprofile details
+    Error Code -- 400 Bad Request
+    Error message -- Raise proper error messages
+    """
 
     lookup_field = 'pk'
     serializer_class = InterviewerProfileDetailSerializer

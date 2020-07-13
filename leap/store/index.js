@@ -62,7 +62,7 @@ export const actions = {
           if (response.data.meta_data.is_profile_completed) {
             context.commit('profile_status')
           }
-          this.$router.push('/')
+          this.$router.push('/auth/email-sent')
           context.dispatch('post_login_routing')
           this.$store.commit('setAuth', auth)
           Cookie.set('auth', auth)
@@ -96,12 +96,12 @@ export const actions = {
       .then((response) => {
         console.log(response)
         if (response.status === 200) {
+          this.$router.push('/auth/google_login')
           if (response.data.access_token) {
             context.dispatch('set_auth_cookie', response.data.access_token)
             context.dispatch('set_meta_data_cookie', response.data.meta_data)
             // context.dispatch('post_login_routing')
           }
-          this.$router.push('/auth/email-sent')
         } else {
           this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
             action: {

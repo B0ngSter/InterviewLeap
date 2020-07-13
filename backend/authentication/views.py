@@ -480,23 +480,21 @@ class CandidateProfileDetailView(RetrieveUpdateAPIView):
 
 class InterviewerProfileDetailView(RetrieveUpdateAPIView):
     """
-                   InterviewerProfile   -- Authenticated user can GET Interveiwer profile details!
-                   actions -- GET -- Profile Details(Interviewer)
-                   Response params -- {
-                                      "industry": "string",
-                                      "designation": "string"
-                                      "company": "string"
-                                      "exp_years": "integer"
-                                      "resume": "file field"
-                                      "linkedin": "valid url in string"
-                                      "skills": "comma separated values in string"
-
-                                    }
-                   Response Status -- 200 Ok along with interveiwerprofile details
-                   Error Code -- 400 Bad Request
-                   Error message -- Raise proper error messages
-
-                   """
+    InterviewerProfile   -- Authenticated user can GET Interveiwer profile details!
+    actions -- GET -- Profile Details(Interviewer)
+    Response params -- {
+        "industry": "string",
+        "designation": "string"
+        "company": "string"
+        "exp_years": "integer"
+        "resume": "file field"
+        "linkedin": "valid url in string"
+        "skills": "comma separated values in string"
+    }
+    Response Status -- 200 Ok along with interveiwerprofile details
+    Error Code -- 400 Bad Request
+    Error message -- Raise proper error messages
+    """
 
     lookup_field = 'pk'
     serializer_class = InterviewerProfileDetailSerializer
@@ -518,4 +516,17 @@ class InterviewerProfileDetailView(RetrieveUpdateAPIView):
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IndustryListView(APIView):
+    """
+       Retrieve -- Retrieve list of Industries.
+       Actions -- GET method
+       Response Status -- 200 Ok
+    """
+
+    def get(self, request, *args, **kwargs):
+        industries = settings.INDUSTRY_CHOICES
+        industries = [industry[0] for industry in industries]
+        return Response({"industries": industries})
 

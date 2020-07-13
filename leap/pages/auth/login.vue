@@ -12,7 +12,6 @@
 import auth from '~/components/auth'
 
 export default {
-  middleware: 'notAuthenticated',
   layout: 'auth',
   data () {
     return {

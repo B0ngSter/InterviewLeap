@@ -56,6 +56,7 @@ export default {
   data: () => {
     return {
       selected_role: false,
+      check: null,
       googleSignInParams: {
         client_id: '792788771362-cundr764n1vlps2nqd63mtdmcqr9fii5.apps.googleusercontent.com'
       },
@@ -68,6 +69,11 @@ export default {
       this.show = true
       const authResponse = googleUser.getAuthResponse()
       this.auth_token = authResponse.id_token
+      if (this.isLogin === 'login') {
+        this.$store.dispatch('google_auth', {
+          id_token: this.auth_token
+        })
+      }
     },
     continue_with_role () {
       this.show = false

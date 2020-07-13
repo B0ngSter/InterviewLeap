@@ -255,6 +255,16 @@ FRONTEND_URL = CONFIG.FRONTEND_URL
 PROFILE_PICTURE = 'profile_picture'
 RESUME_STORE = 'resumes'
 
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_ACCESS_KEY_ID = CONFIG.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = CONFIG.AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = CONFIG.AWS_STORAGE_BUCKET_NAME
+AWS_DEFAULT_ACL = None
+
+
+AWS_S3_CUSTOM_DOMAIN = 's3.ap-south-1.amazonaws.com/' + AWS_STORAGE_BUCKET_NAME
+MEDIA_URL = 'https://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/' + 'media/'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -263,4 +273,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'

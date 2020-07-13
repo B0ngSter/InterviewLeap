@@ -5,6 +5,8 @@ from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from backend.storage_backends import PrivateMediaStorage
+
 phone_regex = RegexValidator(
     regex=r'^\+?1?\d{9,15}$',
     message="Phone number must be entered in the format: '+999999999'. \
@@ -96,9 +98,11 @@ class CandidateProfile(models.Model):
     college = models.CharField(max_length=128, null=True, blank=True)
     year_of_passing = models.CharField(max_length=54, null=True, blank=True)
     job_title = models.CharField(max_length=256)
-    resume = models.FileField(upload_to=settings.RESUME_STORE)
+    resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     skills = models.ManyToManyField(to=Skill)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 
 class InterviewerProfile(models.Model):
@@ -108,8 +112,10 @@ class InterviewerProfile(models.Model):
     company = models.CharField(max_length=256, null=True, blank=True)
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])
-    resume = models.FileField(upload_to=settings.RESUME_STORE)
+    resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     skills = models.ManyToManyField(to=Skill)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 

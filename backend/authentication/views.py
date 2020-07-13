@@ -393,7 +393,8 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
-        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
@@ -432,7 +433,8 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
-        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()

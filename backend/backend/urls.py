@@ -20,6 +20,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from authentication import urls as auth_urls
+from authentication.views import IndustryListView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -41,4 +42,6 @@ urlpatterns = [
 urlpatterns += [
     path('admin/', admin.site.urls),
     path('auth/', include(auth_urls)),
+    path('industries/', IndustryListView.as_view()),
+
 ]

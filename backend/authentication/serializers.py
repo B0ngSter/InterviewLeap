@@ -35,7 +35,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
                               user=user,
                               password_validators=get_password_validators(settings.AUTH_PASSWORD_VALIDATORS))
         except exceptions.ValidationError as e:
-            errors['message'] = " ,".join(e.messages)
+            errors['message'] = ", ".join(e.messages)
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -57,10 +57,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 # class SkillReadSerializer(serializers.ModelSerializer):
 #     title = serializers.SerializerMethodField()
-# 
+#
 #     def get_title(self, obj):
 #         return obj.title
-# 
+#
 #     class Meta:
 #         model = Skill
 #         fields = ['title']

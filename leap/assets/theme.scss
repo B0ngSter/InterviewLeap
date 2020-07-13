@@ -18,6 +18,9 @@ $dark:                        $smart-dark;
 $font-family-base:            "aktiv-grotesk",sans-serif;
 $btn-padding-y:               1.375rem;
 $btn-padding-x:               3rem;
+$container-max-widths:        ( sm: 540px, md: 720px, lg: 960px, xl: 1088px );
+$input-padding-y:             1.25rem;  // 20px with the base 16px
+$input-padding-x:             1.25rem;  // 20px with the base 16px
 
 // Bootstrap and its default variables
 @import '../node_modules/bootstrap/scss/bootstrap';
@@ -41,4 +44,12 @@ $btn-padding-x:               3rem;
 }
 .btn-danger, .btn-info, .btn-success {
   min-width:                160px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-danger-dark {
+  color: $happy-orange
 }

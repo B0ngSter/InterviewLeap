@@ -24,3 +24,8 @@ EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'Anil from Equiv.in<anil@equiv.in>'
 HELLO_RECIPIENTS = 'anil@equiv.in'
 
+
+AWS_ACCESS_KEY_ID = 'AKIAT7YG4LQXU7BTMN5L'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'staging-media.interviewleap.com'
+AWS_DEFAULT_ACL = None

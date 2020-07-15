@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core import exceptions
-from .models import User
+from .models import User, Interview
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
 
@@ -137,3 +137,11 @@ class InterviewerProfileDetailSerializer(serializers.ModelSerializer):
         instance.skills.set(skill_obj)
         instance.save()
         return instance
+
+
+class InterviewCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Interview
+        fields = ['interviewer', 'job_title', 'exp_years', 'date', 'time_slots']
+

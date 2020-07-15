@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.postgres.fields import ArrayField, JSONField
 
 from backend.storage_backends import PrivateMediaStorage
 
@@ -118,4 +119,14 @@ class InterviewerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+
+class Interview(models.Model):
+    interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
+    job_title = models.CharField(max_length=256, null=True, blank=True)
+    exp_years = models.IntegerField(null=True, blank=True, validators=[
+        MinValueValidator(0, message='Enter a whole number')])
+    date = models.DateField()
+    time_slots = ArrayField(JSONField())
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 

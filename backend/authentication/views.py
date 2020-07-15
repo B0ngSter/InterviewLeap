@@ -34,7 +34,7 @@ from django_rest_passwordreset.signals import reset_password_token_created, pre_
 from django.views.decorators.csrf import csrf_protect
 # Create your views here.
 from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
-    CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer
+    CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer, InterviewCreateSerializer
 
 
 def generate_token(user):
@@ -531,4 +531,46 @@ class IndustryListView(APIView):
         industries = settings.INDUSTRY_CHOICES
         industries = [industry[0] for industry in industries]
         return Response({"industries": industries})
+
+
+class InterviewCreateView(CreateAPIView):
+    """
+        InterviewCreationDetails   -- Authenticated Interviewer can Post Interveiw details!
+        actions -- Post -- Interview Details(Interviewer)
+        Request params -- {
+                    "job_title": "software engineer", (string)
+                    "exp_years": 2, (integer)
+                    "date": "2020-06-21", (string)
+                    "time_slots": [
+                        {
+                            "start_time": "10:00",
+                            "end_time": "11:00"
+                        },
+                        {
+                            "start_time": "11:00",
+                            "end_time": "12:00"
+                        }
+                    ] (array with json field)
+                }
+        Response Status -- 200 Ok along with interveiwe details
+        Error Code -- 400 Bad Request
+        Error message -- Raise proper error messages
+        """
+
+    serializer_class = InterviewCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        interview_dict = request.data.dict()
+        interview_dict['interviewer'] = request.user.id
+        interview_dict['time_slots'] = json.loads(interview_dict['time_slots'])
+        serializer = self.get_serializer(data=interview_dict)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
 

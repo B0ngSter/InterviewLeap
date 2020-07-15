@@ -230,23 +230,15 @@ class GoogleView(APIView):
             try:
                 candidate_profile = CandidateProfile.objects.get(user=user.id).exists()
                 if candidate_profile:
-                    token = RefreshToken.for_user(user)  # generate token manually without username & password
-                    response['access_token'] = str(token.access_token)
                     is_profile_completed = True
                 else:
-                    token = generate_token(user)
-                    response["verification_token"] = token
                     is_profile_completed = False
 
             except ObjectDoesNotExist:
                 interviewer_profile = InterviewerProfile.objects.filter(user=user.id).exists()
                 if interviewer_profile:
-                    token = RefreshToken.for_user(user)  # generate token manually without username & password
-                    response['access_token'] = str(token.access_token)
                     is_profile_completed = True
                 else:
-                    token = generate_token(user)
-                    response["verification_token"] = token
                     is_profile_completed = False
         except ObjectDoesNotExist:
             user = User()
@@ -273,8 +265,9 @@ class GoogleView(APIView):
             user.is_active = True
             user.save()
             is_profile_completed = False
-            token = generate_token(user)
-            response["verification_token"] = token
+
+        token = generate_token(user)
+        response["access_token"] = token
 
         meta_data = \
             {
@@ -393,7 +386,8 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
-        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
@@ -432,7 +426,8 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
-        profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
+        if 'skills' in profile_data:
+            profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()

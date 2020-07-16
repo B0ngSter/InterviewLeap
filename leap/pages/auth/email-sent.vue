@@ -1,14 +1,15 @@
 <template>
-<b-container>
+  <b-container>
     <b-form id="auth_form">
       <b-row>
-        <p>We sent you an Email
-            <br>
-            Please verify
+        <p>
+          We sent you an Email
+          <br>
+          Please verify
         </p>
       </b-row>
     </b-form>
-</b-container>
+  </b-container>
 </template>
 
 <script>

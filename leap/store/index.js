@@ -1,35 +1,36 @@
-const Cookie = process.client ? require('js-cookie') : undefined
-
 export const state = () => {
   return {
     access_token: null,
     is_authenticated: false,
     role: null,
     full_name: null,
-    is_profile_completed: null
+    is_profile_completed: null,
+    is_candidate: null,
+    is_interviewer: null
   }
 }
 export const mutations = {
-  setAuth (state, payload) {
-    state.access_token = payload.access_token
-    state.is_authenticated = payload.is_authenticated
-    state.role = payload.role
-    state.is_profile_completed = payload.is_profile_completed
-    state.full_name = payload.full_name
-  },
-  end_google_authenticating (state) {
-    state.google_login = false
-  },
   profile_status (state) {
     state.is_profile_completed = true
+  },
+  authantication_status (state) {
+    state.is_authenticated = true
+  },
+  role_is_interviewer (state) {
+    state.is_interviewer = true
+  },
+  role_is_candidate (state) {
+    state.is_candidate = true
+  },
+  logged_out (state) {
+    state.is_interviewer = null
+    state.is_candidate = null
   }
 }
 export const actions = {
   signup (context, signupArgs) {
     this.$axios.post('/auth/signup', signupArgs)
       .then((response) => {
-        context.dispatch('set_auth_cookie', response.data.access_token)
-        context.dispatch('set_meta_data_cookie', response.data.meta_data)
         this.$router.push('/auth/email-sent')
       })
       .catch((errorResponse) => {
@@ -49,23 +50,19 @@ export const actions = {
   login (context, payload) {
     this.$axios.post('/auth/login', payload)
       .then((response) => {
-        console.log(response)
         if (response.status === 200) {
-          const auth = {
-            access_token: response.data.access_token,
-            is_authenticated: true,
-            role: response.data.meta_data.role,
-            is_profile_completed: response.data.meta_data.is_profile_completed,
-            full_name: response.data.meta_data.full_name
-          }
-          context.commit('set_role', response.data.meta_data.role)
+          context.dispatch('set_auth_cookie', response.data.access)
+          context.dispatch('set_meta_data_cookie', response.data.meta_data)
+          context.commit('authantication_status')
           if (response.data.meta_data.is_profile_completed) {
             context.commit('profile_status')
           }
-          this.$router.push('/auth/email-sent')
+          if (response.data.meta_data.role === 'Interviewer') {
+            context.commit('role_is_interviewer')
+          } else if (response.data.meta_data.role === 'candidate') {
+            context.commit('role_is_candidate')
+          }
           context.dispatch('post_login_routing')
-          this.$store.commit('setAuth', auth)
-          Cookie.set('auth', auth)
         }
       })
       .catch((errorResponse) => {
@@ -84,23 +81,24 @@ export const actions = {
   },
   post_login_routing (context) {
     let nextRoute = ''
-    if (context.getters.is_candidate) {
-      nextRoute = '/dashboard/'
-    } else if (context.getters.is_interviewer) {
-      nextRoute = '/kuch or'
+    if (!context.getters.is_profile_completed) {
+      nextRoute = '/profile'
     }
     this.$router.push(nextRoute)
   },
   google_auth (context, payload) {
     this.$axios.post('/auth/google-signin', payload)
       .then((response) => {
-        console.log(response)
         if (response.status === 200) {
-          this.$router.push('/auth/google_login')
           if (response.data.access_token) {
             context.dispatch('set_auth_cookie', response.data.access_token)
             context.dispatch('set_meta_data_cookie', response.data.meta_data)
-            // context.dispatch('post_login_routing')
+            if (response.data.meta_data.role === 'Interviewer') {
+              context.commit('role_is_interviewer')
+            } else if (response.data.meta_data.role === 'candidate') {
+              context.commit('role_is_candidate')
+            }
+            context.dispatch('post_login_routing')
           }
         } else {
           this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
@@ -123,12 +121,6 @@ export const actions = {
           }
         })
       })
-      .finally(() => {
-        context.commit('end_google_authenticating')
-      })
-  },
-  role_for_signup (context, role) {
-    context.commit('role_for_google_signup', role)
   },
   set_auth_cookie (context, token) {
     this.$cookies.set('auth_token', token, {
@@ -141,33 +133,47 @@ export const actions = {
       path: '/',
       maxAge: 60 * 60 * 24 * 7
     })
-    context.commit('update_meta_data_from_cookie')
+    context.dispatch('update_meta_data_from_cookie')
   },
-  update_meta_data_from_cookie (state) {
-    let metaData = this.$cookies.get('meta_data')
+  logout (context) {
+    this.$cookies.remove('auth_token')
+    this.$cookies.remove('meta_data')
+    context.dispatch('update_meta_data_from_cookie')
+    context.commit('logged_out')
+    this.$router.push('/')
+    this.$toast.info('You have logged out successfully!', {
+      action: {
+        text: 'Close',
+        onClick: (e, toastObject) => {
+          toastObject.goAway(0)
+        }
+      }
+    })
+  },
+  update_meta_data_from_cookie (context) {
+    let getMetaData = this.$cookies.get('meta_data')
     try {
-      if (!metaData) {
+      if (!getMetaData) {
         throw new Error('Token not found')
       }
-      if (typeof metaData === 'string') {
-        metaData = JSON.parse(metaData)
+      if (typeof getMetaData === 'string') {
+        getMetaData = JSON.parse(getMetaData)
       }
-      state.role = metaData.role
-      state.is_profile_completed = metaData.is_profile_completed
+      state.full_name = getMetaData.full_name
+      state.role = getMetaData.role
+      state.is_profile_completed = getMetaData.is_profile_completed
     } catch (err) {
+      state.full_name = null
       state.role = null
-      state.is_profile_complete = null
+      state.is_profile_completed = null
     }
     const token = this.$cookies.get('auth_token')
     state.is_authenticated = !!token
     if (state.is_authenticated) {
-      this.$axios.setToken(token, 'Bearerw')
+      this.$axios.setToken(token, 'Bearer')
     } else {
       this.$axios.setToken(null)
     }
-  },
-  set_industry_choices (state, industriesData) {
-    state.industry_choices = industriesData
   }
 }
 export const getters = {

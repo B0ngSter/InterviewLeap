@@ -1,47 +1,59 @@
 <template>
   <div>
-    <p>
-      <g-signin-button
-        :params="googleSignInParams"
-        @success="onSignInSuccess"
-        @error="onSignInError"
+    <g-signin-button
+      :params="googleSignInParams"
+      @success="onSignInSuccess"
+      @error="onSignInError"
+    >
+      <b-button
+        class="btn_top"
+        :loading="$store.state.google_login"
+        block
+        outlined
+        large
       >
-        <b-button
-          class="btn_top"
-          :loading="$store.state.google_login"
-          block
-          outlined
-          large
-        >
         <span class="text-secondary">Continue with</span><img class="ml-3" src="@/static/logos/google.svg" alt="">
-        </b-button>
-      </g-signin-button>
-      <b-modal v-if="isLogin === 'signup'" v-model="show" id="modal-sm" size="sm" title="How you wants to login">
-        <b-container>
-          <b-row>
-            <b-col>
-              <b-form-radio v-model="selected_role"  name="role_btn" value="Candidate" size="md">Candidate</b-form-radio>
-            </b-col>
-            <b-col>
-              <b-form-radio v-model="selected_role" name="role_btn"  value="Interviewer" size="md">Interviewer</b-form-radio>
-            </b-col>
-          </b-row>
-        </b-container>
-        <template v-slot:modal-footer>
-          <div class="text-center">
-            <div class="w-100">
-              <b-button
-                variant="primary"
-                size="sm"
-                @click="continue_with_role"
-              >
-                Continue
-              </b-button>
-            </div>
-          </div>
-      </template>
-      </b-modal>
-    </p>
+      </b-button>
+    </g-signin-button>
+    <b-modal
+      v-if="isLogin === 'signup'"
+      id="modal-center"
+      v-model="show"
+      title-class="font-weight-bold text-center w-100 mt-2"
+      header-class="p-2 border-bottom-0 font-weight-bold"
+      centered
+      title-tag="h3"
+      hide-footer
+      size="xl"
+      title="You are a"
+    >
+      <b-container>
+        <b-row>
+          <b-col>
+            <b-img
+              src="@/static/candidate.svg"
+              alt="Candidate logo"
+              height="308"
+              @click="role_select('Candidate')"
+            />
+            <p class="text-center mt-4 font-weight-bold">
+              Candidate
+            </p>
+          </b-col>
+          <b-col>
+            <b-img
+              src="@/static/interviewer.svg"
+              alt="Candidate logo"
+              height="308"
+              @click="role_select('Interviewer')"
+            />
+            <p class="text-center mt-4 font-weight-bold">
+              Interviewer
+            </p>
+          </b-col>
+        </b-row>
+      </b-container>
+    </b-modal>
   </div>
 </template>
 
@@ -52,7 +64,12 @@ import GSignInButton from 'vue-google-signin-button'
 Vue.use(GSignInButton)
 
 export default {
-  props: ['isLogin'],
+  props: {
+    isLogin: {
+      type: String,
+      required: true
+    }
+  },
   data: () => {
     return {
       selected_role: false,
@@ -75,7 +92,8 @@ export default {
         })
       }
     },
-    continue_with_role () {
+    role_select (value) {
+      this.selected_role = value
       this.show = false
       this.$store.dispatch('google_auth', {
         id_token: this.auth_token,

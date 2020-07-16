@@ -1,5 +1,5 @@
 <template>
-  <b-container class="Container">
+  <b-container>
     <b-row align-v="center">
       <auth
         action="login"
@@ -13,24 +13,10 @@ import auth from '~/components/auth'
 
 export default {
   layout: 'auth',
-  data () {
-    return {
-    }
-  },
   components: {
     auth
-  },
-  methods: {
-    loginUser (loginInfo) {
-      const payload = { ...loginInfo }
-      delete payload.role
-      this.$store.dispatch('login', payload)
-    }
   }
 }
 </script>
 <style>
-.Container {
-  margin-top: 10vh;
-}
 </style>

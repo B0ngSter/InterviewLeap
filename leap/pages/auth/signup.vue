@@ -1,5 +1,5 @@
 <template>
-  <b-container class="Container">
+  <b-container>
     <b-row align-v="center">
       <auth
         action="signup"
@@ -18,7 +18,4 @@ export default {
 }
 </script>
 <style>
-.Container {
-  margin-top: 10vh;
-}
 </style>

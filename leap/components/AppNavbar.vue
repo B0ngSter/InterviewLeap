@@ -3,7 +3,7 @@
     <b-navbar-brand to="/">
       <Logo />
     </b-navbar-brand>
-    <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+    <b-navbar-toggle target="nav-collapse" />
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
         <b-nav-item
@@ -29,8 +29,12 @@
               class="ml-3"
             />
           </template>
-          <b-dropdown-item to="/profile" active-class="active">Profile</b-dropdown-item>
-          <b-dropdown-item>Logout</b-dropdown-item>
+          <b-dropdown-item to="/profile" active-class="active">
+            Profile
+          </b-dropdown-item>
+          <b-dropdown-item @click="$store.dispatch('logout')">
+            Logout
+          </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>

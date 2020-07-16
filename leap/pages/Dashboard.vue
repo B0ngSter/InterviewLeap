@@ -1,12 +1,13 @@
 <template>
-<b-container>
+  <b-container>
     <b-form id="auth_form">
       <b-row>
-        <p>Dashboard
+        <p>
+          Dashboard
         </p>
       </b-row>
     </b-form>
-</b-container>
+  </b-container>
 </template>
 
 <script>

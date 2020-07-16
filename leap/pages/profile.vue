@@ -1,238 +1,24 @@
 <template>
-  <b-container class="py-5">
-    <b-row align-v="start" align-content="start" class="flex-grow-1">
-      <b-col cols="12">
-        <p class="float-right text-danger-dark" v-if="!$store.getters.is_profile_completed">
-          *Update your ‘Profile’ before booking
-          Interview for right match and complete evaluation !
-        </p>
-        <h3>Profile</h3>
-      </b-col>
-      <b-col cols="12" class="bg-light py-3">
-        <b-form inline>
-          <b-tabs
-            v-model="current_tab"
-            content-class="py-5 px-4 bg-white"
-            class="flex-grow-1 font-weight-bold"
-            nav-class="border-0 form_container"
-            active-nav-item-class="text-primary"
-            fill
-          >
-            <b-tab title="Personal Details" active title-link-class="border-0">
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="first_name">First Name</label>
-                <b-input
-                  id="first_name"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="First Name"
-                ></b-input>
-                <label class="sr-only" for="last_name">Last Name</label>
-                <b-input
-                  id="last_name"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Last Name"
-                ></b-input>
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="email">Email</label>
-                <b-input
-                  id="email"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Email"
-                  type="email"
-                ></b-input>
-                <label class="sr-only" for="mobile">Mobile Number</label>
-                <b-input
-                  id="mobile"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Mobile Number"
-                ></b-input>
-              </div>
-              <div class="text-center">
-                <b-button variant="primary" @click="current_tab=1">
-                  Next
-                </b-button>
-              </div>
-            </b-tab>
-            <b-tab title="Professional Details" title-link-class="border-0">
-              <div class="d-flex justify-content-start flex-column flex-md-row mb-5 ml-0 ml-md-4">
-                <b-form-radio-group
-                  v-model="profile.professional_status"
-                  :options="professional_status_options"
-                  value-field="val"
-                  text-field="name"
-                ></b-form-radio-group>
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="industry">Industry</label>
-                <b-input
-                  list="industry-options"
-                  id="industry"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Industry"
-                  autocomplete="off"
-                ></b-input>
-                <datalist id="industry-options">
-                  <option v-for="(industry, idx) in industry_choices" :key="idx">{{ industry }}</option>
-                </datalist>
-                <label class="sr-only" for="resume">Latest Resume</label>
-                <b-form-file
-                  id="resume"
-                  v-model="profile.resume"
-                  placeholder="Your latest resume"
-                  drop-placeholder="Drop resume here..."
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                ></b-form-file>
-              </div>
-              <div
-                v-if="profile.professional_status === 'Employed'"
-                class="d-flex justify-content-around flex-column flex-md-row mb-5"
-              >
-                <label class="sr-only" for="current_company">Current Company</label>
-                <b-input
-                  id="current_company"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Current Company"
-                ></b-input>
-                <label class="sr-only" for="designation">Designation</label>
-                <b-input
-                  id="designation"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Designation"
-                ></b-input>
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <div v-if="profile.professional_status === 'Employed'" class="mb-2 mb-sm-0 ml-md-4 mr-md-3 d-flex flex-fill">
-                  <label class="sr-only" for="exp">Total Experience</label>
-                  <b-input
-                    id="exp"
-                    class="flex-fill"
-                    placeholder="Total Experience"
-                    type="number"
-                    min="0"
-                  ></b-input>
-                </div>
-                <div class="mb-2 mb-sm-0 ml-md-3 mr-md-4 d-flex flex-fill">
-                  <label class="sr-only" for="linkedin">Linkedin URL</label>
-                  <b-input
-                    id="linkedin"
-                    class="flex-fill"
-                    placeholder="Linkedin URL"
-                  ></b-input>
-                </div>
-              </div>
-              <div class="w-100 mb-5 px-0 px-md-4">
-                <b-input-group>
-                  <b-form-input
-                    v-model="skill_search_query"
-                    placeholder="Core Skills"
-                    :disabled="skills_filled"
-                  ></b-form-input>
-                  <b-input-group-append>
-                    <b-button @click="addSkill" variant="secondary" :disabled="skills_filled">Add</b-button>
-                  </b-input-group-append>
-                </b-input-group>
-                <p class="mt-2 text-muted font-weight-normal">
-                  {{ profile.skills.length }}/5 skills selected
-                </p>
-                <h4>
-                  <b-badge
-                    v-for="(skill, id_s) in profile.skills"
-                    :key="id_s"
-                    size="lg"
-                    variant="light"
-                    class="mb-2 mr-2 border"
-                    pill
-                  >
-                      <span class="d-flex align-items-center">
-                        <span class="mr-2">{{ skill }}</span>
-                        <b-icon-x
-                          @click="removeTag(id_s)"
-                          class="cursor-pointer"
-                        />
-                      </span>
-                  </b-badge>
-                </h4>
-              </div>
-              <div class="text-center">
-                <b-button variant="primary" @click="save_profile">
-                  Save
-                </b-button>
-              </div>
-            </b-tab>
-          </b-tabs>
-        </b-form>
-      </b-col>
-    </b-row>
+  <b-container class="bg-light">
+    <commonProfile />
   </b-container>
 </template>
 
 <script>
+import commonProfile from '~/components/CommonProfile'
+
 export default {
   layout: 'app-page',
-  data () {
+  middleware: ['isauthenticated'],
+  components: {
+    commonProfile
+  },
+  data: () => {
     return {
-      profile: {
-        skills: []
-      },
-      current_tab: 0,
-      industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
-      professional_status_options: [
-        {
-          name: 'I am Employed',
-          val: 'Employed'
-        }, {
-          name: 'I am a Fresher',
-          val: 'Fresher'
-        }
-      ],
-      skill_search_query: ''
     }
-  },
-  computed: {
-    skills_filled () {
-      return this.profile.skills.length >= 5
-    }
-  },
-  methods: {
-    removeTag (skillIndex) {
-      this.profile.skills.splice(skillIndex, 1)
-    },
-    addSkill () {
-      if (!this.profile.skills.includes(this.skill_search_query)) {
-        this.profile.skills.push(this.skill_search_query)
-      }
-      this.skill_search_query = ''
-    },
-    save_profile () {
-      this.$axios.put('/auth/candidate-profile')
-        .then((response) => {})
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
-          )
-        })
-    },
-    fetch_industry_choices () {
-      this.$axios.get('/industries')
-        .then((response) => {
-          this.industry_choices = response.data.industries
-        })
-    }
-  },
-  mounted () {
-    this.fetch_industry_choices()
   }
 }
 </script>
 
 <style>
-  .form_container a.nav-link {
-    color: #555;
-    padding: 20px 0;
-    border-radius: 0;
-  }
-  .custom-file {
-    width: unset;
-  }
 </style>

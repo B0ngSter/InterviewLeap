@@ -1,8 +1,9 @@
 from django.urls import path, include
 from django_rest_passwordreset.views import reset_password_validate_token,\
     reset_password_request_token
-from .views import MyTokenObtainPairView, GoogleView, SignupView, CandidateProfileCreateListView, InterviewerProfileCreateListView, \
-    CandidateProfileDetailView, InterviewerProfileDetailView, IndustryListView, ResetPasswordConfirm
+from .views import MyTokenObtainPairView, GoogleView, SignupView, CandidateProfileCreateListView, \
+    InterviewerProfileCreateListView, CandidateProfileDetailView, InterviewerProfileDetailView, \
+    IndustryListView, ResetPasswordConfirm, InterviewCreateView
 
 urlpatterns = [
     # path('api/', include('djoser.urls')),
@@ -14,6 +15,7 @@ urlpatterns = [
     path('password-reset/confirm/', ResetPasswordConfirm.as_view(), name='reset-password-confirm'),
     path('candidate-profile/', CandidateProfileCreateListView.as_view()),
     path('interviewer-profile/', InterviewerProfileCreateListView.as_view()),
+    path('create-interview/', InterviewCreateView.as_view()),
     # path('candidate-profile/<int:pk>/', CandidateProfileDetailView.as_view()),
     # path('interviewer-profile/<int:pk>/', InterviewerProfileDetailView.as_view())
 ]

@@ -147,8 +147,6 @@ export default {
   data () {
     return {
       userInfo: {
-        email: 'micromini57@gmail.com',
-        password: '12162221N'
       }
     }
   },

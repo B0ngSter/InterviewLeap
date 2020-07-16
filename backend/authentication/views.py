@@ -131,7 +131,7 @@ class ConfirmationEmail(BaseEmailMessage):
         return self.context
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
+class LoginView(TokenObtainPairView):
     """
         Login   -- Authenticated user will login!
         actions -- login

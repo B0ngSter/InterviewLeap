@@ -72,10 +72,10 @@
               />
             </b-col>
           </b-row>
-          <b-row>
-            <b-col offset-md="7">
-              <p v-if="action === 'login'" class="text-danger-dark mt-3">
-                Forgot Password
+          <b-row align-h="center">
+            <b-col :cols="action === 'login' ? 6 : 4">
+              <p v-if="action === 'login'" class="mt-2">
+                <NuxtLink to="/auth/password-reset" class="text-danger-dark">Forgot Password? Click to reset</NuxtLink>
               </p>
             </b-col>
           </b-row>
@@ -94,16 +94,17 @@
           <b-row :class="action === 'login' ? 'mt-2' : 'mt-5'">
             <b-col offset-md="5">
               <b-button class="submit_btn" variant="primary" @click="submitForm">
-                Submit
+                <span v-if="action === 'login'">Login</span>
+                <span v-if="action === 'signup'">SignUp</span>
               </b-button>
             </b-col>
           </b-row>
           <b-row v-if="action === 'signup'">
             <b-col>
               <p class="text-center text-secondary mt-4">
-                Already have an account
+                Already have an account?
                 <NuxtLink to="/auth/login" class="font-weight-bold">
-                  Login
+                  Login here
                 </NuxtLink>
               </p>
             </b-col>
@@ -111,9 +112,9 @@
           <b-row v-if="action === 'login'">
             <b-col>
               <p class="text-center text-secondary mt-4">
-                Don't have an account
+                Don't have an account?
                 <NuxtLink to="/auth/signup" class="font-weight-bold">
-                  SignUp
+                  SignUp here
                 </NuxtLink>
               </p>
             </b-col>

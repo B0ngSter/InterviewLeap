@@ -26,12 +26,14 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="first_name">First Name</label>
                 <b-input
+                  v-model="profile.first_name"
                   id="first_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="First Name"
                 />
                 <label class="sr-only" for="last_name">Last Name</label>
                 <b-input
+                  v-model="profile.last_name"
                   id="last_name"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Last Name"
@@ -40,6 +42,7 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="email">Email</label>
                 <b-input
+                  v-model="profile.email"
                   id="email"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Email"
@@ -47,6 +50,7 @@
                 />
                 <label class="sr-only" for="mobile">Mobile Number</label>
                 <b-input
+                  v-model="profile.mobile"
                   id="mobile"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Mobile Number"
@@ -70,6 +74,7 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="industry">Industry</label>
                 <b-input
+                  v-model="profile.industry"
                   id="industry"
                   list="industry-options"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
@@ -84,7 +89,6 @@
                 <label class="sr-only" for="resume">Latest Resume</label>
                 <b-form-file
                   id="resume"
-                  v-model="profile.resume"
                   placeholder="Your latest resume"
                   drop-placeholder="Drop resume here..."
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
@@ -96,12 +100,14 @@
               >
                 <label class="sr-only" for="current_company">Current Company</label>
                 <b-input
+                  v-model="profile.current_company"
                   id="current_company"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Current Company"
                 />
                 <label class="sr-only" for="designation">Designation</label>
                 <b-input
+                  v-model="profile.designation"
                   id="designation"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Designation"
@@ -111,6 +117,7 @@
                 <div v-if="profile.professional_status === 'Employed' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 ml-md-4 mr-md-3 d-flex flex-fill">
                   <label class="sr-only" for="exp">Total Experience</label>
                   <b-input
+                    v-model="profile.exp"
                     id="exp"
                     class="flex-fill"
                     placeholder="Total Experience"
@@ -121,6 +128,7 @@
                 <div class="mb-2 mb-sm-0 ml-md-3 mr-md-4 d-flex flex-fill">
                   <label class="sr-only" for="linkedin">Linkedin URL</label>
                   <b-input
+                    v-model="profile.linkedin"
                     id="linkedin"
                     class="flex-fill"
                     placeholder="Linkedin URL"
@@ -167,9 +175,12 @@
                   Save
                 </b-button>
               </div>
-              <div v-if="$store.getters.is_interviewer" class="text-center">
-                <b-button variant="primary" @click="current_tab=2">
+              <div class="text-center">
+                <b-button v-if="$store.getters.is_interviewer" variant="primary" @click="current_tab=2">
                   Next
+                </b-button>
+                <b-button v-else-if="$store.getters.is_candidate" variant="primary" @click="save_profile">
+                  Save
                 </b-button>
               </div>
             </b-tab>

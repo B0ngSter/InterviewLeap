@@ -14,6 +14,16 @@
     </b-container>
   </section>
 </template>
+
+<script>
+import Logo from '~/components/Logo'
+export default {
+  components: {
+    Logo
+  }
+}
+</script>
+
 <style scoped>
 .page-content {
   margin-top: 104px;

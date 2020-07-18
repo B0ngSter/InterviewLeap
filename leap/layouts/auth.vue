@@ -23,9 +23,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.page-content {
-  margin-top: 104px;
-}
-</style>

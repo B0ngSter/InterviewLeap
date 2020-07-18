@@ -5,9 +5,9 @@
         <Logo />
       </b-navbar-brand>
     </b-navbar>
-    <b-container fluid="" class="page-content">
-      <b-row no-gutters class="justify-content-center">
-        <b-col cols="12" md="10">
+    <b-container class="page-content">
+      <b-row no-gutters class="justify-content-center flex-fill">
+        <b-col cols="12" class="d-flex align-items-center justify-content-center">
           <Nuxt />
         </b-col>
       </b-row>
@@ -23,3 +23,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.container {
+  margin: 0 auto;
+  min-height: calc(100vh - 84px);
+  display: flex;
+  padding-bottom: 84px;
+}
+</style>

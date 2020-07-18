@@ -1,11 +1,13 @@
 <template>
-  <b-container>
-    <b-row align-v="center">
-      <auth
-        action="login"
-      />
-    </b-row>
-  </b-container>
+  <section class="d-flex flex-fill">
+    <b-container>
+      <b-row align-v="center">
+        <auth
+          action="login"
+        />
+      </b-row>
+    </b-container>
+  </section>
 </template>
 
 <script>

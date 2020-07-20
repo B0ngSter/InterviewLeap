@@ -13,22 +13,32 @@ class RegistrationSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
-    re_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
     token = serializers.CharField(read_only=True)
     role = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'token', 'role', 're_password']
+        fields = ['first_name', 'last_name', 'email', 'password', 'token', 'role', 'confirm_password']
 
     def validate(self, data):
         user = None
         password = data.get('password')
-        re_password = data.get('re_password')
+        confirm_password = data.get('confirm_password')
 
         errors = dict()
 
-        if password != re_password:
+        if not data.get('first_name'):
+            errors['message'] = "Please enter your first name"
+        if not data.get('last_name'):
+            errors['message'] = "Please enter your last name"
+        if not data.get('email'):
+            errors['message'] = "Please enter your email id"
+        if not password:
+            errors['message'] = "Please enter password for signup"
+        if not confirm_password:
+            errors['message'] = "Please enter confirm password"
+        if password != confirm_password:
             errors['message'] = 'Password and confirm password does not match, please type again'
         try:
             validate_password(password=password,

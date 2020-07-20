@@ -51,7 +51,7 @@ class SignupView(CreateAPIView):
         Request params -- {
                               "email": "string",
                               "password": "string",
-                              "re_password": "string",
+                              "confirm_password": "string",
                               "first_name": "string",
                               "last_name": "string",
                               "role": "string"
@@ -76,7 +76,7 @@ class SignupView(CreateAPIView):
             if serializer.errors.get('message'):
                 error_message = serializer.errors.get('message')[0]
             else:
-                error_message = ", ".join([error for error in serializer.errors.keys()])
+                error_message = ", ".join([error.replace('_', ' ') for error in serializer.errors.keys()])
                 error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,7 +108,7 @@ class SignupView(CreateAPIView):
             msg.send()
         except BadHeaderError:
             message = "Invalid header found."
-            return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"message": message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ConfirmationEmail(BaseEmailMessage):

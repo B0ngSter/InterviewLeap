@@ -26,15 +26,15 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="first_name">First Name</label>
                 <b-input
-                  v-model="profile.first_name"
                   id="first_name"
+                  v-model="profile.first_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="First Name"
                 />
                 <label class="sr-only" for="last_name">Last Name</label>
                 <b-input
-                  v-model="profile.last_name"
                   id="last_name"
+                  v-model="profile.last_name"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Last Name"
                 />
@@ -42,16 +42,16 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="email">Email</label>
                 <b-input
-                  v-model="profile.email"
                   id="email"
+                  v-model="profile.email"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Email"
                   type="email"
                 />
                 <label class="sr-only" for="mobile">Mobile Number</label>
                 <b-input
-                  v-model="profile.mobile"
                   id="mobile"
+                  v-model="profile.mobile"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Mobile Number"
                 />
@@ -74,8 +74,8 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="industry">Industry</label>
                 <b-input
-                  v-model="profile.industry"
                   id="industry"
+                  v-model="profile.industry"
                   list="industry-options"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Industry"
@@ -89,6 +89,7 @@
                 <label class="sr-only" for="resume">Latest Resume</label>
                 <b-form-file
                   id="resume"
+                  v-model="profile.resume"
                   placeholder="Your latest resume"
                   drop-placeholder="Drop resume here..."
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
@@ -100,15 +101,15 @@
               >
                 <label class="sr-only" for="current_company">Current Company</label>
                 <b-input
-                  v-model="profile.current_company"
                   id="current_company"
+                  v-model="profile.current_company"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Current Company"
                 />
                 <label class="sr-only" for="designation">Designation</label>
                 <b-input
-                  v-model="profile.designation"
                   id="designation"
+                  v-model="profile.designation"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Designation"
                 />
@@ -117,19 +118,19 @@
                 <div v-if="profile.professional_status === 'Employed' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 ml-md-4 mr-md-3 d-flex flex-fill">
                   <label class="sr-only" for="exp">Total Experience</label>
                   <b-input
-                    v-model="profile.exp"
                     id="exp"
+                    v-model="profile.total_exp"
                     class="flex-fill"
                     placeholder="Total Experience"
                     type="number"
                     min="0"
                   />
                 </div>
-                <div class="mb-2 mb-sm-0 ml-md-3 mr-md-4 d-flex flex-fill">
+                <div class="mb-2 mb-sm-0 ml-md-4 mr-md-4 d-flex flex-fill">
                   <label class="sr-only" for="linkedin">Linkedin URL</label>
                   <b-input
-                    v-model="profile.linkedin"
                     id="linkedin"
+                    v-model="profile.linkedin"
                     class="flex-fill"
                     placeholder="Linkedin URL"
                   />
@@ -175,12 +176,9 @@
                   Save
                 </b-button>
               </div>
-              <div class="text-center">
-                <b-button v-if="$store.getters.is_interviewer" variant="primary" @click="current_tab=2">
+              <div v-if="$store.getters.is_interviewer" class="text-center">
+                <b-button variant="primary" @click="current_tab=2">
                   Next
-                </b-button>
-                <b-button v-else-if="$store.getters.is_candidate" variant="primary" @click="save_profile">
-                  Save
                 </b-button>
               </div>
             </b-tab>
@@ -258,6 +256,7 @@ export default {
   },
   mounted () {
     this.fetch_industry_choices()
+    // this.fetch_profile_data()
   },
   methods: {
     removeTag (skillIndex) {
@@ -270,23 +269,32 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
+      let profileApiURL
       if (this.$store.getters.is_candidate) {
-        this.$axios.put('/auth/candidate-profile')
-          .then((response) => {})
-          .catch((errorResponse) => {
-            this.$toast.error(
-              errorResponse.response.data.message || 'Could not save your profile. Please try again later'
-            )
-          })
+        profileApiURL = '/auth/candidate-profile'
       } else if (this.$store.getters.is_interviewer) {
-        this.$axios.put('/auth/interviewer-profile')
-          .then((response) => {})
-          .catch((errorResponse) => {
-            this.$toast.error(
-              errorResponse.response.data.message || 'Could not save your profile. Please try again later'
-            )
-          })
+        profileApiURL = '/auth/interviewer-profile'
       }
+      this.$axios.post(
+        profileApiURL,
+        this.profile
+      ).then((response) => {
+        if (response.status === 200) {
+          this.$toast.success('Your profile changes were saved', {
+            action: {
+              text: 'Close',
+              onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+              }
+            }
+          })
+        }
+      })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+          )
+        })
     },
     fetch_industry_choices () {
       this.$axios.get('/industries')
@@ -294,6 +302,17 @@ export default {
           this.industry_choices = response.data.industries
         })
     }
+  },
+  fetch_profile_data () {
+    let profileApiURL
+    if (this.$store.getters.is_candidate) {
+      profileApiURL = '/auth/candidate-profile'
+    } else if (this.$store.getters.is_interviewer) {
+      profileApiURL = '/auth/interviewer-profile'
+    }
+    this.$axios.get(profileApiURL).then((response) => {
+      this.profile = response.data.profile
+    })
   }
 }
 </script>

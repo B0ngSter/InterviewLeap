@@ -24,7 +24,7 @@
               <b-form-input
                 v-if="action === 'signup'"
                 v-model="userInfo.first_name"
-                class="inputs bg-light form-control-lg"
+                class="inputs bg-light"
                 type="text"
                 required
                 placeholder="First Name"
@@ -34,7 +34,7 @@
               <b-form-input
                 v-if="action === 'signup'"
                 v-model="userInfo.last_name"
-                class="inputs bg-light form-control-lg"
+                class="inputs bg-light"
                 type="text"
                 required
                 placeholder="Last Name"
@@ -45,7 +45,7 @@
             <b-col :cols="action === 'login' ? 6 : 8" class="mt-4">
               <b-form-input
                 v-model="userInfo.email"
-                class="inputs bg-light form-control-lg"
+                class="inputs bg-light"
                 type="email"
                 required
                 placeholder="Email ID"
@@ -57,16 +57,16 @@
               <b-form-input
                 v-model="userInfo.password"
                 type="password"
-                class="inputs bg-light form-control-lg"
+                class="inputs bg-light"
                 required
                 placeholder="Password"
               />
             </b-col>
             <b-col v-if="action === 'signup'" cols="4">
               <b-form-input
-                v-model="userInfo.re_password"
+                v-model="userInfo.confirm_password"
                 type="password"
-                class="inputs bg-light form-control-lg mt-4"
+                class="inputs bg-light mt-4"
                 required
                 placeholder="Confirm Password"
               />

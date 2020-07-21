@@ -72,37 +72,42 @@
                 />
               </div>
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="industry">Industry</label>
-                <b-input
-                  id="industry"
-                  v-model="profile.industry"
-                  list="industry-options"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Industry"
-                  autocomplete="off"
-                />
-                <datalist id="industry-options">
-                  <option v-for="(industry, idx) in industry_choices" :key="idx">
-                    {{ industry }}
-                  </option>
-                </datalist>
-                <label class="sr-only" for="resume">Latest Resume</label>
-                <b-form-file
-                  id="resume"
-                  v-model="profile.resume"
-                  placeholder="Your latest resume"
-                  drop-placeholder="Drop resume here..."
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                />
+                <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-3 d-flex flex-fill">
+                  <label class="sr-only" for="industry">Industry</label>
+                  <b-input
+                    id="industry"
+                    v-model="profile.industry"
+                    list="industry-options"
+                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
+                    placeholder="Industry"
+                    autocomplete="off"
+                  />
+                  <datalist id="industry-options">
+                    <option v-for="(industry, idx) in industry_choices" :key="idx">
+                      {{ industry }}
+                    </option>
+                  </datalist>
+                </div>
+                <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-4 mr-md-3 d-flex flex-fill">
+                  <label class="sr-only" for="exp_years">Total Experience</label>
+                  <b-input
+                    id="exp_years"
+                    v-model="profile.exp_years"
+                    class="flex-fill"
+                    placeholder="Total Experience"
+                    type="number"
+                    min="0"
+                  />
+                </div>
               </div>
               <div
-                v-if="profile.professional_status === 'Employed' || $store.getters.is_interviewer"
+                v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
                 class="d-flex justify-content-around flex-column flex-md-row mb-5"
               >
-                <label class="sr-only" for="current_company">Current Company</label>
+                <label class="sr-only" for="company">Current Company</label>
                 <b-input
-                  id="current_company"
-                  v-model="profile.current_company"
+                  id="company"
+                  v-model="profile.company"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Current Company"
                 />
@@ -114,19 +119,56 @@
                   placeholder="Designation"
                 />
               </div>
+              <div
+                v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                class="d-flex justify-content-around flex-column flex-md-row mb-5"
+              >
+                <label class="sr-only" for="education">Highest Qualification</label>
+                <b-input
+                  id="education"
+                  v-model="profile.education"
+                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
+                  placeholder="Highest Qualification"
+                />
+                <label class="sr-only" for="college">College / University</label>
+                <b-input
+                  id="college"
+                  v-model="profile.college"
+                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
+                  placeholder="College / University"
+                />
+              </div>
+              <div
+                v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                class="d-flex justify-content-around flex-column flex-md-row mb-5"
+              >
+                <label class="sr-only" for="years_of_passing">Year of passing</label>
+                <b-input
+                  id="years_of_passing"
+                  v-model="profile.years_of_passing"
+                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
+                  placeholder="Year of passing"
+                />
+                <label class="sr-only" for="job_title">Position looking for Eg: Java Developer</label>
+                <b-input
+                  id="job_title"
+                  v-model="profile.job_title"
+                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
+                  placeholder="Position looking for Eg: Java Developer"
+                />
+              </div>
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <div v-if="profile.professional_status === 'Employed' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 ml-md-4 mr-md-3 d-flex flex-fill">
-                  <label class="sr-only" for="exp">Total Experience</label>
-                  <b-input
-                    id="exp"
-                    v-model="profile.total_exp"
-                    class="flex-fill"
-                    placeholder="Total Experience"
-                    type="number"
-                    min="0"
+                <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
+                  <label class="sr-only" for="resume">Latest Resume</label>
+                  <b-form-file
+                    id="resume"
+                    v-model="profile.resume"
+                    placeholder="Your latest resume"
+                    drop-placeholder="Drop resume here..."
+                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   />
                 </div>
-                <div class="mb-2 mb-sm-0 ml-md-4 mr-md-4 d-flex flex-fill">
+                <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
                   <label class="sr-only" for="linkedin">Linkedin URL</label>
                   <b-input
                     id="linkedin"
@@ -233,14 +275,15 @@ export default {
   data () {
     return {
       profile: {
-        skills: []
+        skills: [],
+        resume: null
       },
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
         {
           name: 'I am Employed',
-          val: 'Employed'
+          val: 'Experienced'
         }, {
           name: 'I am a Fresher',
           val: 'Fresher'
@@ -269,15 +312,19 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
+      this.profile.skills = this.profile.skills.toString()
+      const payload = { ...this.profile }
+      const formData = new FormData()
+      Object.keys(payload).map((key) => {
+        formData.append(key, payload[key])
+      })
       let profileApiURL
       if (this.$store.getters.is_candidate) {
-        profileApiURL = '/auth/candidate-profile'
+        profileApiURL = '/auth/candidate-profile/'
       } else if (this.$store.getters.is_interviewer) {
-        profileApiURL = '/auth/interviewer-profile'
+        profileApiURL = '/auth/interviewer-profile/'
       }
-      this.$axios.post(
-        profileApiURL,
-        this.profile
+      this.$axios.post(profileApiURL, formData
       ).then((response) => {
         if (response.status === 200) {
           this.$toast.success('Your profile changes were saved', {
@@ -289,30 +336,31 @@ export default {
             }
           })
         }
+      }).catch((errorResponse) => {
+        this.$toast.error(
+          errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+        )
+      }).finally(() => {
+        this.profile.skills = this.profile.skills.split(',')
       })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
-          )
-        })
     },
     fetch_industry_choices () {
       this.$axios.get('/industries')
         .then((response) => {
           this.industry_choices = response.data.industries
         })
+    },
+    fetch_profile_data () {
+      let profileApiURL
+      if (this.$store.getters.is_candidate) {
+        profileApiURL = '/auth/candidate-profile'
+      } else if (this.$store.getters.is_interviewer) {
+        profileApiURL = '/auth/interviewer-profile'
+      }
+      this.$axios.get(profileApiURL).then((response) => {
+        this.profile = response.data.profile
+      })
     }
-  },
-  fetch_profile_data () {
-    let profileApiURL
-    if (this.$store.getters.is_candidate) {
-      profileApiURL = '/auth/candidate-profile'
-    } else if (this.$store.getters.is_interviewer) {
-      profileApiURL = '/auth/interviewer-profile'
-    }
-    this.$axios.get(profileApiURL).then((response) => {
-      this.profile = response.data.profile
-    })
   }
 }
 </script>

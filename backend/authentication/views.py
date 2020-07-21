@@ -566,9 +566,10 @@ class InterviewCreateView(CreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data.dict()
+        interview_dict = request.data
         interview_dict['interviewer'] = request.user.id
-        interview_dict['time_slots'] = json.loads(interview_dict['time_slots'])
+        if 'skills' in interview_dict:
+            interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
         serializer = self.get_serializer(data=interview_dict)
         if serializer.is_valid():
             serializer.save()
@@ -578,5 +579,10 @@ class InterviewCreateView(CreateAPIView):
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+
+def _date_time_naive_format(time, date):
+    date_time = date + ' ' + time
+    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    return naive
 
 

@@ -134,8 +134,16 @@ class Interview(models.Model):
     description = models.TextField()
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])
-    date = models.DateField()
-    time_slots = ArrayField(JSONField())
+    timezone = models.CharField(max_length=256)
+    skills = models.ManyToManyField(to=Skill)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+
+class InterviewSlots(models.Model):
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
+    interview_time = models.DateTimeField()
+    candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

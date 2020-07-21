@@ -85,20 +85,11 @@ export default {
     onSignInSuccess (googleUser) {
       const authResponse = googleUser.getAuthResponse()
       this.auth_token = authResponse.id_token
-      this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: this.selected_role })
+      this.$axios.post('/auth/google-signin', { id_token: this.auth_token })
         .then((response) => {
           if (response.status === 204) {
             this.show = true
-          }
-        })
-    },
-    role_select (value) {
-      this.show = false
-      this.selected_role = value
-      this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: this.selected_role })
-        .then((response) => {
-          if (response.status === 204) {
-            this.show = true
+          } else if (response.status === 200) {
             if (response.data.access_token) {
               this.$store.dispatch('set_auth_cookie', response.data.access_token)
               this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
@@ -111,20 +102,34 @@ export default {
               this.$store.dispatch('post_login_routing')
             }
           }
-          if (response.status === 200) {
-            debugger
-            // if (response.data.access_token) {
-            //   this.show = true
-            //   this.$store.dispatch('set_auth_cookie', response.data.access_token)
-            //   this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
-            //   if (response.data.meta_data.role === 'Interviewer') {
-            //     this.$store.commit('role_is_interviewer')
-            //   } else if (response.data.meta_data.role === 'Candidate') {
-            //     this.$store.commit('role_is_candidate')
-            //   }
-            //   this.$store.commit('authentication_status')
-            //   this.$store.dispatch('post_login_routing')
-            // }
+        })
+        .catch((response) => {
+          this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
+            action: {
+              text: 'Close',
+              onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+              }
+            }
+          })
+        })
+    },
+    role_select (value) {
+      this.show = false
+      this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: value })
+        .then((response) => {
+          if (response.status === 204) {
+            if (response.data.access_token) {
+              this.$store.dispatch('set_auth_cookie', response.data.access_token)
+              this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
+              if (response.data.meta_data.role === 'Interviewer') {
+                this.$store.commit('role_is_interviewer')
+              } else if (response.data.meta_data.role === 'Candidate') {
+                this.$store.commit('role_is_candidate')
+              }
+              this.$store.commit('authentication_status')
+              this.$store.dispatch('post_login_routing')
+            }
           }
         })
         .catch((response) => {

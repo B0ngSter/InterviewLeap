@@ -6,7 +6,7 @@
       @error="onSignInError"
     >
       <b-button
-        class="btn_top"
+        class="google_btn bg-white"
         :loading="$store.state.google_login"
         block
         outlined
@@ -16,7 +16,6 @@
       </b-button>
     </g-signin-button>
     <b-modal
-      v-if="isLogin === 'signup'"
       id="modal-center"
       v-model="show"
       title-class="font-weight-bold text-center w-100 mt-2"
@@ -31,6 +30,7 @@
         <b-row>
           <b-col>
             <b-img
+              class="cursor-pointer"
               src="@/static/candidate.svg"
               alt="Candidate logo"
               height="308"
@@ -42,6 +42,7 @@
           </b-col>
           <b-col>
             <b-img
+              class="cursor-pointer"
               src="@/static/interviewer.svg"
               alt="Candidate logo"
               height="308"
@@ -72,8 +73,7 @@ export default {
   },
   data: () => {
     return {
-      selected_role: false,
-      check: null,
+      selected_role: null,
       googleSignInParams: {
         client_id: '792788771362-cundr764n1vlps2nqd63mtdmcqr9fii5.apps.googleusercontent.com'
       },
@@ -83,22 +83,65 @@ export default {
   },
   methods: {
     onSignInSuccess (googleUser) {
-      this.show = true
       const authResponse = googleUser.getAuthResponse()
       this.auth_token = authResponse.id_token
-      if (this.isLogin === 'login') {
-        this.$store.dispatch('google_auth', {
-          id_token: this.auth_token
+      this.$axios.post('/auth/google-signin', { id_token: this.auth_token })
+        .then((response) => {
+          if (response.status === 204) {
+            this.show = true
+          } else if (response.status === 200) {
+            if (response.data.access_token) {
+              this.$store.dispatch('set_auth_cookie', response.data.access_token)
+              this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
+              if (response.data.meta_data.role === 'Interviewer') {
+                this.$store.commit('role_is_interviewer')
+              } else if (response.data.meta_data.role === 'Candidate') {
+                this.$store.commit('role_is_candidate')
+              }
+              this.$store.commit('authentication_status')
+              this.$store.dispatch('post_login_routing')
+            }
+          }
         })
-      }
+        .catch((response) => {
+          this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
+            action: {
+              text: 'Close',
+              onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+              }
+            }
+          })
+        })
     },
     role_select (value) {
-      this.selected_role = value
       this.show = false
-      this.$store.dispatch('google_auth', {
-        id_token: this.auth_token,
-        role: this.selected_role
-      })
+      this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: value })
+        .then((response) => {
+          if (response.status === 204) {
+            if (response.data.access_token) {
+              this.$store.dispatch('set_auth_cookie', response.data.access_token)
+              this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
+              if (response.data.meta_data.role === 'Interviewer') {
+                this.$store.commit('role_is_interviewer')
+              } else if (response.data.meta_data.role === 'Candidate') {
+                this.$store.commit('role_is_candidate')
+              }
+              this.$store.commit('authentication_status')
+              this.$store.dispatch('post_login_routing')
+            }
+          }
+        })
+        .catch((response) => {
+          this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
+            action: {
+              text: 'Close',
+              onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+              }
+            }
+          })
+        })
     },
     onSignInError (error) {
       let errorText
@@ -116,21 +159,7 @@ export default {
 </script>
 
 <style>
-.btn_top {
+.google_btn {
   padding: 1rem 5rem 1rem 5rem;
-  background-color: white;
-  color: #0e293c;
-  cursor: pointer;
-  height: 3.75rem;
-  width: 25rem;
-  margin-top: 5%;
-}
-.btn_top:hover {
-  background-color: white;
-  color: #0e293c;
-}
-.btn_top:focus {
-  background-color: white;
-  color: #0e293c;
 }
 </style>

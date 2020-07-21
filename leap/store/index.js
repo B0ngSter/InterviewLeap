@@ -4,7 +4,7 @@ export const state = () => {
     is_authenticated: false,
     role: null,
     full_name: null,
-    is_profile_completed: null,
+    is_profile_completed: false,
     is_candidate: null,
     is_interviewer: null
   }
@@ -13,7 +13,7 @@ export const mutations = {
   profile_status (state) {
     state.is_profile_completed = true
   },
-  authantication_status (state) {
+  authentication_status (state) {
     state.is_authenticated = true
   },
   role_is_interviewer (state) {
@@ -24,6 +24,7 @@ export const mutations = {
   },
   logged_out (state) {
     state.is_interviewer = null
+    state.is_authenticated = false
     state.is_candidate = null
   }
 }
@@ -53,13 +54,10 @@ export const actions = {
         if (response.status === 200) {
           context.dispatch('set_auth_cookie', response.data.access)
           context.dispatch('set_meta_data_cookie', response.data.meta_data)
-          context.commit('authantication_status')
-          if (response.data.meta_data.is_profile_completed) {
-            context.commit('profile_status')
-          }
+          context.commit('authentication_status')
           if (response.data.meta_data.role === 'Interviewer') {
             context.commit('role_is_interviewer')
-          } else if (response.data.meta_data.role === 'candidate') {
+          } else if (response.data.meta_data.role === 'Candidate') {
             context.commit('role_is_candidate')
           }
           context.dispatch('post_login_routing')
@@ -85,42 +83,6 @@ export const actions = {
       nextRoute = '/profile'
     }
     this.$router.push(nextRoute)
-  },
-  google_auth (context, payload) {
-    this.$axios.post('/auth/google-signin', payload)
-      .then((response) => {
-        if (response.status === 200) {
-          if (response.data.access_token) {
-            context.dispatch('set_auth_cookie', response.data.access_token)
-            context.dispatch('set_meta_data_cookie', response.data.meta_data)
-            if (response.data.meta_data.role === 'Interviewer') {
-              context.commit('role_is_interviewer')
-            } else if (response.data.meta_data.role === 'candidate') {
-              context.commit('role_is_candidate')
-            }
-            context.dispatch('post_login_routing')
-          }
-        } else {
-          this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
-              }
-            }
-          })
-        }
-      })
-      .catch((response) => {
-        this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
-          action: {
-            text: 'Close',
-            onClick: (e, toastObject) => {
-              toastObject.goAway(0)
-            }
-          }
-        })
-      })
   },
   set_auth_cookie (context, token) {
     this.$cookies.set('auth_token', token, {

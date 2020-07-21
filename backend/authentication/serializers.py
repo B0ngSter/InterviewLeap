@@ -88,7 +88,8 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateProfile
-        fields = ['user', 'education', 'college', 'year_of_passing', 'job_title', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'professional_status','education', 'college', 'year_of_passing', 'job_title', 'resume',
+                  'linkedin', 'industry', 'designation', 'company', 'exp_years', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')

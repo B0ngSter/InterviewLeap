@@ -362,13 +362,19 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     """
             CandidateProfile   -- Authenticated user can create profile!
             actions -- POST -- Profile Creation/Updation(Candidate), If profile exists it updates the profile.
+            description -- Based on the professional status send the values
             Request params -- {
+                                  "professional_status": "choicefield" --> options = ["Experienced", "Fresher"]
                                   "education": "string",
                                   "college": "string"
                                   "years_of_passing": "string"
                                   "job_title": "string"
                                   "resume": "file field"
                                   "linkedin": "valid url in string"
+                                  "industry": "string"
+                                  "designation": "string"
+                                  "company": "string"
+                                  "exp_years": "integer"
                                   "skills": "comma separated values in string"
 
                                 }

@@ -96,12 +96,18 @@ class Skill(models.Model):
 
 class CandidateProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    professional_status = models.CharField(max_length=54, choices=settings.PROFESSIONAL_STATUS_CHOICES)
     education = models.CharField(max_length=128, null=True, blank=True)
     college = models.CharField(max_length=128, null=True, blank=True)
     year_of_passing = models.CharField(max_length=54, null=True, blank=True)
     job_title = models.CharField(max_length=256)
     resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
+    industry = models.CharField(max_length=256, null=True, blank=True)
+    designation = models.CharField(max_length=256, null=True, blank=True)
+    company = models.CharField(max_length=256, null=True, blank=True)
+    exp_years = models.IntegerField(null=True, blank=True, validators=[
+        MinValueValidator(0, message='Enter a whole number')])
     skills = models.ManyToManyField(to=Skill)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

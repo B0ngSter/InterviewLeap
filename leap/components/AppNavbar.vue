@@ -59,7 +59,7 @@ export default {
             route: '/dashboard'
           }, {
             title: 'Book an Interview',
-            route: '/book'
+            route: '/book-interview'
           }, {
             title: 'Past Interviews',
             route: 'past-interviews'

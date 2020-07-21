@@ -1,4 +1,4 @@
-from .models import User, CandidateProfile, InterviewerProfile
+from .models import User, CandidateProfile, InterviewerProfile, Skill
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
@@ -13,3 +13,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(CandidateProfile)
 admin.site.register(InterviewerProfile)
+admin.site.register(Skill)

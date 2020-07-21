@@ -226,14 +226,14 @@
             </b-tab>
             <b-tab v-if="$store.getters.is_interviewer" class="text-dark" title-link-class="border-0" title="Account Details">
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="first_name">Account Holder Name</label>
+                <label class="sr-only" for="account_holder_name">Account Holder Name</label>
                 <b-input
                   v-model="profile.account_holder_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   required
                   placeholder="First Name"
                 />
-                <label class="sr-only" for="last_name">Account Number</label>
+                <label class="sr-only" for="account_number">Account Number</label>
                 <b-input
                   id="last_name"
                   v-model="profile.account_number"
@@ -242,14 +242,14 @@
                 />
               </div>
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="email">IFSC</label>
+                <label class="sr-only" for="IFSC">IFSC</label>
                 <b-input
                   id="email"
                   v-model="profile.ifsc"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="IFSC"
                 />
-                <label class="sr-only" for="mobile">Account Number</label>
+                <label class="sr-only" for="bank_name">Account Number</label>
                 <b-input
                   id="mobile"
                   v-model="profile.bank_name"
@@ -275,6 +275,7 @@ export default {
   data () {
     return {
       profile: {
+        first_name: '',
         skills: [],
         resume: null
       },
@@ -312,8 +313,8 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
-      this.profile.skills = this.profile.skills.toString()
       const payload = { ...this.profile }
+      payload.skills = payload.skills.toString()
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
@@ -340,8 +341,6 @@ export default {
         this.$toast.error(
           errorResponse.response.data.message || 'Could not save your profile. Please try again later'
         )
-      }).finally(() => {
-        this.profile.skills = this.profile.skills.split(',')
       })
     },
     fetch_industry_choices () {
@@ -351,6 +350,7 @@ export default {
         })
     },
     fetch_profile_data () {
+      // this.profile.first_name = this.$store.getters.user_name
       let profileApiURL
       if (this.$store.getters.is_candidate) {
         profileApiURL = '/auth/candidate-profile'

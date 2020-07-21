@@ -25,8 +25,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'ym2u%hpbs7o3nk=-j(8kcr!!-4q$^g54bfu@&whqc%gtta*l26'
 
-GOOGLE_AUTH_SECRET_KEY = 'G-q2QZkS2k60rutAMPpDhhlX'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -46,7 +44,6 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'corsheaders',
     'drf_yasg',
-    'djoser',
     'authentication',
     'root',
 ]
@@ -64,7 +61,29 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+]
+CORS_ORIGIN_ALLOW_ALL = DEBUG  # Whitelist all the origins if the DEBUG is True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    # 'x-csrftoken',
+    'x-requested-with',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -84,6 +103,11 @@ TEMPLATES = [
         },
     },
 ]
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
@@ -110,12 +134,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
 }
 
-
-DJOSER = {
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'EMAIL': {'confirmation': 'authentication.views.ConfirmationEmail'},
-}
 
 DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
     "CLASS": "django_rest_passwordreset.tokens.RandomNumberTokenGenerator",
@@ -279,4 +297,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 PROFESSIONAL_STATUS_CHOICES = (
     ('Experienced', 'Experienced'),
     ('Fresher', 'Fresher')
+)
+
+CANDIDATE_TIME_SLOTS = (
+    ('9AM - 12PM', '9AM - 12PM'),
+    ('12PM - 3PM', '12PM - 3PM'),
+    ('3PM - 6PM', '3PM - 6PM'),
+    ('6PM - 9PM', '6PM - 9PM'),
+    ('9PM - 12AM', '9PM - 12AM'),
+
 )

@@ -118,7 +118,8 @@ export default {
       this.show = false
       this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: value })
         .then((response) => {
-          if (response.status === 204) {
+          if (response.status === 200) {
+            debugger
             if (response.data.access_token) {
               this.$store.dispatch('set_auth_cookie', response.data.access_token)
               this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)

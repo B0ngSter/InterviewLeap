@@ -2,7 +2,7 @@
   <div class="container">
     <div>
       <Logo />
-      <h1 class="title" v-if="$store.state.auth">
+      <h1 v-if="$store.state.auth" class="title">
         InterviewLeap
       </h1>
       <!-- <div class="links" v-else> -->
@@ -10,12 +10,12 @@
         <b-button variant="primary" to="/test">
           Test App page
         </b-button>
-      <NuxtLink to="/auth/login">
-        login
-      </NuxtLink>
-      <NuxtLink to="/auth/signup">
-        Sign Up
-      </NuxtLink>
+        <NuxtLink to="/auth/login">
+          login
+        </NuxtLink>
+        <NuxtLink to="/auth/signup">
+          Sign Up
+        </NuxtLink>
       </div>
     </div>
   </div>

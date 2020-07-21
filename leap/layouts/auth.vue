@@ -1,10 +1,36 @@
 <template>
-<div>
+  <section>
     <b-navbar toggleable="lg">
-        <b-navbar-brand href="#">
+      <b-navbar-brand to="/">
         <Logo />
-        </b-navbar-brand>
+      </b-navbar-brand>
     </b-navbar>
-    <Nuxt />
-</div>
+    <b-container class="page-content">
+      <b-row no-gutters class="justify-content-center flex-fill">
+        <b-col cols="12" class="d-flex align-items-center justify-content-center">
+          <Nuxt />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col align-self="end">
+          <p class="text-right mr-5 mt-4 text-secondary bottom_text">
+            <small>&copy; 2020 Stellar Software Technologies Pvt ltd</small>
+          </p>
+        </b-col>
+      </b-row>
+    </b-container>
+  </section>
 </template>
+<script>
+import Logo from '~/components/Logo'
+export default {
+  components: {
+    Logo
+  }
+}
+</script>
+<style scoped>
+.page-content {
+  margin-top: 10vh;
+}
+</style>

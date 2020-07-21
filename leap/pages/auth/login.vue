@@ -1,36 +1,29 @@
 <template>
-  <b-container class="Container">
-    <b-row align-v="center">
-      <auth
-        action="login"
-      />
-    </b-row>
-  </b-container>
+  <section class="d-flex flex-fill">
+    <b-container>
+      <b-row align-v="center">
+        <auth
+          action="login"
+        />
+      </b-row>
+    </b-container>
+  </section>
 </template>
 
 <script>
 import auth from '~/components/auth'
 
 export default {
-  layout: 'auth',
-  data () {
-    return {
+  middleware ({ store, redirect }) {
+    if (store.getters.is_authenticated) {
+      store.dispatch('post_login_routing')
     }
   },
+  layout: 'auth',
   components: {
     auth
-  },
-  methods: {
-    loginUser (loginInfo) {
-      const payload = { ...loginInfo }
-      delete payload.role
-      this.$store.dispatch('login', payload)
-    }
   }
 }
 </script>
 <style>
-.Container {
-  margin-top: 10vh;
-}
 </style>

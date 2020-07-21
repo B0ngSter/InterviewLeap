@@ -28,6 +28,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         errors = dict()
 
+        email = data.get('email')
+        existing_user = User.objects.filter(email=email).exists()
+        if existing_user:
+            errors['message'] = "user with this email already exists."
         if not data.get('first_name'):
             errors['message'] = "Please enter your first name"
         if not data.get('last_name'):

@@ -10,7 +10,7 @@ from rest_framework import status
 from django.conf import settings
 from datetime import datetime, timedelta
 from django.utils import timezone
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.utils import json
@@ -32,6 +32,7 @@ from .serializers import RegistrationSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
+from rest_framework.permissions import AllowAny
 # Create your views here.
 from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
     CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer, InterviewCreateSerializer
@@ -62,6 +63,7 @@ class SignupView(CreateAPIView):
     """
 
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -111,24 +113,24 @@ class SignupView(CreateAPIView):
             return Response({"message": message}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ConfirmationEmail(BaseEmailMessage):
-    template_name = "email/confirmation_email.html"
-
-    def get_context_data(self, **kwargs):
-        frontend_url = settings.FRONTEND_URL
-        user = User.objects.get(email=self.context['user'])
-        token = generate_token(user)
-
-        # This link will give profile completion link for user
-        verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
-                                                                             token=str(token))
-        print(verification_url)
-        self.context = {
-            'name': user.first_name,
-            'site_name': 'Interview Leap',
-            'verification_url': verification_url
-        }
-        return self.context
+# class ConfirmationEmail(BaseEmailMessage):
+#     template_name = "email/confirmation_email.html"
+#
+#     def get_context_data(self, **kwargs):
+#         frontend_url = settings.FRONTEND_URL
+#         user = User.objects.get(email=self.context['user'])
+#         token = generate_token(user)
+#
+#         # This link will give profile completion link for user
+#         verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+#                                                                              token=str(token))
+#         print(verification_url)
+#         self.context = {
+#             'name': user.first_name,
+#             'site_name': 'Interview Leap',
+#             'verification_url': verification_url
+#         }
+#         return self.context
 
 
 class LoginView(TokenObtainPairView):
@@ -209,6 +211,7 @@ class GoogleView(APIView):
         Error -- Raise with message error.
     """
     permission_classes = (AllowAny,)
+    authentication_classes = ()
 
     def post(self, request):
         id_token = request.data['id_token']
@@ -220,7 +223,7 @@ class GoogleView(APIView):
             content = {'message': 'Invalid token'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         response = {}
-
+        status_code = status.HTTP_200_OK
         try:
             user = User.objects.get(email=data.get('email'))
             if user.profile_picture:
@@ -265,7 +268,7 @@ class GoogleView(APIView):
             user.is_active = True
             user.save()
             is_profile_completed = False
-
+            status_code = status.HTTP_204_NO_CONTENT
         token = generate_token(user)
         response["access_token"] = token
 
@@ -277,11 +280,13 @@ class GoogleView(APIView):
                 "is_profile_completed": is_profile_completed,          # check profile and update this boolean
             }
         response.update({"meta_data": meta_data})
-        return Response(response, status=status.HTTP_200_OK)
+        return Response(response, status=status_code)
 
 
 @csrf_protect
 @api_view()
+@permission_classes([AllowAny])
+@authentication_classes([])
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
     try:
@@ -324,6 +329,7 @@ class ResetPasswordConfirm(GenericAPIView):
     """
     throttle_classes = ()
     permission_classes = ()
+    authentication_classes = ()
     serializer_class = PasswordTokenSerializer
 
     def post(self, request, *args, **kwargs):

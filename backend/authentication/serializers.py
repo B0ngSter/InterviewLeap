@@ -129,7 +129,8 @@ class InterviewerProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterviewerProfile
-        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills',
+                  'account_info']
 
     def update(self, instance, validated_data):
         skills = validated_data.pop('skills')

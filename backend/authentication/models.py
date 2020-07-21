@@ -116,6 +116,7 @@ class InterviewerProfile(models.Model):
     resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     skills = models.ManyToManyField(to=Skill)
+    account_info = JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -123,6 +124,7 @@ class InterviewerProfile(models.Model):
 class Interview(models.Model):
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=256, null=True, blank=True)
+    description = models.TextField()
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])
     date = models.DateField()

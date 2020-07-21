@@ -207,7 +207,7 @@ class GoogleView(APIView):
         Google Signup   -- An user can sign in using their google account like xyz@gmail.com!
                             Api will create a entry in user table passing Email id and password(auto-generated)
         Request Param - {"token": "string"}    #access_token
-        status - "return verification token"
+        status - "return token along with meta data"
         Error -- Raise with message error.
     """
     permission_classes = (AllowAny,)
@@ -223,7 +223,6 @@ class GoogleView(APIView):
             content = {'message': 'Invalid token'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         response = {}
-        status_code = status.HTTP_200_OK
         try:
             user = User.objects.get(email=data.get('email'))
             if user.profile_picture:
@@ -244,31 +243,34 @@ class GoogleView(APIView):
                 else:
                     is_profile_completed = False
         except ObjectDoesNotExist:
-            user = User()
-            user.username = data['email']
-            user.password = make_password(BaseUserManager().make_random_password())
-            user.first_name = data.get('given_name')
-            user.last_name = data.get('family_name')
-            user.email = data['email']
-            user.role = role
-
-            if 'picture' in data.keys():
-                image_url = data.get('picture')
-                request = requests.get(image_url, stream=True)
-                file_name = image_url.split('/')[-1]
-                lf = tempfile.NamedTemporaryFile()
-                for block in request.iter_content(1024 * 8):  # Read the streamed image in sections
-                    if not block:
-                        break
-                    lf.write(block)
-                user.profile_picture.save(file_name, files.File(lf))
-                profile_picture = user.profile_picture.url
+            if not role:
+                return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                profile_picture = None
-            user.is_active = True
-            user.save()
-            is_profile_completed = False
-            status_code = status.HTTP_204_NO_CONTENT
+                user = User()
+                user.username = data['email']
+                user.password = make_password(BaseUserManager().make_random_password())
+                user.first_name = data.get('given_name')
+                user.last_name = data.get('family_name')
+                user.email = data['email']
+                user.role = role
+
+                if 'picture' in data.keys():
+                    image_url = data.get('picture')
+                    request = requests.get(image_url, stream=True)
+                    file_name = image_url.split('/')[-1]
+                    lf = tempfile.NamedTemporaryFile()
+                    for block in request.iter_content(1024 * 8):  # Read the streamed image in sections
+                        if not block:
+                            break
+                        lf.write(block)
+                    user.profile_picture.save(file_name, files.File(lf))
+                    profile_picture = user.profile_picture.url
+                else:
+                    profile_picture = None
+                user.is_active = True
+                user.save()
+                is_profile_completed = False
+
         token = generate_token(user)
         response["access_token"] = token
 
@@ -280,7 +282,7 @@ class GoogleView(APIView):
                 "is_profile_completed": is_profile_completed,          # check profile and update this boolean
             }
         response.update({"meta_data": meta_data})
-        return Response(response, status=status_code)
+        return Response(response, status=status.HTTP_200_OK)
 
 
 @csrf_protect

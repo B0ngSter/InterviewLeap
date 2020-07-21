@@ -14,7 +14,7 @@ class BookInterviewView(CreateAPIView):
         actions -- Post -- Book Interview
         Request params -- {
                     "company_type": "product","service","captive" (string)
-                    "professional_status": (string)
+                    "skills": (string)
                     "applied_designation" : "python developer" (string)
                     "date": "2020-06-21", (string)
                     "time_slots": [

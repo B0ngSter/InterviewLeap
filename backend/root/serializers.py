@@ -21,8 +21,8 @@ class BookInterviewCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"message": "Mention a date for the interview"})
         if not data.get('time_slots'):
             raise serializers.ValidationError({"message": "Choose time slots of your convenience"})
-        if not len(data.get('time_slots')) == 3:
-            raise serializers.ValidationError({"message": "Select 3 suitable time slots for interview"})
+        # if not len(data.get('time_slots')) == 3:
+        #     raise serializers.ValidationError({"message": "Select 3 suitable time slots for interview"})
 
         return data
 

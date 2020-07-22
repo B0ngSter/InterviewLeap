@@ -54,6 +54,7 @@ export const actions = {
         if (response.status === 200) {
           context.dispatch('set_auth_cookie', response.data.access)
           context.dispatch('set_meta_data_cookie', response.data.meta_data)
+          state.full_name = response.data.meta_data.full_name
           context.commit('authentication_status')
           if (response.data.meta_data.role === 'Interviewer') {
             context.commit('role_is_interviewer')
@@ -84,6 +85,43 @@ export const actions = {
     }
     this.$router.push(nextRoute)
   },
+  // google_auth (context, payload) {
+  //   this.$axios.post('/auth/google-signin', payload)
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         if (response.data.access_token) {
+  //           context.dispatch('set_auth_cookie', response.data.access_token)
+  //           context.dispatch('set_meta_data_cookie', response.data.meta_data)
+  //           if (response.data.meta_data.role === 'Interviewer') {
+  //             context.commit('role_is_interviewer')
+  //           } else if (response.data.meta_data.role === 'Candidate') {
+  //             context.commit('role_is_candidate')
+  //           }
+  //           context.commit('authentication_status')
+  //           context.dispatch('post_login_routing')
+  //         }
+  //       } else {
+  //         this.$toast.error((response.data && response.data.message) ? response.data.message : 'Login failed.. please try again', {
+  //           action: {
+  //             text: 'Close',
+  //             onClick: (e, toastObject) => {
+  //               toastObject.goAway(0)
+  //             }
+  //           }
+  //         })
+  //       }
+  //     })
+  //     .catch((response) => {
+  //       this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
+  //         action: {
+  //           text: 'Close',
+  //           onClick: (e, toastObject) => {
+  //             toastObject.goAway(0)
+  //           }
+  //         }
+  //       })
+  //     })
+  // },
   set_auth_cookie (context, token) {
     this.$cookies.set('auth_token', token, {
       path: '/',
@@ -145,7 +183,7 @@ export const getters = {
   is_profile_completed (state) {
     return state.is_profile_completed
   },
-  full_name (state) {
+  user_name (state) {
     return state.full_name
   },
   role (state) {

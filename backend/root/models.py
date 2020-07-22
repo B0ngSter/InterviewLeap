@@ -10,6 +10,7 @@ class BookInterview(models.Model):
     applied_designation = models.CharField(max_length=120, null=True, blank=True,
                                            help_text='role(profile) of the candidate they want to be interviewed for e.g java developer')
     date = models.DateField(help_text='Select date for interview @candidate side', null=True, blank=True)
+    time_zone = models.CharField(max_length=120, null=True, blank=True)
     time_slots = ArrayField(models.CharField(max_length=150), null=True, blank=True)
     booked_by = models.ForeignKey(User, on_delete=models.CASCADE)
     skills = models.ManyToManyField(to=Skill)

@@ -69,6 +69,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     role = models.CharField(max_length=20, choices=(['Candidate', 'Candidate'], ['Interviewer', 'Interviewer']), null=True, blank=True)
     profile_picture = models.FileField(upload_to=settings.PROFILE_PICTURE, null=True, blank=True)
+    email_verified = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     date_joined = models.DateTimeField(auto_now_add=True)
     objects = MyUserManager()

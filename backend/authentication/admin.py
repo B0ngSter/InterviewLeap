@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 
 
 class CustomUserAdmin(UserAdmin):
-    UserAdmin.fieldsets += ('Custom fields set', {'fields': ('role',)}),
+    UserAdmin.fieldsets += ('Custom fields set', {'fields': ('role', 'email_verified', 'profile_picture')}),
 
     model = User
     readonly_fields = ['date_joined']

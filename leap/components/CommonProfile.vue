@@ -48,10 +48,10 @@
                   placeholder="Email"
                   type="email"
                 />
-                <label class="sr-only" for="mobile">Mobile Number</label>
+                <label class="sr-only" for="phone_number">Mobile Number</label>
                 <b-input
                   id="mobile"
-                  v-model="profile.mobile"
+                  v-model="profile.phone_number"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Mobile Number"
                 />
@@ -71,7 +71,7 @@
                   text-field="name"
                 />
               </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
+              <div class="d-flex justify-content-around flex-column flex-md-row">
                 <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-3 d-flex flex-fill">
                   <label class="sr-only" for="industry">Industry</label>
                   <b-input
@@ -102,7 +102,7 @@
               </div>
               <div
                 v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
-                class="d-flex justify-content-around flex-column flex-md-row mb-5"
+                class="d-flex justify-content-around flex-column flex-md-row mb-5 mt-5"
               >
                 <label class="sr-only" for="company">Current Company</label>
                 <b-input
@@ -214,7 +214,7 @@
                 </h4>
               </div>
               <div v-if="$store.getters.is_candidate" class="text-center">
-                <b-button variant="primary" @click="save_profile">
+                <b-button variant="primary" :disabled="profile.professional_status === ''" @click="save_profile">
                   Save
                 </b-button>
               </div>
@@ -277,8 +277,10 @@ export default {
       profile: {
         first_name: '',
         skills: [],
-        resume: null
+        resume: null,
+        professional_status: ''
       },
+      profile2: {},
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
@@ -300,7 +302,7 @@ export default {
   },
   mounted () {
     this.fetch_industry_choices()
-    // this.fetch_profile_data()
+    this.fetch_profile_data()
   },
   methods: {
     removeTag (skillIndex) {
@@ -350,15 +352,16 @@ export default {
         })
     },
     fetch_profile_data () {
-      // this.profile.first_name = this.$store.getters.user_name
       let profileApiURL
+      this.profile.first_name = this.$store.getters.user_name.substr(0, this.$store.getters.user_name.indexOf(' '))
+      this.profile.last_name = this.$store.getters.user_name.substr(this.$store.getters.user_name.indexOf(' ') + 1)
       if (this.$store.getters.is_candidate) {
         profileApiURL = '/auth/candidate-profile'
       } else if (this.$store.getters.is_interviewer) {
         profileApiURL = '/auth/interviewer-profile'
       }
       this.$axios.get(profileApiURL).then((response) => {
-        this.profile = response.data.profile
+        this.profile2 = response.data.profile
       })
     }
   }

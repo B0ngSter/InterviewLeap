@@ -142,6 +142,19 @@ export const actions = {
         }
       }
     })
+  },
+  verify_verification_token (context, args) {
+    this.$axios.post(`auth/verify-user/${args.verification_token}`)
+      .then((response) => {
+        if (response.data.is_token_valid) {
+          args.successCallback()
+        } else {
+          args.errorCallback(response)
+        }
+      })
+      .catch((errorResponse) => {
+        args.errorCallback(errorResponse)
+      })
   }
 }
 export const getters = {

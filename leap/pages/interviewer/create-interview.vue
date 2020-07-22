@@ -14,9 +14,8 @@
         </b-col>
         <b-col cols="12">
           <h2 class="mt-5">
-            Hello, Saurav
+            Hello, {{ $store.getters.user_name.substr(0, this.$store.getters.user_name.indexOf(' ')) }}
           </h2>
-          <!-- <p>Hello, {{ $store.getters.full_name[0] }}</p> -->
           <p class="text-secondary">
             Your upcoming interview requests
           </p>
@@ -25,19 +24,94 @@
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row>
-                <b-col cols="6" class="pt-5 pb-5">
+                <b-col cols="12" md="6" class="pt-5 pb-5">
                   <label class="sr-only" for="last_name">L</label>
                   <b-input
+                    v-model="userInfo.job_title"
                     class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                     placeholder="Job Title"
                   />
                 </b-col>
-                <b-col cols="6" class="pt-5 pb-5 pr-5">
+                <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
                   <label class="sr-only" for="last_name">R</label>
                   <b-input
+                    v-model="userInfo.exp_years"
                     class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                     placeholder="Experience Required (Optional)"
                   />
+                </b-col>
+              </b-row>
+            </b-container>
+          </b-card>
+        </b-col>
+        <b-col cols="12" class="mt-2">
+          <b-card no-body class="text-center border-0">
+            <b-container class="bg-white">
+              <b-row align-v="center" align-content="start">
+                <b-col cols="12" md="12" class="p-4">
+                  <b-input-group>
+                    <b-form-input
+                      v-model="skill_search_query"
+                      placeholder="Core Skills"
+                      :disabled="skills_filled"
+                    />
+                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                      Add
+                    </b-button>
+                  </b-input-group>
+                  <p class="mt-2 text-muted font-weight-normal">
+                    {{ userInfo.skills.length }}/5 skills selected
+                  </p>
+                  <h4>
+                    <b-badge
+                      v-for="(skill, id_s) in userInfo.skills"
+                      :key="id_s"
+                      size="lg"
+                      variant="light"
+                      class="mb-2 mr-2 border"
+                      pill
+                    >
+                      <span class="d-flex align-items-center">
+                        <span class="mr-2">{{ skill }}</span>
+                        <b-icon-x
+                          class="cursor-pointer"
+                          @click="removeTag(id_s)"
+                        />
+                      </span>
+                    </b-badge>
+                  </h4>
+                </b-col>
+              </b-row>
+            </b-container>
+          </b-card>
+        </b-col>
+        <b-col cols="12" class="mt-2">
+          <b-card no-body class="text-center border-0">
+            <b-container class="bg-white">
+              <b-row align-v="center" align-content="start">
+                <b-col cols="12" md="6" class="pt-5 pb-5 pl-4">
+                  <b-form-input
+                    v-model="userInfo.description"
+                    class="bg-white"
+                    required
+                    placeholder="Brief description"
+                  />
+                </b-col>
+                <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
+                  <label class="sr-only" for="timeZones">timeZones</label>
+                  <b-input
+                    id="timeZones"
+                    v-model="userInfo.timezone"
+                    list="timeZones-options"
+                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
+                    placeholder="Time Zone"
+                    autocomplete="off"
+                  />
+                  <datalist id="timeZones-options">
+                    <option v-for="(timeZones, idx) in timeZone" :key="idx">
+                      {{ timeZones }}
+                    </option>
+                  </datalist>
                 </b-col>
               </b-row>
             </b-container>
@@ -55,30 +129,31 @@
         </b-col>
         <b-col cols="12" />
         <b-col
-          v-for="(dates, idy) in [0, 1, 2, 3, 4, 5, 6]"
-          :key="idy"
+          v-for="(timeslots, date, idx) in date_row"
+          :key="idx"
+          :class="{'selected': date === selected_date}"
           class="mt-5 ml-5"
         >
           <b-badge
             pill
-            class="p-4"
             :class="{
-              'bg-primary': idy === active_dateStamp,
-              'text-dark': idy === active_dateStamp ? false : true,
-              'bg-white': idy === active_dateStamp ? false : true
+              'bg-primary': date === selected_date,
+              'text-dark': date === selected_date ? false : true,
+              'bg-white': date === selected_date ? false : true
             }"
-            @click="badge_active(idy)"
+            class="p-4"
+            @click="select_date(date)"
           >
-            {{ day(dates) }}
+            {{ dayZ(idx) }}
           </b-badge>
           <h4
             class="p-3"
             :class="{
-              'text-dark': idy === active_dateStamp ? false : true,
-              'text-primary': idy === active_dateStamp ? true : false
+              'text-dark': date === selected_date ? false : true,
+              'text-primary': date === selected_date ? true : false
             }"
           >
-            {{ date(dates) }}
+            {{ currentDate(idx) }}
           </h4>
         </b-col>
       </b-row>
@@ -86,18 +161,19 @@
     <b-container>
       <b-row cols="5">
         <b-col
-          v-for="(time, idx) in time_list"
-          :key="idx"
+          v-for="(timeslot, idy) in time_slots"
+          :key="idy"
         >
           <b-card
+            v-if="selected_date"
             no-body
             class="p-3 pl-5 mt-3 border-0"
             :class="{
-              'alert-primary': active_timeStamp.includes(idx)
+              'alert-primary': date_row[selected_date].includes(time_slots_to_be_sent[idy])
             }"
-            @click="time_stamp(idx)"
+            @click="toggle_timeslot(idy)"
           >
-            {{ time }}
+            {{ timeslot }}
           </b-card>
         </b-col>
         <b-col cols="12">
@@ -113,72 +189,169 @@
 </template>
 
 <script>
+import Vue from 'vue'
 export default {
   layout: 'app-page',
   data () {
     return {
-      time_list: ['8 am - 9 am', '9 am - 10 am', '10 am - 11 am', '11 am - 12 pm', '12 pm - 1 pm', '2 pm - 3 pm', '4 pm -5 pm', '6 pm - 7 pm', '8 pm - 9 pm', '10 pm - 11 pm'],
-      active_dateStamp: null,
-      active_timeStamp: [],
-      interviewTimes: [],
-      date_array: [],
-      time_array: [],
-      idy_arr: [],
-      payload_json: {}
+      time_slots: [],
+      time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'],
+      selected_date: null,
+      date_row: {},
+      job_title: '',
+      job_exp: '',
+      userInfo: {
+        skills: []
+      },
+      timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
+      skill_search_query: ''
     }
   },
+  computed: {
+    skills_filled () {
+      return this.userInfo.skills.length >= 5
+    }
+  },
+  mounted () {
+    this.fetch_timeZone()
+    this.generate_dates()
+    this.fetch_timeSlots()
+  },
   methods: {
+    fetch_timeSlots () {
+      this.$axios.get('/time-slot')
+        .then((response) => {
+          this.time_slots = response.data.time_slot
+        })
+    },
+    fetch_timeZone () {
+      this.$axios.get('/book-interview')
+        .then((response) => {
+          this.timeZone = response.data.timezone_list
+        })
+    },
     month () {
       const today = new Date()
       const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       return months[today.getMonth()]
     },
-    day (value) {
+    dayZ (value) {
       const today = new Date()
       const dayss = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       return dayss[today.getDay() + value]
     },
-    date (val) {
-      const today = new Date()
-      return today.getDate() + val
+    currentDate (val) {
+      const today = new Date().getTime()
+      const oneDay = 24 * 60 * 60 * 1000 // in milliseconds
+      const dates = today + (oneDay * val)
+      return new Date(dates).toString().slice(8, 10)
     },
-    badge_active (idy) {
-      const today = new Date()
-      const date = parseInt(('0' + today.getDate()).slice(-2)) + idy
-      const month = ('0' + (today.getMonth() + 1)).slice(-2)
-      const year = today.getFullYear()
-      const formatedDate = year + '-' + month + '-' + date
-      this.date_array.push(formatedDate)
-      this.date_array.forEach((element) => {
-        this.payload_json[element] = []
+    toggle_timeslot (idy) {
+      const timeslotIdx = this.date_row[this.selected_date].indexOf(this.time_slots_to_be_sent[idy])
+      if (timeslotIdx > -1) {
+        this.date_row[this.selected_date].splice(timeslotIdx, 1)
+      } else {
+        this.date_row[this.selected_date].push(this.time_slots_to_be_sent[idy])
+      }
+    },
+    select_date (date) {
+      this.selected_date = date
+    },
+    generate_dates () {
+      const today = new Date().getTime()
+      const oneDay = 24 * 60 * 60 * 1000 // in milliseconds
+      const dates = [0, 1, 2, 3, 4, 5, 6].map((int) => {
+        return today + (oneDay * int)
       })
-      this.time_array.push([...this.active_timeStamp, -1, idy])
-      this.active_timeStamp = []
-      // if (idy === this.idy_arr[this.idy_arr.length - 1]) {
-      //   this.active_timeStamp = this.time_array[this.time_array.length - 1]
-      // }
-      this.time_array.forEach((element) => {
-        if (element.length > 2) {
-          if (idy === element[element.length - 1]) {
-            const new2 = element.slice(0, -2)
-            this.active_timeStamp = new2
-          }
+      let month = new Date().getMonth() + 1
+      if (month < 10) {
+        month = '0' + month
+      }
+      for (let i = 0; i < dates.length; i++) {
+        const date = dates[i]
+        const thismonth = new Date(dates[i]).toString().slice(4, 7)
+        const nextmonth = new Date(dates[i + 1]).toString().slice(4, 7)
+        if (thismonth !== nextmonth) {
+          return month++
         }
-      })
-      this.time_array.push([...this.interviewTimes])
-      this.active_dateStamp = idy
-      this.interviewTimes = []
-    },
-    time_stamp (idx) {
-      this.active_timeStamp.includes(idx) ? this.active_timeStamp.splice(this.active_timeStamp.indexOf(idx), 1) : this.active_timeStamp.push(idx)
-      this.interviewTimes.includes(this.time_list[idx]) ? this.interviewTimes.splice(this.interviewTimes.indexOf(this.time_list[idx]), 1) : this.interviewTimes.push(this.time_list[idx])
-      // this.interviewTimes.forEach((element) => {
-      //   this.payload_json[Object.keys(this.payload_json)[Object.keys(this.payload_json).length - 1]] = [element]
-      // })
-      this.payload_json[Object.keys(this.payload_json)[Object.keys(this.payload_json).length - 1]] = [...this.interviewTimes]
+        const todaydate = new Date(date).toString().slice(8, 10)
+        const year = new Date(date).toString().slice(11, 15)
+        Vue.set(this.date_row, month + '-' + todaydate + '-' + year, [])
+      }
     },
     submit () {
+      Object.keys(this.date_row).map((key) => {
+        if (this.date_row[key].length === 0) {
+          delete this.date_row[key]
+        }
+      })
+      let payload = {}
+      payload = { ...this.userInfo }
+      payload.skills = payload.skills.toString()
+      payload.interview_time = { ...this.date_row }
+      this.$axios.post('/auth/create-interview/', payload)
+        .then((response) => {
+          this.$toast.success('Your profile changes were saved', {
+            action: {
+              text: 'Close',
+              onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+              }
+            }
+          })
+        })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+          )
+        })
+    },
+    removeTag (skillIndex) {
+      this.userInfo.skills.splice(skillIndex, 1)
+    },
+    addSkill () {
+      if (!this.userInfo.skills.includes(this.skill_search_query)) {
+        this.userInfo.skills.push(this.skill_search_query)
+      } else if (this.skill_search_query.length === 0) {
+        return
+      }
+      this.skill_search_query = ''
     }
+    // badge_active (idy) {
+    //   const today = new Date()
+    //   const date = parseInt(('0' + today.getDate()).slice(-2)) + idy
+    //   const month = ('0' + (today.getMonth() + 1)).slice(-2)
+    //   const year = today.getFullYear()
+    //   const formatedDate = year + '-' + month + '-' + date
+    //   this.date_array.push(formatedDate)
+    //   this.date_array.forEach((element) => {
+    //     this.payload_json[element] = []
+    //   })
+    //   this.time_array.push([...this.active_timeStamp, -1, idy])
+    //   // if (idy === this.idy_arr[this.idy_arr.length - 1]) {
+    //   //   this.active_timeStamp = this.time_array[this.time_array.length - 1]
+    //   // }
+    //   this.time_array.forEach((element) => {
+    //     if (element.length > 2) {
+    //       if (idy === element[element.length - 1]) {
+    //         const new2 = element.slice(0, -2)
+    //         this.active_timeStamp = new2
+    //       }
+    //     }
+    //   })
+    //   this.time_array.push([...this.interviewTimes])
+    //   this.active_dateStamp = idy
+    //   this.active_timeStamp = []
+    //   this.interviewTimes = []
+    // },
+    // time_stamp (idx) {
+    //   this.active_timeStamp.includes(idx) ? this.active_timeStamp.splice(this.active_timeStamp.indexOf(idx), 1) : this.active_timeStamp.push(idx)
+    //   this.interviewTimes.includes(this.time_list[idx]) ? this.interviewTimes.splice(this.interviewTimes.indexOf(this.time_list[idx]), 1) : this.interviewTimes.push(this.time_list[idx])
+    //   // this.interviewTimes.forEach((element) => {
+    //   //   this.payload_json[Object.keys(this.payload_json)[Object.keys(this.payload_json).length - 1]] = [element]
+    //   // })
+    //   this.payload_json[Object.keys(this.payload_json)[Object.keys(this.payload_json).length - 1]] = [...this.interviewTimes]
+    // },
   }
 }
 </script>

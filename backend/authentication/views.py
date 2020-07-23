@@ -438,7 +438,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         return interviewers
 
     def create(self, request, *args, **kwargs):
-        profile_data = request.data.dict()
+        profile_data = request.data
         profile_data['user'] = request.user.id
         if 'skills' in profile_data:
             profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
@@ -447,8 +447,11 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            error_message = ", ".join([error for error in serializer.errors.keys()])
-            error_message = "Invalid value for {}".format(error_message)
+            if serializer.errors.get('message'):
+                error_message = serializer.errors.get('message')[0]
+            else:
+                error_message = ", ".join([error for error in serializer.errors.keys()])
+                error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 

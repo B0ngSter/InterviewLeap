@@ -108,10 +108,25 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
 class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True)
+    # account_info = serializers.JSONField()
 
     class Meta:
         model = InterviewerProfile
-        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'linkedin', 'skills',
+                  'account_info']
+
+    def validate(self, data):
+        account_info = data['account_info']
+        message = "{} field is required"
+        if 'acc_name' not in account_info:
+            raise serializers.ValidationError({"message": message.format('acc_name')})
+        if 'account_number' not in account_info:
+            raise serializers.ValidationError({"message": message.format('account_number')})
+        if 'ifsc_code' not in account_info:
+            raise serializers.ValidationError({"message": message.format('ifsc_code')})
+        if 'bank' not in account_info:
+            raise serializers.ValidationError({"message": message.format('bank')})
+        return data
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')

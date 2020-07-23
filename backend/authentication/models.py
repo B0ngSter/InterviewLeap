@@ -112,6 +112,9 @@ class CandidateProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.user.get_full_name()
+
 
 class InterviewerProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -126,6 +129,9 @@ class InterviewerProfile(models.Model):
     account_info = JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.get_full_name()
 
 
 class Interview(models.Model):

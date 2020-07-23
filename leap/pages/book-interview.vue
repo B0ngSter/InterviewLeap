@@ -13,12 +13,12 @@
           </b-breadcrumb>
         </b-col>
         <b-col cols="6">
-          <h2 class="mt-5">
+          <h2 class="mt-3 font-weight-bold">
             Book Interview
           </h2>
         </b-col>
         <b-col cols="5" offset-md="1">
-          <div class="text-center text-danger-dark mt-5 mb-5">
+          <div class="text-left text-danger-dark mt-3 mb-2">
             *Update your ‘Profile’ before booking
             Interview for right match and  complete evaluation !
           </div>
@@ -55,14 +55,16 @@
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row align-v="center" align-content="start">
-                <b-col cols="12" md="12" class="pt-5 pb-5">
+                <b-col cols="12" md="12" class="pl-3 pr-3 pt-4">
                   <b-input-group>
                     <b-form-input
                       v-model="skill_search_query"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
-                      @keyup="addSkill"
                     />
+                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                      Add
+                    </b-button>
                   </b-input-group>
                   <p class="mt-2 text-muted font-weight-normal">
                     {{ candidateInfo.skills.length }}/5 skills selected
@@ -100,7 +102,7 @@
                     id="timeZones"
                     v-model="candidateInfo.time_zone"
                     list="timeZones-options"
-                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
+                    class=""
                     placeholder="timeZones"
                     autocomplete="off"
                   />
@@ -124,15 +126,26 @@
                     v-model="candidateInfo.applied_designation"
                     class="bg-white"
                     required
-                    placeholder="Role you’re interviewed for   Eg: Senior Android Developer"
+                    placeholder="Role you’re interviewed for Eg: Senior Android Developer"
                   />
                 </b-col>
               </b-row>
             </b-container>
           </b-card>
         </b-col>
-        <b-col cols="12" class="mt-5">
-          <p>Select time Slot :</p>
+        <b-col cols="12" md="8" class="mt-5">
+          <h4 class="font-weight-bold">
+            Select time Slot :
+          </h4>
+        </b-col>
+        <b-col cols="12" md="4" class="mt-5">
+          <span>
+            <b-img
+              src="@/static/question.svg"
+              alt="Question"
+            />
+          </span>
+          <span>Select 3 suitable time slots for interview.</span>
         </b-col>
         <b-col
           v-for="(timeslot, idy) in time_slots"
@@ -151,7 +164,7 @@
         <b-col cols="12">
           <div class="text-center mt-5">
             <b-button variant="primary" @click="submit">
-              Book  Interview
+              proceed to pay
             </b-button>
           </div>
         </b-col>
@@ -224,14 +237,13 @@ export default {
     removeTag (skillIndex) {
       this.candidateInfo.skills.splice(skillIndex, 1)
     },
-    addSkill (e) {
-      if (e.keyCode === 13) {
-        e.preventDefault()
-        if (!this.candidateInfo.skills.includes(this.skill_search_query)) {
-          this.candidateInfo.skills.push(this.skill_search_query)
-        }
-        this.skill_search_query = ''
+    addSkill () {
+      if (!this.candidateInfo.skills.includes(this.skill_search_query)) {
+        this.candidateInfo.skills.push(this.skill_search_query)
+      } else if (this.skill_search_query === '') {
+        return
       }
+      this.skill_search_query = ''
     },
     submit () {
       const payload = { ...this.candidateInfo }

@@ -1,3 +1,4 @@
+import jwt
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core.mail import EmailMultiAlternatives, BadHeaderError
 from django.dispatch import receiver
@@ -16,7 +17,8 @@ from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
 from django.utils.translation import ugettext as _
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView, GenericAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView, \
+    GenericAPIView, get_object_or_404
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,7 +30,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, VerifyUserSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -86,6 +88,7 @@ class SignupView(CreateAPIView):
         try:
             email = data.get('email')
             first_name = data.get('first_name')
+            role = data.get('role')
             frontend_url = settings.FRONTEND_URL
             send_by = settings.DEFAULT_FROM_EMAIL
 
@@ -98,8 +101,11 @@ class SignupView(CreateAPIView):
                 'verification_url': verification_url,
                 'email': email
             }
+            if role == 'Candidate':
+                email_plaintext_message = render_to_string('email/verify_candidate.html', context)
+            else:
+                email_plaintext_message = render_to_string('email/verify_Interviewer.html', context)
 
-            email_plaintext_message = render_to_string('email/confirmation_email.html', context)
             msg = EmailMultiAlternatives(
                 "Welcome to {title}".format(title="Interview Leap!"),
                 "",
@@ -164,6 +170,9 @@ class LoginView(TokenObtainPairView):
             elif not user.role:
                 error_message['message'] = "Role is not set for the User."
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            elif not user.email_verified:
+                error_message['message'] = "Email is not verified."
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
         except ObjectDoesNotExist:
             error_message['message'] = "User does not exist!"
@@ -200,6 +209,51 @@ class LoginView(TokenObtainPairView):
             return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Internal server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyUserView(RetrieveUpdateAPIView):
+    """
+        Action based on Verification token for email  -- If token is valid will verify the user and marked user as email_verified.
+        Request param from GET call:     {
+                              "token": "string",
+                            }
+        response : {
+                    "is_token_valid": boolean
+                    }
+        Response Status -- 200 ok
+        Error Code -- 400 Bad Request
+    """
+
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    serializer_class = VerifyUserSerializer
+
+    def post(self, request, *args, **kwargs):
+        token = kwargs.pop('token')
+        payload = jwt.decode(token, settings.SECRET_KEY)
+        response = {'is_token_valid': False}
+        try:
+            response['is_token_valid'] = User.objects.filter(id=payload.get('user_id'), email_verified=False).exists()
+        except jwt.ExpiredSignature:
+            response['message'] = 'Token expired. Please request for a new token'
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.InvalidSignatureError:
+            response['message'] = 'Signature verification failed'
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.DecodeError:
+            response['message'] = 'Invalid Token'
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except jwt.InvalidTokenError:
+            response['is_token_valid'] = User.objects.filter(id=payload.get('user_id'), email_verified=False).exists()
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        user_obj = get_object_or_404(User, id=payload.get('user_id'))
+        serializer = self.serializer_class(user_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GoogleView(APIView):
@@ -252,6 +306,7 @@ class GoogleView(APIView):
                 user.first_name = data.get('given_name')
                 user.last_name = data.get('family_name')
                 user.email = data['email']
+                user.email_verified = True
                 user.role = role
 
                 if 'picture' in data.keys():
@@ -314,7 +369,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         msg.send()
     except BadHeaderError:
         message = "Invalid header found."
-        return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
+        return Response({message: message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ResetPasswordConfirm(GenericAPIView):

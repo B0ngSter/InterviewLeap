@@ -71,6 +71,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class VerifyUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['email_verified']
+
+    def update(self, instance, validated_data):
+        instance.email_verified = True
+        instance.save()
+        return instance
+
 # class SkillReadSerializer(serializers.ModelSerializer):
 #     title = serializers.SerializerMethodField()
 #

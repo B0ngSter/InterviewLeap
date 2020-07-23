@@ -21,7 +21,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template v-slot:button-content>
-            <span class="font-weight-bold">Anil Kumar</span>
+            <span class="font-weight-bold">{{ name }}</span>
             <b-img
               rounded
               src="https://cdn.zeplin.io/5ef9852ffe48f580cf1a311f/assets/C37953A1-4038-456B-A85A-B309B9EE174D.png"
@@ -47,12 +47,17 @@ export default {
   components: {
     Logo
   },
+  data () {
+    return {
+      name: ''
+    }
+  },
   computed: {
     nav_items () {
       let routes
-      // if (this.$store.getters.is_candidate) {
-      const [a, b] = [1, 1]
-      if (a === b) {
+      if (this.$store.getters.is_candidate) {
+      // const [a, b] = [1, 1]
+      // if (a === b) {
         routes = [
           {
             title: 'Dashboard',
@@ -62,7 +67,7 @@ export default {
             route: '/book-interview'
           }, {
             title: 'Past Interviews',
-            route: 'past-interviews'
+            route: 'create-interview'
           }, {
             title: 'Profile',
             route: '/profile'
@@ -78,7 +83,7 @@ export default {
             route: '/dashboard'
           }, {
             title: 'Create Interview',
-            route: '/create-interview'
+            route: '/interviewer/create-interview'
           }, {
             title: 'Profile',
             route: '/profile'
@@ -93,6 +98,9 @@ export default {
       }
       return routes
     }
+  },
+  mounted () {
+    this.name = this.$store.getters.user_name
   }
 }
 </script>

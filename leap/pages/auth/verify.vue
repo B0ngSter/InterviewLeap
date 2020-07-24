@@ -12,10 +12,6 @@
 
 <script>
 export default {
-  data () {
-    return {
-    }
-  },
   mounted () {
     const errorCallback = (response) => {
       this.$toast.error((response.data && response.data.message) ? response.data.message : "We could'nt verify your account.", {
@@ -29,7 +25,7 @@ export default {
       this.$router.push('/')
     }
     const successCallback = (response) => {
-      this.$toast.success('Success', {
+      this.$toast.success('You email has been verified, please login now', {
         action: {
           text: 'Close',
           onClick: (e, toastObject) => {

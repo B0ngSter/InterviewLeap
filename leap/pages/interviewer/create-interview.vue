@@ -192,10 +192,11 @@
 import Vue from 'vue'
 export default {
   layout: 'app-page',
+  middleware: ['isauthenticated'],
   data () {
     return {
-      time_slots: [],
-      time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'],
+      time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
+      time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
       selected_date: null,
       date_row: {},
       job_title: '',
@@ -215,15 +216,15 @@ export default {
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
-    this.fetch_timeSlots()
+    // this.fetch_timeSlots()
   },
   methods: {
-    fetch_timeSlots () {
-      this.$axios.get('/time-slot')
-        .then((response) => {
-          this.time_slots = response.data.time_slot
-        })
-    },
+    // fetch_timeSlots () {
+    //   this.$axios.get('/time-slot')
+    //     .then((response) => {
+    //       this.time_slots = response.data.time_slot
+    //     })
+    // },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {
@@ -247,7 +248,7 @@ export default {
       return new Date(dates).toString().slice(8, 10)
     },
     toggle_timeslot (idy) {
-      const timeslotIdx = this.date_row[this.selected_date].indexOf(this.time_slots_to_be_sent[idy])
+      const timeslotIdx = this.date_row[this.selected_date].indexOf(this.time_slots_to_be_sent[idy]) // to toggle the class of time blocks
       if (timeslotIdx > -1) {
         this.date_row[this.selected_date].splice(timeslotIdx, 1)
       } else {
@@ -271,24 +272,24 @@ export default {
         const date = dates[i]
         const thismonth = new Date(dates[i]).toString().slice(4, 7)
         const nextmonth = new Date(dates[i + 1]).toString().slice(4, 7)
-        if (thismonth !== nextmonth) {
+        if (thismonth !== nextmonth) { // in case if date is like 30 or 31 so month count will be increase by 1
           return month++
         }
         const todaydate = new Date(date).toString().slice(8, 10)
         const year = new Date(date).toString().slice(11, 15)
-        Vue.set(this.date_row, month + '-' + todaydate + '-' + year, [])
+        Vue.set(this.date_row, month + '-' + todaydate + '-' + year, []) // date is requested in MM-DD-YYYY
       }
     },
     submit () {
-      Object.keys(this.date_row).map((key) => {
-        if (this.date_row[key].length === 0) {
-          delete this.date_row[key]
-        }
-      })
       let payload = {}
       payload = { ...this.userInfo }
       payload.skills = payload.skills.toString()
       payload.interview_time = { ...this.date_row }
+      Object.keys(payload.interview_time).map((key) => {
+        if (payload.interview_time[key].length === 0) {
+          delete payload.interview_time[key] // remove date keys which are empty
+        }
+      })
       this.$axios.post('/auth/create-interview/', payload)
         .then((response) => {
           this.$toast.success('Your profile changes were saved', {
@@ -316,7 +317,9 @@ export default {
         return
       }
       this.skill_search_query = ''
-    }
+    } // do not remove below code for time being
+    // important learning can be extracted from code below
+    // about data not being saved inside json
     // badge_active (idy) {
     //   const today = new Date()
     //   const date = parseInt(('0' + today.getDate()).slice(-2)) + idy

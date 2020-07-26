@@ -1,6 +1,9 @@
 <template>
   <b-container class="py-5">
     <b-row align-v="start" align-content="start" class="flex-grow-1">
+      <p class="ml-3 mb-5">
+        <span class="font-weight-bold">Dashboard</span> / <span class="text-secondary">Profile</span>
+      </p>
       <b-col cols="12">
         <p v-if="!$store.getters.is_profile_completed && $store.getters.is_interviewer" class="float-right text-danger-dark">
           *Please update your profile which’ll help us
@@ -225,13 +228,16 @@
               </div>
             </b-tab>
             <b-tab v-if="$store.getters.is_interviewer" class="text-dark" title-link-class="border-0" title="Account Details">
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
+              <p class="text-secondary ml-md-4 mb-5">
+                Account Details required after verification. Optional before verification.
+              </p>
+              <div class="d-flex justify-content-around flex-column flex-md-row mb-5 mt-4">
                 <label class="sr-only" for="account_holder_name">Account Holder Name</label>
                 <b-input
                   v-model="profile.account_holder_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   required
-                  placeholder="First Name"
+                  placeholder="Account holder’s name"
                 />
                 <label class="sr-only" for="account_number">Account Number</label>
                 <b-input
@@ -280,7 +286,6 @@ export default {
         resume: null,
         professional_status: ''
       },
-      profile2: {},
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
@@ -316,7 +321,7 @@ export default {
     },
     save_profile () {
       const payload = { ...this.profile }
-      payload.skills = payload.skills.toString()
+      payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
@@ -360,9 +365,11 @@ export default {
       } else if (this.$store.getters.is_interviewer) {
         profileApiURL = '/auth/interviewer-profile'
       }
-      this.$axios.get(profileApiURL).then((response) => {
-        this.profile2 = response.data.profile
-      })
+      if (this.$store.getters.is_profile_completed) {
+        this.$axios.get(profileApiURL).then((response) => {
+          this.profile = response.data.profile
+        })
+      }
     }
   }
 }

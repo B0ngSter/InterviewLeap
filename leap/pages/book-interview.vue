@@ -183,7 +183,7 @@ export default {
   layout: 'app-page',
   data () {
     return {
-      time_slots: null,
+      time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       time_slot: [],
       candidateInfo: {
@@ -200,15 +200,15 @@ export default {
   },
   mounted () {
     this.fetch_timeZone()
-    this.fetch_timeSlots()
+    // this.fetch_timeSlots()
   },
   methods: {
-    fetch_timeSlots () {
-      this.$axios.get('/time-slot')
-        .then((response) => {
-          this.time_slots = response.data.time_slot
-        })
-    },
+    // fetch_timeSlots () {
+    //   this.$axios.get('/time-slot')
+    //     .then((response) => {
+    //       this.time_slots = response.data.time_slot
+    //     })
+    // },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {
@@ -247,14 +247,14 @@ export default {
     },
     submit () {
       const payload = { ...this.candidateInfo }
-      payload.skills = payload.skills.toString()
+      payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
       })
       this.$axios.post('/book-interview/', formData)
         .then((response) => {
-          this.$toast.success('success', {
+          this.$toast.success('Recorded, redirecting you to payment page', {
             action: {
               text: 'Close',
               onClick: (e, toastObject) => {

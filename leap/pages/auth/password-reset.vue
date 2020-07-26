@@ -3,7 +3,9 @@
     <b-container>
       <b-row align-h="center" align-v="center">
         <b-col cols="11" md="8" lg="6" class="text-center text-joyful-dark">
-          <h3 class="mb-5 text-dark">Reset your password</h3>
+          <h3 class="mb-5 text-dark">
+            Reset your password
+          </h3>
           <p>
             Forgot your password? Don’t worry, we all do ;)
           </p>

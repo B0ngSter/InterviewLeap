@@ -141,13 +141,13 @@
               'text-dark': date === selected_date ? false : true,
               'bg-white': date === selected_date ? false : true
             }"
-            class="p-4"
+            class="p-4 cursor-pointer"
             @click="select_date(date)"
           >
             {{ dayZ(idx) }}
           </b-badge>
           <h4
-            class="p-3"
+            class="p-4"
             :class="{
               'text-dark': date === selected_date ? false : true,
               'text-primary': date === selected_date ? true : false
@@ -167,7 +167,7 @@
           <b-card
             v-if="selected_date"
             no-body
-            class="p-3 pl-5 mt-3 border-0"
+            class="p-3 pl-5 mt-3 border-0 cursor-pointer"
             :class="{
               'alert-primary': date_row[selected_date].includes(time_slots_to_be_sent[idy])
             }"

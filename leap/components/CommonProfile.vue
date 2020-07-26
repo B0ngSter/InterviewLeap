@@ -29,14 +29,12 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="first_name">First Name</label>
                 <b-input
-                  id="first_name"
                   v-model="profile.first_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="First Name"
                 />
                 <label class="sr-only" for="last_name">Last Name</label>
                 <b-input
-                  id="last_name"
                   v-model="profile.last_name"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Last Name"
@@ -45,7 +43,6 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="email">Email</label>
                 <b-input
-                  id="email"
                   v-model="profile.email"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Email"
@@ -53,7 +50,6 @@
                 />
                 <label class="sr-only" for="phone_number">Mobile Number</label>
                 <b-input
-                  id="mobile"
                   v-model="profile.phone_number"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Mobile Number"
@@ -78,7 +74,6 @@
                 <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-3 d-flex flex-fill">
                   <label class="sr-only" for="industry">Industry</label>
                   <b-input
-                    id="industry"
                     v-model="profile.industry"
                     list="industry-options"
                     class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
@@ -94,7 +89,6 @@
                 <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-4 mr-md-3 d-flex flex-fill">
                   <label class="sr-only" for="exp_years">Total Experience</label>
                   <b-input
-                    id="exp_years"
                     v-model="profile.exp_years"
                     class="flex-fill"
                     placeholder="Total Experience"
@@ -109,14 +103,12 @@
               >
                 <label class="sr-only" for="company">Current Company</label>
                 <b-input
-                  id="company"
                   v-model="profile.company"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Current Company"
                 />
                 <label class="sr-only" for="designation">Designation</label>
                 <b-input
-                  id="designation"
                   v-model="profile.designation"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Designation"
@@ -128,14 +120,12 @@
               >
                 <label class="sr-only" for="education">Highest Qualification</label>
                 <b-input
-                  id="education"
                   v-model="profile.education"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Highest Qualification"
                 />
                 <label class="sr-only" for="college">College / University</label>
                 <b-input
-                  id="college"
                   v-model="profile.college"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="College / University"
@@ -147,14 +137,12 @@
               >
                 <label class="sr-only" for="years_of_passing">Year of passing</label>
                 <b-input
-                  id="years_of_passing"
                   v-model="profile.years_of_passing"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="Year of passing"
                 />
                 <label class="sr-only" for="job_title">Position looking for Eg: Java Developer</label>
                 <b-input
-                  id="job_title"
                   v-model="profile.job_title"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Position looking for Eg: Java Developer"
@@ -164,7 +152,6 @@
                 <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
                   <label class="sr-only" for="resume">Latest Resume</label>
                   <b-form-file
-                    id="resume"
                     v-model="profile.resume"
                     placeholder="Your latest resume"
                     drop-placeholder="Drop resume here..."
@@ -174,7 +161,6 @@
                 <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
                   <label class="sr-only" for="linkedin">Linkedin URL</label>
                   <b-input
-                    id="linkedin"
                     v-model="profile.linkedin"
                     class="flex-fill"
                     placeholder="Linkedin URL"
@@ -234,15 +220,14 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5 mt-4">
                 <label class="sr-only" for="account_holder_name">Account Holder Name</label>
                 <b-input
-                  v-model="profile.account_holder_name"
+                  v-model="account_info.acc_name"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   required
                   placeholder="Account holder’s name"
                 />
                 <label class="sr-only" for="account_number">Account Number</label>
                 <b-input
-                  id="last_name"
-                  v-model="profile.account_number"
+                  v-model="account_info.account_number"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Account Number"
                 />
@@ -250,15 +235,13 @@
               <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
                 <label class="sr-only" for="IFSC">IFSC</label>
                 <b-input
-                  id="email"
-                  v-model="profile.ifsc"
+                  v-model="account_info.ifsc_code"
                   class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
                   placeholder="IFSC"
                 />
                 <label class="sr-only" for="bank_name">Account Number</label>
                 <b-input
-                  id="mobile"
-                  v-model="profile.bank_name"
+                  v-model="account_info.bank"
                   class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
                   placeholder="Bank Name"
                 />
@@ -286,6 +269,7 @@ export default {
         resume: null,
         professional_status: ''
       },
+      account_info: {},
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
@@ -322,6 +306,7 @@ export default {
     save_profile () {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
+      payload.account_info = { ...this.account_info }
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
@@ -335,6 +320,7 @@ export default {
       this.$axios.post(profileApiURL, formData
       ).then((response) => {
         if (response.status === 200) {
+          this.$store.getters.is_profile_completed = true
           this.$toast.success('Your profile changes were saved', {
             action: {
               text: 'Close',

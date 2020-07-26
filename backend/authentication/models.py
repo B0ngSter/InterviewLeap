@@ -149,7 +149,8 @@ class Interview(models.Model):
 
 class InterviewSlots(models.Model):
     interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
-    interview_time = models.DateTimeField()
+    interview_start_time = models.DateTimeField()
+    interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

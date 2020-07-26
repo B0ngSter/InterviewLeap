@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core import exceptions
-from .models import User, Interview
+from .models import User, Interview, InterviewSlots
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
 
@@ -200,22 +200,26 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        interview_obj, created = Interview.objects.get_or_create(user=self.context['request'].user)
+        interview_obj, created = Interview.objects.get_or_create(interviewer=self.context['request'].user)
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)
         interview_obj.save()
         time_slots = self.context['request'].data['interview_time']
         date_time_list = []
-        for date, time_lists in time_slots:
+        for date, time_lists in time_slots.items():
             for time in time_lists:
-                date_time = self._date_time_naive_format(date, time)
-                date_time_list.append(date_time)
-        timeslot_lists = [Interview(interview=interview_obj,
-                                    interview_time=each_date) for each_date in date_time_list]
-        Interview.objects.bulk_create(timeslot_lists)
+                start_time = time.split("-")[0].strip()
+                end_time = time.split("-")[1].strip()
+                start_date_time = self._date_time_naive_format(date, start_time)
+                end_date_time = self._date_time_naive_format(date, end_time)
+                date_time_list.append((start_date_time, end_date_time))
+        timeslot_lists = [InterviewSlots(interview=interview_obj, interview_start_time=start_date_time,
+                                         interview_end_time=end_date_time)
+                          for start_date_time, end_date_time in date_time_list]
+        InterviewSlots.objects.bulk_create(timeslot_lists)
         return interview_obj
 
-    def _date_time_naive_format(self, time, date):
+    def _date_time_naive_format(self, date, time):
         date_time = date + ' ' + time
-        naive = datetime.datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        naive = datetime.datetime.strptime(date_time, "%m-%d-%Y %H:%M")
         return naive

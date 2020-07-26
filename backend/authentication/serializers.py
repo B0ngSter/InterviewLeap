@@ -93,6 +93,17 @@ class VerifyUserSerializer(serializers.ModelSerializer):
 #         fields = ['title']
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'mobile_number']
+
+    def update(self, instance, validated_data):
+        instance.__dict__.update(**validated_data)
+        instance.save()
+        return instance
+
+
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
@@ -119,7 +130,6 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
 class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True)
-    # account_info = serializers.JSONField()
 
     class Meta:
         model = InterviewerProfile

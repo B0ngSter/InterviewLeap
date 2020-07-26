@@ -30,7 +30,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer, VerifyUserSerializer
+from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -495,6 +495,10 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data
         profile_data['user'] = request.user.id
+        user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
+                                                context={"request": request})
+        if user_serializer.is_valid():
+            user_serializer.save()
         if 'skills' in profile_data:
             profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})

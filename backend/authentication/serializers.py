@@ -1,8 +1,10 @@
+import datetime
+
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core import exceptions
-from .models import User, Interview
+from .models import User, Interview, InterviewSlots
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
 
@@ -13,22 +15,36 @@ class RegistrationSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
-    re_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
     token = serializers.CharField(read_only=True)
     role = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'token', 'role', 're_password']
+        fields = ['first_name', 'last_name', 'email', 'password', 'token', 'role', 'confirm_password']
 
     def validate(self, data):
         user = None
         password = data.get('password')
-        re_password = data.get('re_password')
+        confirm_password = data.get('confirm_password')
 
         errors = dict()
 
-        if password != re_password:
+        email = data.get('email')
+        existing_user = User.objects.filter(email=email).exists()
+        if existing_user:
+            errors['message'] = "user with this email already exists."
+        if not data.get('first_name'):
+            errors['message'] = "Please enter your first name"
+        if not data.get('last_name'):
+            errors['message'] = "Please enter your last name"
+        if not data.get('email'):
+            errors['message'] = "Please enter your email id"
+        if not password:
+            errors['message'] = "Please enter password for signup"
+        if not confirm_password:
+            errors['message'] = "Please enter confirm password"
+        if password != confirm_password:
             errors['message'] = 'Password and confirm password does not match, please type again'
         try:
             validate_password(password=password,
@@ -55,6 +71,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class VerifyUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['email_verified']
+
+    def update(self, instance, validated_data):
+        instance.email_verified = True
+        instance.save()
+        return instance
+
 # class SkillReadSerializer(serializers.ModelSerializer):
 #     title = serializers.SerializerMethodField()
 #
@@ -66,8 +93,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
 #         fields = ['title']
 
 
-class SkillSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'mobile_number']
 
+    def update(self, instance, validated_data):
+        instance.__dict__.update(**validated_data)
+        instance.save()
+        return instance
+
+
+class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = ['title']
@@ -78,7 +115,8 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateProfile
-        fields = ['user', 'education', 'college', 'year_of_passing', 'job_title', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'job_title', 'resume',
+                  'linkedin', 'industry', 'designation', 'company', 'exp_years', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')
@@ -95,7 +133,21 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterviewerProfile
-        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'linkedin', 'skills',
+                  'account_info']
+
+    def validate(self, data):
+        account_info = data['account_info']
+        message = "{} field is required"
+        if 'acc_name' not in account_info:
+            raise serializers.ValidationError({"message": message.format('acc_name')})
+        if 'account_number' not in account_info:
+            raise serializers.ValidationError({"message": message.format('account_number')})
+        if 'ifsc_code' not in account_info:
+            raise serializers.ValidationError({"message": message.format('ifsc_code')})
+        if 'bank' not in account_info:
+            raise serializers.ValidationError({"message": message.format('bank')})
+        return data
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')
@@ -108,7 +160,6 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
 
 
 class CandidateProfileDetailSerializer(serializers.ModelSerializer):
-
     skills = SkillSerializer(many=True)
 
     class Meta:
@@ -124,12 +175,12 @@ class CandidateProfileDetailSerializer(serializers.ModelSerializer):
 
 
 class InterviewerProfileDetailSerializer(serializers.ModelSerializer):
-
     skills = SkillSerializer(many=True)
 
     class Meta:
         model = InterviewerProfile
-        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills']
+        fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'resume', 'linkedin', 'skills',
+                  'account_info']
 
     def update(self, instance, validated_data):
         skills = validated_data.pop('skills')
@@ -140,8 +191,35 @@ class InterviewerProfileDetailSerializer(serializers.ModelSerializer):
 
 
 class InterviewCreateSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
 
     class Meta:
         model = Interview
-        fields = ['interviewer', 'job_title', 'exp_years', 'date', 'time_slots']
+        fields = ['interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'skills']
 
+    def create(self, validated_data):
+        skills = validated_data.pop('skills')
+        skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+        interview_obj, created = Interview.objects.get_or_create(interviewer=self.context['request'].user)
+        interview_obj.skills.set(skill_obj)
+        interview_obj.__dict__.update(**validated_data)
+        interview_obj.save()
+        time_slots = self.context['request'].data['interview_time']
+        date_time_list = []
+        for date, time_lists in time_slots.items():
+            for time in time_lists:
+                start_time = time.split("-")[0].strip()
+                end_time = time.split("-")[1].strip()
+                start_date_time = self._date_time_naive_format(date, start_time)
+                end_date_time = self._date_time_naive_format(date, end_time)
+                date_time_list.append((start_date_time, end_date_time))
+        timeslot_lists = [InterviewSlots(interview=interview_obj, interview_start_time=start_date_time,
+                                         interview_end_time=end_date_time)
+                          for start_date_time, end_date_time in date_time_list]
+        InterviewSlots.objects.bulk_create(timeslot_lists)
+        return interview_obj
+
+    def _date_time_naive_format(self, date, time):
+        date_time = date + ' ' + time
+        naive = datetime.datetime.strptime(date_time, "%m-%d-%Y %H:%M")
+        return naive

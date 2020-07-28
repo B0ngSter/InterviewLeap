@@ -14,6 +14,11 @@
 import auth from '~/components/auth'
 
 export default {
+  middleware ({ store, redirect }) {
+    if (store.getters.is_authenticated) {
+      store.dispatch('post_login_routing')
+    }
+  },
   layout: 'auth',
   components: {
     auth

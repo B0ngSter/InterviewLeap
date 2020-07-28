@@ -1,3 +1,4 @@
+import jwt
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core.mail import EmailMultiAlternatives, BadHeaderError
 from django.dispatch import receiver
@@ -10,13 +11,14 @@ from rest_framework import status
 from django.conf import settings
 from datetime import datetime, timedelta
 from django.utils import timezone
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
 from django.utils.translation import ugettext as _
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView, GenericAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListCreateAPIView, ListAPIView, \
+    GenericAPIView, get_object_or_404
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,10 +30,11 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
+from rest_framework.permissions import AllowAny
 # Create your views here.
 from .serializers import CandidateProfileCreateListSerializer, InterviewerProfileCreateListSerializer, \
     CandidateProfileDetailSerializer, InterviewerProfileDetailSerializer, InterviewCreateSerializer
@@ -51,7 +54,7 @@ class SignupView(CreateAPIView):
         Request params -- {
                               "email": "string",
                               "password": "string",
-                              "re_password": "string",
+                              "confirm_password": "string",
                               "first_name": "string",
                               "last_name": "string",
                               "role": "string"
@@ -62,6 +65,7 @@ class SignupView(CreateAPIView):
     """
 
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -76,7 +80,7 @@ class SignupView(CreateAPIView):
             if serializer.errors.get('message'):
                 error_message = serializer.errors.get('message')[0]
             else:
-                error_message = ", ".join([error for error in serializer.errors.keys()])
+                error_message = ", ".join([error.replace('_', ' ') for error in serializer.errors.keys()])
                 error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -84,6 +88,7 @@ class SignupView(CreateAPIView):
         try:
             email = data.get('email')
             first_name = data.get('first_name')
+            role = data.get('role')
             frontend_url = settings.FRONTEND_URL
             send_by = settings.DEFAULT_FROM_EMAIL
 
@@ -96,8 +101,11 @@ class SignupView(CreateAPIView):
                 'verification_url': verification_url,
                 'email': email
             }
+            if role == 'Candidate':
+                email_plaintext_message = render_to_string('email/verify_candidate.html', context)
+            else:
+                email_plaintext_message = render_to_string('email/verify_Interviewer.html', context)
 
-            email_plaintext_message = render_to_string('email/confirmation_email.html', context)
             msg = EmailMultiAlternatives(
                 "Welcome to {title}".format(title="Interview Leap!"),
                 "",
@@ -108,27 +116,27 @@ class SignupView(CreateAPIView):
             msg.send()
         except BadHeaderError:
             message = "Invalid header found."
-            return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"message": message}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ConfirmationEmail(BaseEmailMessage):
-    template_name = "email/confirmation_email.html"
-
-    def get_context_data(self, **kwargs):
-        frontend_url = settings.FRONTEND_URL
-        user = User.objects.get(email=self.context['user'])
-        token = generate_token(user)
-
-        # This link will give profile completion link for user
-        verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
-                                                                             token=str(token))
-        print(verification_url)
-        self.context = {
-            'name': user.first_name,
-            'site_name': 'Interview Leap',
-            'verification_url': verification_url
-        }
-        return self.context
+# class ConfirmationEmail(BaseEmailMessage):
+#     template_name = "email/confirmation_email.html"
+#
+#     def get_context_data(self, **kwargs):
+#         frontend_url = settings.FRONTEND_URL
+#         user = User.objects.get(email=self.context['user'])
+#         token = generate_token(user)
+#
+#         # This link will give profile completion link for user
+#         verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+#                                                                              token=str(token))
+#         print(verification_url)
+#         self.context = {
+#             'name': user.first_name,
+#             'site_name': 'Interview Leap',
+#             'verification_url': verification_url
+#         }
+#         return self.context
 
 
 class LoginView(TokenObtainPairView):
@@ -161,6 +169,9 @@ class LoginView(TokenObtainPairView):
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
             elif not user.role:
                 error_message['message'] = "Role is not set for the User."
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            elif not user.email_verified:
+                error_message['message'] = "Email is not verified."
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
         except ObjectDoesNotExist:
@@ -200,15 +211,61 @@ class LoginView(TokenObtainPairView):
             return Response({"message": "Internal server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class VerifyUserView(RetrieveUpdateAPIView):
+    """
+        Action based on Verification token for email  -- If token is valid will verify the user and marked user as email_verified.
+        Request param from GET call:     {
+                              "token": "string",
+                            }
+        response : {
+                    "is_token_valid": boolean
+                    }
+        Response Status -- 200 ok
+        Error Code -- 400 Bad Request
+    """
+
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    serializer_class = VerifyUserSerializer
+
+    def post(self, request, *args, **kwargs):
+        token = kwargs.pop('token')
+        payload = jwt.decode(token, settings.SECRET_KEY)
+        response = {'is_token_valid': False}
+        try:
+            response['is_token_valid'] = User.objects.filter(id=payload.get('user_id'), email_verified=False).exists()
+        except jwt.ExpiredSignature:
+            response['message'] = 'Token expired. Please request for a new token'
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.InvalidSignatureError:
+            response['message'] = 'Signature verification failed'
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.DecodeError:
+            response['message'] = 'Invalid Token'
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except jwt.InvalidTokenError:
+            response['is_token_valid'] = User.objects.filter(id=payload.get('user_id'), email_verified=False).exists()
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        user_obj = get_object_or_404(User, id=payload.get('user_id'))
+        serializer = self.serializer_class(user_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
 class GoogleView(APIView):
     """
         Google Signup   -- An user can sign in using their google account like xyz@gmail.com!
                             Api will create a entry in user table passing Email id and password(auto-generated)
         Request Param - {"token": "string"}    #access_token
-        status - "return verification token"
+        status - "return token along with meta data"
         Error -- Raise with message error.
     """
     permission_classes = (AllowAny,)
+    authentication_classes = ()
 
     def post(self, request):
         id_token = request.data['id_token']
@@ -220,7 +277,6 @@ class GoogleView(APIView):
             content = {'message': 'Invalid token'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         response = {}
-
         try:
             user = User.objects.get(email=data.get('email'))
             if user.profile_picture:
@@ -241,30 +297,34 @@ class GoogleView(APIView):
                 else:
                     is_profile_completed = False
         except ObjectDoesNotExist:
-            user = User()
-            user.username = data['email']
-            user.password = make_password(BaseUserManager().make_random_password())
-            user.first_name = data.get('given_name')
-            user.last_name = data.get('family_name')
-            user.email = data['email']
-            user.role = role
-
-            if 'picture' in data.keys():
-                image_url = data.get('picture')
-                request = requests.get(image_url, stream=True)
-                file_name = image_url.split('/')[-1]
-                lf = tempfile.NamedTemporaryFile()
-                for block in request.iter_content(1024 * 8):  # Read the streamed image in sections
-                    if not block:
-                        break
-                    lf.write(block)
-                user.profile_picture.save(file_name, files.File(lf))
-                profile_picture = user.profile_picture.url
+            if not role:
+                return Response(status=status.HTTP_204_NO_CONTENT)
             else:
-                profile_picture = None
-            user.is_active = True
-            user.save()
-            is_profile_completed = False
+                user = User()
+                user.username = data['email']
+                user.password = make_password(BaseUserManager().make_random_password())
+                user.first_name = data.get('given_name')
+                user.last_name = data.get('family_name')
+                user.email = data['email']
+                user.email_verified = True
+                user.role = role
+
+                if 'picture' in data.keys():
+                    image_url = data.get('picture')
+                    request = requests.get(image_url, stream=True)
+                    file_name = image_url.split('/')[-1]
+                    lf = tempfile.NamedTemporaryFile()
+                    for block in request.iter_content(1024 * 8):  # Read the streamed image in sections
+                        if not block:
+                            break
+                        lf.write(block)
+                    user.profile_picture.save(file_name, files.File(lf))
+                    profile_picture = user.profile_picture.url
+                else:
+                    profile_picture = None
+                user.is_active = True
+                user.save()
+                is_profile_completed = False
 
         token = generate_token(user)
         response["access_token"] = token
@@ -282,6 +342,8 @@ class GoogleView(APIView):
 
 @csrf_protect
 @api_view()
+@permission_classes([AllowAny])
+@authentication_classes([])
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
     try:
@@ -307,7 +369,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         msg.send()
     except BadHeaderError:
         message = "Invalid header found."
-        return Response({message: message}, status=status.HTTP_403_FORBIDDEN)
+        return Response({message: message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ResetPasswordConfirm(GenericAPIView):
@@ -324,6 +386,7 @@ class ResetPasswordConfirm(GenericAPIView):
     """
     throttle_classes = ()
     permission_classes = ()
+    authentication_classes = ()
     serializer_class = PasswordTokenSerializer
 
     def post(self, request, *args, **kwargs):
@@ -362,13 +425,19 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     """
             CandidateProfile   -- Authenticated user can create profile!
             actions -- POST -- Profile Creation/Updation(Candidate), If profile exists it updates the profile.
+            description -- Based on the professional status send the values
             Request params -- {
+                                  "professional_status": "choicefield" --> options = ["Experienced", "Fresher"]
                                   "education": "string",
                                   "college": "string"
                                   "years_of_passing": "string"
                                   "job_title": "string"
                                   "resume": "file field"
                                   "linkedin": "valid url in string"
+                                  "industry": "string"
+                                  "designation": "string"
+                                  "company": "string"
+                                  "exp_years": "integer"
                                   "skills": "comma separated values in string"
 
                                 }
@@ -424,8 +493,12 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         return interviewers
 
     def create(self, request, *args, **kwargs):
-        profile_data = request.data.dict()
+        profile_data = request.data
         profile_data['user'] = request.user.id
+        user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
+                                                context={"request": request})
+        if user_serializer.is_valid():
+            user_serializer.save()
         if 'skills' in profile_data:
             profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
@@ -433,8 +506,11 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            error_message = ", ".join([error for error in serializer.errors.keys()])
-            error_message = "Invalid value for {}".format(error_message)
+            if serializer.errors.get('message'):
+                error_message = serializer.errors.get('message')[0]
+            else:
+                error_message = ", ".join([error for error in serializer.errors.keys()])
+                error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -560,9 +636,10 @@ class InterviewCreateView(CreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data.dict()
+        interview_dict = request.data
         interview_dict['interviewer'] = request.user.id
-        interview_dict['time_slots'] = json.loads(interview_dict['time_slots'])
+        if 'skills' in interview_dict:
+            interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
         serializer = self.get_serializer(data=interview_dict)
         if serializer.is_valid():
             serializer.save()
@@ -572,5 +649,10 @@ class InterviewCreateView(CreateAPIView):
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+
+def _date_time_naive_format(time, date):
+    date_time = date + ' ' + time
+    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    return naive
 
 

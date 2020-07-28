@@ -271,9 +271,12 @@ export default {
       for (let i = 0; i < dates.length; i++) {
         const date = dates[i]
         const thismonth = new Date(dates[i]).toString().slice(4, 7)
-        const nextmonth = new Date(dates[i + 1]).toString().slice(4, 7)
-        if (thismonth !== nextmonth) { // in case if date is like 30 or 31 so month count will be increase by 1
-          return month++
+        const MonthOfFirstDay = new Date(dates[0]).toString().slice(4, 7)
+        if (thismonth !== MonthOfFirstDay) { // in case if date is like 30 or 31 so month count will be increase by 1
+          month = parseInt(month) + 1
+          if (month < 10) {
+            month = '0' + month
+          }
         }
         const todaydate = new Date(date).toString().slice(8, 10)
         const year = new Date(date).toString().slice(11, 15)

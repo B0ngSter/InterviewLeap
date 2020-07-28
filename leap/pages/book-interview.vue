@@ -254,6 +254,7 @@ export default {
       })
       this.$axios.post('/book-interview/', formData)
         .then((response) => {
+          this.$router.push('/payment')
           this.$toast.success('Recorded, redirecting you to payment page', {
             action: {
               text: 'Close',

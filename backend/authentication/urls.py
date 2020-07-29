@@ -3,11 +3,12 @@ from django_rest_passwordreset.views import reset_password_validate_token,\
     reset_password_request_token
 from .views import LoginView, GoogleView, SignupView, CandidateProfileCreateListView, \
     InterviewerProfileCreateListView, CandidateProfileDetailView, InterviewerProfileDetailView, \
-    IndustryListView, ResetPasswordConfirm, InterviewCreateView, VerifyUserView
+    IndustryListView, ResetPasswordConfirm, InterviewCreateView, VerifyUserView, basic_profile_details
 
 urlpatterns = [
     path('signup', SignupView.as_view()),
     path('login', LoginView.as_view()),
+    path('profile', basic_profile_details),
     path('google-signin', GoogleView.as_view()),
     path('password-reset/', reset_password_request_token, name='reset-password-request'),
     path('password-reset/validate_token/', reset_password_validate_token, name='reset-password-validate'),

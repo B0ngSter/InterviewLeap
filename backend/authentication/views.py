@@ -298,7 +298,7 @@ class GoogleView(APIView):
                     is_profile_completed = False
         except ObjectDoesNotExist:
             if not role:
-                return Response(status=status.HTTP_204_NO_CONTENT)
+                return Response(status=307)
             else:
                 user = User()
                 user.username = data['email']

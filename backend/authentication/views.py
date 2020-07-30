@@ -30,7 +30,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer
+from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, ResendVerificationTokenSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -209,6 +209,66 @@ class LoginView(TokenObtainPairView):
             return Response(response, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Internal server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ResendEmailVerificationAPIView(APIView):
+    """
+        Resend request for email Verification  -- It send verification url link again to the requested Email Id!
+        Request params -- {
+                              "email": "string",
+                            }
+        Response Status -- 200 Ok
+        Error Code -- 400 Bad Request
+    """
+
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    serializer_class = ResendVerificationTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            user = User.objects.get(email=serializer.data['email'])
+            if user:
+                token = generate_token(user)
+                self.account_email_verify_token(request, token, user.email, user.first_name, user.role)
+                message = "Email has been sent successfully to email {}".format(serializer.data['email'])
+                return Response({"message": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "User doest not exist!. Please signup first."},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "Invalid request/Valid email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def account_email_verify_token(self, request, token, email, first_name, role):
+        try:
+            frontend_url = settings.FRONTEND_URL
+            send_by = settings.DEFAULT_FROM_EMAIL
+
+            verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+                                                                                 token=str(token))
+            context = {
+                'name': first_name,
+                'site_name': 'Interview Leap',
+                'verification_url': verification_url,
+                'email': email
+            }
+            if role == 'Candidate':
+                email_plaintext_message = render_to_string('email/verify_candidate.html', context)
+            else:
+                email_plaintext_message = render_to_string('email/verify_Interviewer.html', context)
+
+            msg = EmailMultiAlternatives(
+                "Welcome to {title}".format(title="Interview Leap!"),
+                "",
+                send_by,
+                [email]
+            )
+            msg.attach_alternative(email_plaintext_message, 'text/html')
+            msg.send()
+        except BadHeaderError:
+            message = "Invalid header found."
+            return Response({"message": message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyUserView(RetrieveUpdateAPIView):
@@ -448,9 +508,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
             """
     serializer_class = CandidateProfileCreateListSerializer
 
-    def get_queryset(self):
-        candidates = CandidateProfile.objects.all()
-        return candidates
+    def get(self, request, *args, **kwargs):
+        user_serializer = UserDetailSerializer(self.request.user).data
+        candidate_obj = CandidateProfile.objects.get(user=self.request.user)
+        candidate_serializer = CandidateProfileCreateListSerializer(candidate_obj).data
+        candidate_serializer.update(user_serializer)
+        return Response(candidate_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
@@ -488,9 +551,12 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
                 """
     serializer_class = InterviewerProfileCreateListSerializer
 
-    def get_queryset(self):
-        interviewers = InterviewerProfile.objects.all()
-        return interviewers
+    def get(self, request, *args, **kwargs):
+        user_serializer = UserDetailSerializer(self.request.user).data
+        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user)
+        interviewer_serializer = InterviewerProfileCreateListSerializer(interviewer_obj).data
+        interviewer_serializer.update(user_serializer)
+        return Response(interviewer_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data
@@ -509,8 +575,11 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
             if serializer.errors.get('message'):
                 error_message = serializer.errors.get('message')[0]
             else:
-                error_message = ", ".join([error for error in serializer.errors.keys()])
-                error_message = "Invalid value for {}".format(error_message)
+                if 'account_info' in serializer.errors.keys():
+                    error_message = "Please provide valid values for Account Details form"
+                else:
+                    error_message = ", ".join([error for error in serializer.errors.keys()])
+                    error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 

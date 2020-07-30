@@ -71,6 +71,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class ResendVerificationTokenSerializer(serializers.Serializer):
+
+    email = serializers.EmailField(required=True)
+
+
 class VerifyUserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -102,6 +107,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.__dict__.update(**validated_data)
         instance.save()
         return instance
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'mobile_number']
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -140,13 +151,13 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
         account_info = data['account_info']
         message = "{} field is required"
         if 'acc_name' not in account_info:
-            raise serializers.ValidationError({"message": message.format('acc_name')})
+            raise serializers.ValidationError({"message": message.format('Account Name')})
         if 'account_number' not in account_info:
-            raise serializers.ValidationError({"message": message.format('account_number')})
+            raise serializers.ValidationError({"message": message.format('Account Number')})
         if 'ifsc_code' not in account_info:
-            raise serializers.ValidationError({"message": message.format('ifsc_code')})
+            raise serializers.ValidationError({"message": message.format('IFSC Code')})
         if 'bank' not in account_info:
-            raise serializers.ValidationError({"message": message.format('bank')})
+            raise serializers.ValidationError({"message": message.format('Bank')})
         return data
 
     def create(self, validated_data):
@@ -195,12 +206,16 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interview
-        fields = ['interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'skills']
+        fields = ['pk', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        interview_obj, created = Interview.objects.get_or_create(interviewer=self.context['request'].user)
+        if 'pk' in validated_data:
+            interview_obj, created = Interview.objects.get(interviewer=self.context['request'].user,
+                                                           pk=validated_data['pk'])
+        else:
+            interview_obj = Interview.objects.create(interviewer=self.context['request'].user)
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)
         interview_obj.save()

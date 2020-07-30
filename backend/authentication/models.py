@@ -146,6 +146,9 @@ class Interview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.job_title
+
 
 class InterviewSlots(models.Model):
     interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
@@ -154,4 +157,7 @@ class InterviewSlots(models.Model):
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.interview.job_title
 

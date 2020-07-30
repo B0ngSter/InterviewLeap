@@ -41,3 +41,10 @@ class BookInterviewCreateSerializer(serializers.ModelSerializer):
                 return candidate
         except IntegrityError:
             transaction.rollback()
+
+
+class SKillSearchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Skill
+        fields = ['title']

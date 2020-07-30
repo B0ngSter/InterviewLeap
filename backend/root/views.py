@@ -2,10 +2,13 @@ from django.conf import settings
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pytz
-from root.serializers import BookInterviewCreateSerializer
+from authentication.models import Skill
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
+from rest_framework.generics import ListAPIView
 
 
 class BookInterviewView(CreateAPIView):
@@ -64,3 +67,21 @@ class TimeSlotListView(APIView):
         time_slots = settings.CANDIDATE_TIME_SLOTS
         slots = [slot[0] for slot in time_slots]
         return Response({"time_slot": slots}, status=status.HTTP_200_OK)
+
+
+class SkillSearchView(ListAPIView):
+    pagination_class = None
+    queryset = Skill.objects.all()
+    serializer_class = SKillSearchSerializer
+
+    def get(self, request, *args, **kwargs):
+        if 'search' in request.GET.keys():
+            skills = self.request.GET.get('search')
+            result = Skill.objects.filter(title__iregex=r'(' + skills + ')')
+            output_res = [item.title for item in result]
+            if len(output_res) > 0:
+                return Response({"result": output_res}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "No skill with this key found!"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)

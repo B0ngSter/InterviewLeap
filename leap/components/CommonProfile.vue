@@ -344,8 +344,8 @@ export default {
     },
     fetch_profile_data () {
       let profileApiURL
-      this.profile.first_name = this.$store.getters.user_name.substr(0, this.$store.getters.user_name.indexOf(' '))
-      this.profile.last_name = this.$store.getters.user_name.substr(this.$store.getters.user_name.indexOf(' ') + 1)
+      this.profile.first_name = this.$store.state.auth.user.first_name
+      this.profile.last_name = this.$store.state.auth.user.last_name
       if (this.$store.getters.is_candidate) {
         profileApiURL = '/auth/candidate-profile'
       } else if (this.$store.getters.is_interviewer) {

@@ -2,20 +2,22 @@
   <div class="container">
     <div>
       <Logo />
-      <h1 v-if="$store.state.auth" class="title">
+      <h1 class="title">
         InterviewLeap
       </h1>
-      <!-- <div class="links" v-else> -->
       <div class="links">
         <b-button variant="primary" to="/test">
           Test App page
         </b-button>
-        <NuxtLink to="/auth/login">
+        <NuxtLink to="/login">
           login
         </NuxtLink>
-        <NuxtLink to="/auth/signup">
+        <NuxtLink to="/signup">
           Sign Up
         </NuxtLink>
+        <p>
+          loggedIn? <b>{{ this.$auth.loggedIn }}</b>
+        </p>
       </div>
     </div>
   </div>
@@ -23,8 +25,7 @@
 
 <script>
 export default {
-  methods: {
-  }
+  auth: false
 }
 </script>
 

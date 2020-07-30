@@ -37,7 +37,6 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    { src: "~/plugins/init_auth_setup.js", ssr: false },
     { src: "~/plugins/axios.js" }
   ],
   /*
@@ -64,7 +63,8 @@ export default {
     ],
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    "@nuxtjs/toast",
+    '@nuxtjs/auth',
+    '@nuxtjs/toast',
     'cookie-universal-nuxt',
     'js-cookie',
     'cookieparser'
@@ -73,8 +73,35 @@ export default {
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
   */
+  router: {
+    middleware: ['auth']
+  },
   axios: {
     baseURL: process.env.NODE_ENV === 'dev' ? 'http://localhost:8000' : 'https://api.interviewleap.com'
+  },
+  auth: {
+    redirect: {
+      home: '/profile'
+    },
+    strategies: {
+      customGoogleAuth: {
+        _scheme: '~/schemes/customGoogleAuth',
+        endpoints: {
+          login: { url: '/auth/google-signin', method: 'post', propertyName: 'access_token' },
+          user: { url: '/auth/profile', method: 'get', propertyName: 'profile' },
+          logout: false
+        },
+      },
+      local: {
+        endpoints: {
+          login: { url: '/auth/login', method: 'post', propertyName: 'access' },
+          user: { url: '/auth/profile', method: 'get', propertyName: 'profile' },
+          logout: false
+        },
+        // tokenRequired: false,
+        // tokenType: false
+      }
+    }
   },
   toast: {
     position: "bottom-center",
@@ -86,5 +113,6 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
+    transpile: ['@nuxtjs/auth']
   }
 }

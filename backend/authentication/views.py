@@ -499,7 +499,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         return Response(interviewer_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        profile_data = request.data.dict()
+        profile_data = request.data
         profile_data['user'] = request.user.id
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
@@ -515,8 +515,11 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
             if serializer.errors.get('message'):
                 error_message = serializer.errors.get('message')[0]
             else:
-                error_message = ", ".join([error for error in serializer.errors.keys()])
-                error_message = "Invalid value for {}".format(error_message)
+                if 'account_info' in serializer.errors.keys():
+                    error_message = "Please provide valid values for Account Details form"
+                else:
+                    error_message = ", ".join([error for error in serializer.errors.keys()])
+                    error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -642,7 +645,7 @@ class InterviewCreateView(CreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data.dict()
+        interview_dict = request.data
         interview_dict['interviewer'] = request.user.id
         if 'skills' in interview_dict:
             interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]

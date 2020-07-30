@@ -57,6 +57,7 @@
 <script>
 export default {
   layout: 'auth',
+  auth: 'guest',
   asyncData ({ $axios, query, redirect }) {
     if (query.token) {
       return $axios.post('/auth/password-reset/validate_token/', {

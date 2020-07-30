@@ -104,34 +104,20 @@ export default {
       }
     },
     google_auth () {
-      this.$axios.post('/auth/google-signin', { id_token: this.auth_token, role: this.selected_role })
-        .then((response) => {
-          if (response.status === 204) {
-            this.show = true
-          } else if (response.status === 200) {
-            if (response.data.access_token) {
-              this.$store.dispatch('set_auth_cookie', response.data.access_token)
-              this.$store.dispatch('set_meta_data_cookie', response.data.meta_data)
-              this.$store.commit('user_data', response.data.meta_data)
-              if (response.data.meta_data.role === 'Interviewer') {
-                this.$store.commit('role_is_interviewer')
-              } else if (response.data.meta_data.role === 'Candidate') {
-                this.$store.commit('role_is_candidate')
-              }
-              this.$store.commit('authentication_status')
-              this.$store.dispatch('post_login_routing')
-            }
-          }
-        })
+      this.$auth.loginWith('customGoogleAuth', { data: { id_token: this.auth_token, role: this.selected_role } })
         .catch((response) => {
-          this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
+          if (response.response.status === 307) {
+            this.show = true
+          } else {
+            this.$toast.error(response.response.data.message || 'Oops.. Unable to log you in at the moment', {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
               }
-            }
-          })
+            })
+          }
         })
     }
   }
@@ -140,6 +126,6 @@ export default {
 
 <style>
 .google_btn {
-  padding: 1rem 5rem 1rem 5rem;
+  padding: 1rem 5rem;
 }
 </style>

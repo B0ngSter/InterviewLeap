@@ -5,7 +5,7 @@
         <Logo />
       </b-navbar-brand>
     </b-navbar>
-    <b-container class="page-content">
+    <b-container class="page-content flex-column">
       <b-row no-gutters class="justify-content-center flex-fill">
         <b-col cols="12" class="d-flex align-items-center justify-content-center">
           <Nuxt />
@@ -30,7 +30,10 @@ export default {
 }
 </script>
 <style scoped>
-.page-content {
-  margin-top: 10vh;
+.container {
+  margin: 0 auto;
+  min-height: calc(100vh - 84px);
+  display: flex;
+  padding-bottom: 84px;
 }
 </style>

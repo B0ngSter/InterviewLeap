@@ -9,7 +9,6 @@ import commonProfile from '~/components/CommonProfile'
 
 export default {
   layout: 'app-page',
-  middleware: ['isauthenticated'],
   components: {
     commonProfile
   },

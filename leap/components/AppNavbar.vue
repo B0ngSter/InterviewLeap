@@ -21,10 +21,10 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template v-slot:button-content>
-            <span class="font-weight-bold">{{ name }}</span>
+            <span class="font-weight-bold">{{ $store.getters.full_name }}</span>
             <b-img
               rounded
-              src="https://cdn.zeplin.io/5ef9852ffe48f580cf1a311f/assets/C37953A1-4038-456B-A85A-B309B9EE174D.png"
+              :src="$store.getters.profile_pic"
               height="50"
               class="ml-3"
             />
@@ -32,7 +32,7 @@
           <b-dropdown-item to="/profile" active-class="active">
             Profile
           </b-dropdown-item>
-          <b-dropdown-item @click="$store.dispatch('logout')">
+          <b-dropdown-item @click="logout">
             Logout
           </b-dropdown-item>
         </b-nav-item-dropdown>
@@ -47,17 +47,10 @@ export default {
   components: {
     Logo
   },
-  data () {
-    return {
-      name: ''
-    }
-  },
   computed: {
     nav_items () {
       let routes
       if (this.$store.getters.is_candidate) {
-      // const [a, b] = [1, 1]
-      // if (a === b) {
         routes = [
           {
             title: 'Dashboard',
@@ -101,6 +94,11 @@ export default {
   },
   mounted () {
     this.name = this.$store.getters.user_name
+  },
+  methods: {
+    async logout () {
+      await this.$auth.logout()
+    }
   }
 }
 </script>

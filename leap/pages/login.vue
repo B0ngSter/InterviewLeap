@@ -3,7 +3,7 @@
     <b-container>
       <b-row align-v="center">
         <auth
-          action="signup"
+          action="login"
         />
       </b-row>
     </b-container>
@@ -12,12 +12,9 @@
 
 <script>
 import auth from '~/components/auth'
+
 export default {
-  middleware ({ store, redirect }) {
-    if (store.getters.is_authenticated) {
-      store.dispatch('post_login_routing')
-    }
-  },
+  auth: 'guest',
   layout: 'auth',
   components: {
     auth

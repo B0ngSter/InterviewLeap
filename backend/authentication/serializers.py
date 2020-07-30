@@ -104,6 +104,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return instance
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'mobile_number']
+
+
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
@@ -200,7 +206,7 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        interview_obj, created = Interview.objects.get_or_create(interviewer=self.context['request'].user)
+        interview_obj, created = Interview.objects.get_or_create(interviewer=self.context['request'].user)  #if else check
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)
         interview_obj.save()

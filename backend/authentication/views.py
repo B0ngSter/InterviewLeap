@@ -30,7 +30,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer
+from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer
 from .models import User, CandidateProfile, InterviewerProfile
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -448,9 +448,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
             """
     serializer_class = CandidateProfileCreateListSerializer
 
-    def get_queryset(self):
-        candidates = CandidateProfile.objects.all()
-        return candidates
+    def get(self, request, *args, **kwargs):
+        user_serializer = UserDetailSerializer(self.request.user).data
+        candidate_obj = CandidateProfile.objects.get(user=self.request.user)
+        candidate_serializer = CandidateProfileCreateListSerializer(candidate_obj).data
+        candidate_serializer.update(user_serializer)
+        return Response(candidate_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
@@ -488,12 +491,15 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
                 """
     serializer_class = InterviewerProfileCreateListSerializer
 
-    def get_queryset(self):
-        interviewers = InterviewerProfile.objects.all()
-        return interviewers
+    def get(self, request, *args, **kwargs):
+        user_serializer = UserDetailSerializer(self.request.user).data
+        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user)
+        interviewer_serializer = InterviewerProfileCreateListSerializer(interviewer_obj).data
+        interviewer_serializer.update(user_serializer)
+        return Response(interviewer_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        profile_data = request.data
+        profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
@@ -636,7 +642,7 @@ class InterviewCreateView(CreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data
+        interview_dict = request.data.dict()
         interview_dict['interviewer'] = request.user.id
         if 'skills' in interview_dict:
             interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]

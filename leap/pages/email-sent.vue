@@ -14,10 +14,7 @@
 
 <script>
 export default {
-  data () {
-    return {
-    }
-  }
+  auth: 'guest'
 }
 </script>
 

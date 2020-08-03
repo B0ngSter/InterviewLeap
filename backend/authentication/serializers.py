@@ -71,6 +71,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class ResendVerificationTokenSerializer(serializers.Serializer):
+
+    email = serializers.EmailField(required=True)
+
+
 class VerifyUserSerializer(serializers.ModelSerializer):
 
     class Meta:

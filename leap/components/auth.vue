@@ -75,7 +75,7 @@
           <b-row align-h="center">
             <b-col cols="12" :md="action === 'login' ? 6 : 4">
               <p v-if="action === 'login'" class="mt-2">
-                <NuxtLink to="/auth/password-reset" class="text-danger-dark">
+                <NuxtLink to="/password-reset" class="text-danger-dark">
                   Forgot Password? Click to reset
                 </NuxtLink>
               </p>
@@ -107,7 +107,7 @@
             <b-col>
               <p class="text-center text-secondary mt-4">
                 Already have an account?
-                <NuxtLink to="/auth/login" class="font-weight-bold">
+                <NuxtLink to="/login" class="font-weight-bold">
                   Login here
                 </NuxtLink>
               </p>
@@ -117,7 +117,7 @@
             <b-col>
               <p class="text-center text-secondary mt-4">
                 Don't have an account?
-                <NuxtLink to="/auth/signup" class="font-weight-bold">
+                <NuxtLink to="/signup" class="font-weight-bold">
                   SignUp here
                 </NuxtLink>
               </p>

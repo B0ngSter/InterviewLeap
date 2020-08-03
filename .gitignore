@@ -2,3 +2,4 @@
 # Frontend ignorables to be added to leap/.gitignore
 # Backend ignorables to be added to backend/.gitignore
 .idea/
+__pycache__/

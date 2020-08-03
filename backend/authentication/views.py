@@ -31,7 +31,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer
-from .models import User, CandidateProfile, InterviewerProfile
+from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
 from rest_framework.permissions import AllowAny
@@ -657,6 +657,23 @@ class InterviewCreateView(CreateAPIView):
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InterviewAcceptDeclineView(CreateAPIView):
+
+    def create(self, request, *args, **kwargs):
+        if self.args['action'] == 'accept':
+            interview_obj = Interview.objects.get(interviewer=self.request.user, pk=self.args['pk'])
+            interview_slot = InterviewSlots.objects.get(interview=interview_obj,
+                                                        interview_start_time=request.data['start_time'],
+                                                        interview_end_time=request.data['end_time'])
+            #call google meet integration with interview details return link
+        elif self.args['action'] == 'decline':
+            pass
+        else:
+            return Response({'message':"Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 def _date_time_naive_format(time, date):

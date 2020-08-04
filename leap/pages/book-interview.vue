@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-container class="py-5">
+    <b-container v-if="!payment" class="py-5">
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
@@ -59,9 +59,15 @@
                   <b-input-group>
                     <b-form-input
                       v-model="skill_search_query"
+                      list="Skill-options"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
                     />
+                    <datalist id="Skill-options">
+                      <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
+                        {{ Skill }}
+                      </option>
+                    </datalist>
                     <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
@@ -95,22 +101,29 @@
         <b-col cols="12" class="mt-2">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row align-v="center" align-content="start">
+              <b-row>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
-                  <label class="sr-only" for="timeZones">timeZones</label>
-                  <b-input
-                    id="timeZones"
-                    v-model="candidateInfo.time_zone"
-                    list="timeZones-options"
-                    class=""
-                    placeholder="timeZones"
-                    autocomplete="off"
-                  />
-                  <datalist id="timeZones-options">
-                    <option v-for="(timeZones, idx) in timeZone" :key="idx">
-                      {{ timeZones }}
-                    </option>
-                  </datalist>
+                  <ValidationProvider
+                    v-slot="{ valid, errors }"
+                    rules="required"
+                  >
+                    <b-input
+                      id="timeZones"
+                      v-model="candidateInfo.time_zone"
+                      list="timeZones-options"
+                      :state="errors[0] ? false : (valid ? true : null)"
+                      placeholder="timeZones"
+                      autocomplete="off"
+                    />
+                    <datalist id="timeZones-options">
+                      <option v-for="(timeZones, idx) in timeZone" :key="idx">
+                        {{ timeZones }}
+                      </option>
+                    </datalist>
+                    <b-form-invalid-feedback id="inputLiveFeedback">
+                      {{ errors[0] }}
+                    </b-form-invalid-feedback>
+                  </ValidationProvider>
                 </b-col>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
                   <b-form-datepicker
@@ -122,12 +135,19 @@
                   />
                 </b-col>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
-                  <b-form-input
-                    v-model="candidateInfo.applied_designation"
-                    class="bg-white"
-                    required
-                    placeholder="Role you’re interviewed for Eg: Senior Android Developer"
-                  />
+                  <ValidationProvider
+                    v-slot="{ valid, errors }"
+                    rules="required"
+                  >
+                    <b-input
+                      v-model="candidateInfo.applied_designation"
+                      placeholder="Role you’re interviewed for Eg: Senior Android Developer"
+                      :state="errors[0] ? false : (valid ? true : null)"
+                    />
+                    <b-form-invalid-feedback id="inputLiveFeedback">
+                      {{ errors[0] }}
+                    </b-form-invalid-feedback>
+                  </ValidationProvider>
                 </b-col>
               </b-row>
             </b-container>
@@ -163,8 +183,8 @@
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5">
-            <b-button variant="primary" @click="submit">
-              proceed to pay
+            <b-button variant="primary" :disabled="candidateInfo.company_type === '' || candidateInfo.skills.length === 0 || candidateInfo.time_slots.length === 0 || candidateInfo.applied_designation == null || candidateInfo.time_zone == null || candidateInfo.date == null" @click="submit">
+              Click to next
             </b-button>
           </div>
         </b-col>
@@ -175,22 +195,41 @@
         </b-col>
       </b-row>
     </b-container>
+    <Payment
+      v-if="payment"
+      :candidate-info="candidateInfo"
+      :fetchedate="candidateInfo.date"
+      :payment="payment"
+      :time-slots="candidateInfo.time_slots"
+      @reschedule="payment = $event"
+    />
   </div>
 </template>
 
 <script>
+import { ValidationProvider } from 'vee-validate'
+import Payment from '~/components/payment'
 export default {
   layout: 'app-page',
+  components: {
+    ValidationProvider,
+    Payment
+  },
   data () {
     return {
+      payment: false,
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       time_slot: [],
       candidateInfo: {
         skills: [],
-        time_slots: []
+        company_type: '',
+        time_slots: [],
+        amount: 500,
+        tax: 145
       },
-      skill_search_query: ''
+      skill_search_query: '',
+      fetchedSkill: []
     }
   },
   computed: {
@@ -200,7 +239,7 @@ export default {
   },
   mounted () {
     this.fetch_timeZone()
-    // this.fetch_timeSlots()
+    this.skillApi()
   },
   methods: {
     // fetch_timeSlots () {
@@ -246,28 +285,14 @@ export default {
       this.skill_search_query = ''
     },
     submit () {
-      const payload = { ...this.candidateInfo }
-      payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
-      const formData = new FormData()
-      Object.keys(payload).map((key) => {
-        formData.append(key, payload[key])
-      })
-      this.$axios.post('/book-interview/', formData)
+      this.payment = true
+    },
+    skillApi () {
+      this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
-          this.$router.push('/payment')
-          this.$toast.success('Recorded, redirecting you to payment page', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
-              }
-            }
-          })
-        })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
-          )
+          if (response.status === 200) {
+            this.fetchedSkill = response.data.result
+          }
         })
     }
   }

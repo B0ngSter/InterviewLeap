@@ -63,7 +63,6 @@ class BookInterviewView(CreateAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        import pdb; pdb.set_trace()
         interview_dict = request.data.dict()
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT

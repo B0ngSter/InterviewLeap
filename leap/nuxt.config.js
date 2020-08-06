@@ -24,7 +24,7 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ],
-    script: [{ src: "https://apis.google.com/js/api:client.js" }]
+    script: [{ src: 'https://apis.google.com/js/api:client.js' }]
   },
   /*
   ** Global CSS
@@ -37,7 +37,8 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    { src: "~/plugins/axios.js" }
+    { src: '~/plugins/axios.js' },
+    { src: '~/plugins/vee-validate.js' }
   ],
   /*
   ** Auto import components
@@ -58,7 +59,7 @@ export default {
     // Doc: https://bootstrap-vue.js.org
     [
       'bootstrap-vue/nuxt', {
-        icons: true,
+        icons: true
       }
     ],
     // Doc: https://axios.nuxtjs.org/usage
@@ -90,21 +91,21 @@ export default {
           login: { url: '/auth/google-signin', method: 'post', propertyName: 'access_token' },
           user: { url: '/auth/profile', method: 'get', propertyName: 'profile' },
           logout: false
-        },
+        }
       },
       local: {
         endpoints: {
           login: { url: '/auth/login', method: 'post', propertyName: 'access' },
           user: { url: '/auth/profile', method: 'get', propertyName: 'profile' },
           logout: false
-        },
+        }
         // tokenRequired: false,
         // tokenType: false
       }
     }
   },
   toast: {
-    position: "bottom-center",
+    position: 'bottom-center',
     duration: 5000 // default timeout of 5 seconds
   },
 
@@ -113,6 +114,6 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    transpile: ['@nuxtjs/auth']
+    transpile: ['@nuxtjs/auth', 'vee-validate/dist/rules']
   }
 }

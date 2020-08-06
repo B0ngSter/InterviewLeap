@@ -510,9 +510,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         user_serializer = UserDetailSerializer(self.request.user).data
-        candidate_obj = CandidateProfile.objects.get(user=self.request.user)
-        candidate_serializer = CandidateProfileCreateListSerializer(candidate_obj).data
-        candidate_serializer.update(user_serializer)
+        try:
+            candidate_obj = CandidateProfile.objects.get(user=self.request.user)
+            candidate_serializer = CandidateProfileCreateListSerializer(candidate_obj).data
+        except ObjectDoesNotExist:
+            candidate_serializer = {}
+            candidate_serializer.update(user_serializer)
         return Response(candidate_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -553,8 +556,11 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         user_serializer = UserDetailSerializer(self.request.user).data
-        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user)
-        interviewer_serializer = InterviewerProfileCreateListSerializer(interviewer_obj).data
+        try:
+            interviewer_obj = InterviewerProfile.objects.get(user=self.request.user)
+            interviewer_serializer = InterviewerProfileCreateListSerializer(interviewer_obj).data
+        except ObjectDoesNotExist:
+            interviewer_serializer = {}
         interviewer_serializer.update(user_serializer)
         return Response(interviewer_serializer, status=status.HTTP_200_OK)
 

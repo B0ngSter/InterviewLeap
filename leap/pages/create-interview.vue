@@ -14,7 +14,7 @@
         </b-col>
         <b-col cols="12">
           <h2 class="mt-5">
-            Hello, {{ $store.getters.user_name.substr(0, this.$store.getters.user_name.indexOf(' ')) }}
+            Hello, {{ this.$store.state.auth.user.first_name }}
           </h2>
           <p class="text-secondary">
             Your upcoming interview requests
@@ -192,7 +192,6 @@
 import Vue from 'vue'
 export default {
   layout: 'app-page',
-  middleware: ['isauthenticated'],
   data () {
     return {
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
@@ -202,7 +201,8 @@ export default {
       job_title: '',
       job_exp: '',
       userInfo: {
-        skills: []
+        skills: [],
+        pk: null
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       skill_search_query: ''
@@ -216,6 +216,7 @@ export default {
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
+    this.updateInterview()
     // this.fetch_timeSlots()
   },
   methods: {
@@ -225,6 +226,14 @@ export default {
     //       this.time_slots = response.data.time_slot
     //     })
     // },
+    updateInterview () {
+      this.$axios.get('/auth/create-interview/')
+        .then((response) => {
+          if (response.data.includes('pk')) {
+            this.userInfo = this.response.data
+          }
+        })
+    },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {

@@ -26,9 +26,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ym2u%hpbs7o3nk=-j(8kcr!!-4q$^g54bfu@&whqc%gtta*l26'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONFIG.DEBUG
 
-ALLOWED_HOSTS = []
+PAYMENT_API_KEY = CONFIG.PAYMENT_API_KEY
+PAYMENT_AUTH_TOKEN = CONFIG.PAYMENT_AUTH_TOKEN
+PAYMENT_SALT = CONFIG.PAYMENT_SALT
+
+ALLOWED_HOSTS = CONFIG.ALLOWED_HOSTS
 
 
 # Application definition
@@ -307,3 +311,6 @@ CANDIDATE_TIME_SLOTS = (
     ('9PM - 12AM', '9PM - 12AM'),
 
 )
+
+CUSTOM_PAYMENT_AMOUNT = 600
+TAX_PERCENTAGE = 18

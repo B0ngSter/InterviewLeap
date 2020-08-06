@@ -76,7 +76,7 @@ export default {
             route: '/dashboard'
           }, {
             title: 'Create Interview',
-            route: '/interviewer/create-interview'
+            route: '/create-interview'
           }, {
             title: 'Profile',
             route: '/profile'

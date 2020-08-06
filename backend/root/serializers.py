@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from authentication.models import Skill
 from authentication.serializers import SkillSerializer
-from .models import BookInterview
+from .models import BookInterview, PaymentDetails
 from django.db import transaction, IntegrityError
 
 
@@ -41,6 +41,13 @@ class BookInterviewCreateSerializer(serializers.ModelSerializer):
                 return candidate
         except IntegrityError:
             transaction.rollback()
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PaymentDetails
+        fields = '__all__'
 
 
 class SKillSearchSerializer(serializers.ModelSerializer):

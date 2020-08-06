@@ -1,18 +1,54 @@
 from django.conf import settings
 from django.db import models
 from authentication.models import User, Skill
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
+import random
+import string
 
 
-# Create your models here.
+class PaymentDetails(models.Model):
+    payment_request_id = models.CharField(max_length=150,  null=True, blank=True)
+    buyer = models.EmailField(null=True, blank=True)
+    buyer_name = models.CharField(max_length=120, null=True, blank=True)
+    buyer_phone = models.CharField(max_length=30, null=True, blank=True)
+    amount = models.CharField(max_length=54, null=True, blank=True)
+    tax_amount = models.CharField(max_length=50, null=True, blank=True)
+    currency = models.CharField(max_length=120, null=True, blank=True)
+    purpose = models.CharField(max_length=220, null=True, blank=True)
+    payment_id = models.CharField(max_length=120,  null=True, blank=True)
+    status = models.CharField(max_length=20, null=True, blank=True)
+    instrument_type = models.CharField(max_length=50, null=True, blank=True)
+    billing_instrument = models.CharField(max_length=200, null=True, blank=True)
+    payout_id = models.CharField(max_length=120,  null=True, blank=True)
+    payout_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.payment_request_id+'--' + str(self.amount)
+
+
 class BookInterview(models.Model):
+    booking_id = models.CharField(max_length=120, null=True, blank=True)
     company_type = models.CharField(max_length=30, null=True, blank=True)
     applied_designation = models.CharField(max_length=120, null=True, blank=True,
                                            help_text='role(profile) of the candidate they want to be interviewed for e.g java developer')
     date = models.DateField(help_text='Select date for interview @candidate side', null=True, blank=True)
     time_zone = models.CharField(max_length=120, null=True, blank=True)
     time_slots = ArrayField(models.CharField(max_length=150), null=True, blank=True)
-    booked_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    candidate = models.ForeignKey(User, on_delete=models.CASCADE)
     skills = models.ManyToManyField(to=Skill)
+    is_payment_done = models.BooleanField(default=False)
+    payment_detail = models.ForeignKey(PaymentDetails, null=True, blank=True, on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    def generate_booking_id(self):
+        booking_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        while BookInterview.objects.filter(booking_id=booking_id).count() > 0:
+            booking_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        return booking_id
+
+    def save(self, *args, **kwargs):
+        if not self.booking_id:
+            self.booking_id = self.generate_booking_id()
+        super(BookInterview, self).save()

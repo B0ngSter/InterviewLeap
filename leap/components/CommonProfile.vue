@@ -26,227 +26,420 @@
             fill
           >
             <b-tab title="Personal Details" active title-link-class="border-0">
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="first_name">First Name</label>
-                <b-input
-                  v-model="profile.first_name"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="First Name"
-                />
-                <label class="sr-only" for="last_name">Last Name</label>
-                <b-input
-                  v-model="profile.last_name"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Last Name"
-                />
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="email">Email</label>
-                <b-input
-                  v-model="profile.email"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Email"
-                  type="email"
-                />
-                <label class="sr-only" for="phone_number">Mobile Number</label>
-                <b-input
-                  v-model="profile.phone_number"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Mobile Number"
-                />
-              </div>
-              <div class="text-center">
-                <b-button variant="primary" @click="current_tab=1">
-                  Next
-                </b-button>
-              </div>
+              <b-container>
+                <b-row>
+                  <b-col
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.first_name"
+                        placeholder="First Name"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.last_name"
+                        placeholder="Last Name"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <b-input
+                      v-model="profile.email"
+                      placeholder="Email"
+                      type="email"
+                      disabled
+                    />
+                  </b-col>
+                  <b-col
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.phone_number"
+                        type="number"
+                        placeholder="Mobile Number"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col cols="12" class="mt-4">
+                    <div class="text-center">
+                      <b-button variant="primary" @click="current_tab=1">
+                        Next
+                      </b-button>
+                    </div>
+                  </b-col>
+                </b-row>
+              </b-container>
             </b-tab>
             <b-tab title="Professional Details" title-link-class="border-0">
-              <div v-if="$store.getters.is_candidate" class="d-flex justify-content-start flex-column flex-md-row mb-5 ml-0 ml-md-4">
-                <b-form-radio-group
-                  v-model="profile.professional_status"
-                  :options="professional_status_options"
-                  value-field="val"
-                  text-field="name"
-                />
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row">
-                <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-3 d-flex flex-fill">
-                  <label class="sr-only" for="industry">Industry</label>
-                  <b-input
-                    v-model="profile.industry"
-                    list="industry-options"
-                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                    placeholder="Industry"
-                    autocomplete="off"
-                  />
-                  <datalist id="industry-options">
-                    <option v-for="(industry, idx) in industry_choices" :key="idx">
-                      {{ industry }}
-                    </option>
-                  </datalist>
-                </div>
-                <div v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer" class="mb-2 mb-sm-0 mr-md-4 mr-md-3 d-flex flex-fill">
-                  <label class="sr-only" for="exp_years">Total Experience</label>
-                  <b-input
-                    v-model="profile.exp_years"
-                    class="flex-fill"
-                    placeholder="Total Experience"
-                    type="number"
-                    min="0"
-                  />
-                </div>
-              </div>
-              <div
-                v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
-                class="d-flex justify-content-around flex-column flex-md-row mb-5 mt-5"
-              >
-                <label class="sr-only" for="company">Current Company</label>
-                <b-input
-                  v-model="profile.company"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Current Company"
-                />
-                <label class="sr-only" for="designation">Designation</label>
-                <b-input
-                  v-model="profile.designation"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Designation"
-                />
-              </div>
-              <div
-                v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
-                class="d-flex justify-content-around flex-column flex-md-row mb-5"
-              >
-                <label class="sr-only" for="education">Highest Qualification</label>
-                <b-input
-                  v-model="profile.education"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Highest Qualification"
-                />
-                <label class="sr-only" for="college">College / University</label>
-                <b-input
-                  v-model="profile.college"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="College / University"
-                />
-              </div>
-              <div
-                v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
-                class="d-flex justify-content-around flex-column flex-md-row mb-5"
-              >
-                <label class="sr-only" for="years_of_passing">Year of passing</label>
-                <b-input
-                  v-model="profile.years_of_passing"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="Year of passing"
-                />
-                <label class="sr-only" for="job_title">Position looking for Eg: Java Developer</label>
-                <b-input
-                  v-model="profile.job_title"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Position looking for Eg: Java Developer"
-                />
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
-                  <label class="sr-only" for="resume">Latest Resume</label>
-                  <b-form-file
-                    v-model="profile.resume"
-                    placeholder="Your latest resume"
-                    drop-placeholder="Drop resume here..."
-                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  />
-                </div>
-                <div class="mb-2 mb-sm-0 mr-md-4 d-flex flex-fill">
-                  <label class="sr-only" for="linkedin">Linkedin URL</label>
-                  <b-input
-                    v-model="profile.linkedin"
-                    class="flex-fill"
-                    placeholder="Linkedin URL"
-                  />
-                </div>
-              </div>
-              <div class="w-100 mb-5 px-0 px-md-4">
-                <b-input-group>
-                  <b-form-input
-                    v-model="skill_search_query"
-                    placeholder="Core Skills"
-                    :disabled="skills_filled"
-                  />
-                  <b-input-group-append>
-                    <b-button variant="secondary" :disabled="skills_filled" @click="addSkill">
-                      Add
-                    </b-button>
-                  </b-input-group-append>
-                </b-input-group>
-                <p class="mt-2 text-muted font-weight-normal">
-                  {{ profile.skills.length }}/5 skills selected
-                </p>
-                <h4>
-                  <b-badge
-                    v-for="(skill, id_s) in profile.skills"
-                    :key="id_s"
-                    size="lg"
-                    variant="light"
-                    class="mb-2 mr-2 border"
-                    pill
+              <b-container>
+                <b-row>
+                  <b-col v-if="$store.getters.is_candidate" class="mt-4" cols="12">
+                    <b-form-radio-group
+                      v-model="profile.professional_status"
+                      :options="professional_status_options"
+                      value-field="val"
+                      text-field="name"
+                    />
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
                   >
-                    <span class="d-flex align-items-center">
-                      <span class="mr-2">{{ skill }}</span>
-                      <b-icon-x
-                        class="cursor-pointer"
-                        @click="removeTag(id_s)"
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.industry"
+                        list="industry-options"
+                        placeholder="Industry"
+                        autocomplete="off"
+                        :state="errors[0] ? false : (valid ? true : null)"
                       />
-                    </span>
-                  </b-badge>
-                </h4>
-              </div>
-              <div v-if="$store.getters.is_candidate" class="text-center">
-                <b-button variant="primary" :disabled="profile.professional_status === ''" @click="save_profile">
-                  Save
-                </b-button>
-              </div>
-              <div v-if="$store.getters.is_interviewer" class="text-center">
-                <b-button variant="primary" @click="current_tab=2">
-                  Next
-                </b-button>
-              </div>
+                      <datalist id="industry-options">
+                        <option v-for="(industry, idx) in industry_choices" :key="idx">
+                          {{ industry }}
+                        </option>
+                      </datalist>
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.exp_years"
+                        placeholder="Total Experience"
+                        type="number"
+                        min="0"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.company"
+                        placeholder="Current Company"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.designation"
+                        placeholder="Designation"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.education"
+                        placeholder="Highest Qualification"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.college"
+                        placeholder="College / University"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.years_of_passing"
+                        placeholder="Year of passing"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col
+                    v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
+                    class="mt-4"
+                    cols="12"
+                    md="6"
+                  >
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.job_title"
+                        placeholder="Position looking for Eg: Java Developer"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-form-file
+                        v-model="profile.resume"
+                        placeholder="Your latest resume"
+                        drop-placeholder="Drop resume here..."
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.linkedin"
+                        placeholder="Linkedin URL"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12">
+                    <b-input-group>
+                      <b-form-input
+                        v-model="skill_search_query"
+                        placeholder="Core Skills"
+                        :disabled="skills_filled"
+                      />
+                      <b-input-group-append>
+                        <b-button variant="secondary" :disabled="skills_filled" @click="addSkill">
+                          Add
+                        </b-button>
+                      </b-input-group-append>
+                    </b-input-group>
+                    <p class="mt-2 text-muted font-weight-normal">
+                      {{ profile.skills.length }}/5 skills selected
+                    </p>
+                    <h4>
+                      <b-badge
+                        v-for="(skill, id_s) in profile.skills"
+                        :key="id_s"
+                        size="lg"
+                        variant="light"
+                        class="mb-2 mr-2 border"
+                        pill
+                      >
+                        <span class="d-flex align-items-center">
+                          <span class="mr-2">{{ skill }}</span>
+                          <b-icon-x
+                            class="cursor-pointer"
+                            @click="removeTag(id_s)"
+                          />
+                        </span>
+                      </b-badge>
+                    </h4>
+                  </b-col>
+                  <b-col class="mt-4" cols="12">
+                    <div v-if="$store.getters.is_candidate" class="text-center">
+                      <b-button variant="primary" :disabled="profile.professional_status === ''" @click="save_profile">
+                        Save
+                      </b-button>
+                    </div>
+                    <div v-if="$store.getters.is_interviewer" class="text-center">
+                      <b-button variant="primary" @click="current_tab=2">
+                        Next
+                      </b-button>
+                    </div>
+                  </b-col>
+                </b-row>
+              </b-container>
             </b-tab>
             <b-tab v-if="$store.getters.is_interviewer" class="text-dark" title-link-class="border-0" title="Account Details">
-              <p class="text-secondary ml-md-4 mb-5">
+              <p class="text-secondary mb-5">
                 Account Details required after verification. Optional before verification.
               </p>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5 mt-4">
-                <label class="sr-only" for="account_holder_name">Account Holder Name</label>
-                <b-input
-                  v-model="account_info.acc_name"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  required
-                  placeholder="Account holder’s name"
-                />
-                <label class="sr-only" for="account_number">Account Number</label>
-                <b-input
-                  v-model="account_info.account_number"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Account Number"
-                />
-              </div>
-              <div class="d-flex justify-content-around flex-column flex-md-row mb-5">
-                <label class="sr-only" for="IFSC">IFSC</label>
-                <b-input
-                  v-model="account_info.ifsc_code"
-                  class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                  placeholder="IFSC"
-                />
-                <label class="sr-only" for="bank_name">Account Number</label>
-                <b-input
-                  v-model="account_info.bank"
-                  class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                  placeholder="Bank Name"
-                />
-              </div>
-              <div class="text-center">
+              <b-container>
+                <b-row>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.account_info.acc_name"
+                        required
+                        placeholder="Account holder’s name"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.account_info.account_number"
+                        type="number"
+                        placeholder="Account Number"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.account_info.ifsc_code"
+                        placeholder="IFSC"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col class="mt-4" cols="12" md="6">
+                    <ValidationProvider
+                      v-slot="{ valid, errors }"
+                      rules="required"
+                    >
+                      <b-input
+                        v-model="profile.account_info.bank"
+                        placeholder="Bank Name"
+                        :state="errors[0] ? false : (valid ? true : null)"
+                      />
+                      <b-form-invalid-feedback id="inputLiveFeedback">
+                        {{ errors[0] }}
+                      </b-form-invalid-feedback>
+                    </ValidationProvider>
+                  </b-col>
+                </b-row>
+              </b-container>
+              <div class="text-center mt-4">
                 <b-button variant="primary" @click="save_profile">
                   Save
                 </b-button>
@@ -260,16 +453,22 @@
 </template>
 
 <script>
+import { ValidationProvider } from 'vee-validate'
 export default {
+  components: {
+    ValidationProvider
+  },
   data () {
     return {
       profile: {
-        first_name: '',
         skills: [],
+        first_name: '',
+        last_name: '',
+        email: '',
+        account_info: {},
         resume: null,
         professional_status: ''
       },
-      account_info: {},
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
@@ -306,7 +505,6 @@ export default {
     save_profile () {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
-      payload.account_info = { ...this.account_info }
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
@@ -344,18 +542,25 @@ export default {
     },
     fetch_profile_data () {
       let profileApiURL
-      this.profile.first_name = this.$store.state.auth.user.first_name
-      this.profile.last_name = this.$store.state.auth.user.last_name
+      // this.profile.first_name = this.$store.state.auth.user.first_name
       if (this.$store.getters.is_candidate) {
-        profileApiURL = '/auth/candidate-profile'
+        profileApiURL = '/auth/candidate-profile/'
       } else if (this.$store.getters.is_interviewer) {
-        profileApiURL = '/auth/interviewer-profile'
+        profileApiURL = '/auth/interviewer-profile/'
       }
-      if (this.$store.getters.is_profile_completed) {
-        this.$axios.get(profileApiURL).then((response) => {
-          this.profile = response.data.profile
-        })
-      }
+      this.$axios.get(profileApiURL).then((response) => {
+        if (response.data.skills) {
+          response.data.skills = response.data.skills.map((key) => {
+            return key.title
+          })
+        } else {
+          response.data.skills = []
+        }
+        if (!response.data.account_info) {
+          response.data.account_info = {}
+        }
+        this.profile = response.data
+      })
     }
   }
 }

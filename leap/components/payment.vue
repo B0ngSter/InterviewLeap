@@ -86,7 +86,7 @@
               </b-col>
               <b-col cols="6" class="pt-5 pr-4">
                 <h4 class="text-right text-secondary">
-                  ₹500
+                  ₹{{ amount }}
                 </h4>
               </b-col>
               <b-col cols="6" class="pt-2 pl-4">
@@ -96,7 +96,7 @@
               </b-col>
               <b-col cols="6" class="pt-2 pr-4">
                 <h4 class="text-right text-secondary">
-                  ₹145
+                  ₹{{ tax }}
                 </h4>
               </b-col>
               <hr>
@@ -107,7 +107,7 @@
               </b-col>
               <b-col cols="6" class="pt-5 pr-4">
                 <h4 class="text-right font-weight-bold">
-                  ₹645
+                  ₹{{ total_amount }}
                 </h4>
               </b-col>
             </b-row>
@@ -116,9 +116,11 @@
       </b-col>
       <b-col cols="12">
         <div class="text-center mt-5">
-          <b-button variant="primary" @click="submit">
-            proceed to pay
-          </b-button>
+          <a target="_blank">
+            <b-button variant="primary" @click="submit">
+              proceed to pay
+            </b-button>
+          </a>
         </div>
       </b-col>
       <b-col cols="12">
@@ -162,12 +164,14 @@ export default {
       // }
     }
   },
-  // mounted () {
-  //   this.$axios.get('/book-interview/').then((response) => {
-  //     debugger
-  //     this.FetchedResponse = response.data
-  //   })
-  // },
+  mounted () {
+    this.$axios.get('/book-interview')
+      .then((response) => {
+        this.total_amount = response.data.total_amount
+        this.tax = response.data.tax
+        this.amount = response.data.amount
+      })
+  },
   methods: {
     date () {
       let month = ''
@@ -207,7 +211,7 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+            errorResponse.response.data.message || 'Could not Book your interview. Please try again later'
           )
         })
     }

@@ -184,7 +184,7 @@
         <b-col cols="12">
           <div class="text-center mt-5">
             <b-button variant="primary" :disabled="candidateInfo.company_type === '' || candidateInfo.skills.length === 0 || candidateInfo.time_slots.length === 0 || candidateInfo.applied_designation == null || candidateInfo.time_zone == null || candidateInfo.date == null" @click="submit">
-              Click to next
+              Book  Interview
             </b-button>
           </div>
         </b-col>
@@ -224,9 +224,7 @@ export default {
       candidateInfo: {
         skills: [],
         company_type: '',
-        time_slots: [],
-        amount: 500,
-        tax: 145
+        time_slots: []
       },
       skill_search_query: '',
       fetchedSkill: []

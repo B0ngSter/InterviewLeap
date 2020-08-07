@@ -101,7 +101,6 @@ class CandidateProfile(models.Model):
     education = models.CharField(max_length=128, null=True, blank=True)
     college = models.CharField(max_length=128, null=True, blank=True)
     year_of_passing = models.CharField(max_length=54, null=True, blank=True)
-    job_title = models.CharField(max_length=256)
     resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     industry = models.CharField(max_length=256, null=True, blank=True)

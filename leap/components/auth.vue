@@ -21,55 +21,104 @@
           </p>
           <b-row v-if="action === 'signup'" align-h="center">
             <b-col cols="12" md="4" class="mt-4">
-              <b-form-input
-                v-if="action === 'signup'"
-                v-model="userInfo.first_name"
-                class="inputs bg-light"
-                type="text"
-                required
-                placeholder="First Name"
-              />
+              <ValidationProvider
+                v-slot="{ valid, errors }"
+                rules="required"
+              >
+                <b-form-group>
+                  <b-input
+                    v-if="action === 'signup'"
+                    v-model="userInfo.first_name"
+                    class="inputs bg-light"
+                    type="text"
+                    required
+                    placeholder="First Name"
+                    :state="errors[0] ? false : (valid ? true : null)"
+                  />
+                  <b-form-invalid-feedback id="inputLiveFeedback">
+                    {{ errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </ValidationProvider>
             </b-col>
             <b-col cols="12" md="4" class="mt-4">
-              <b-form-input
-                v-if="action === 'signup'"
-                v-model="userInfo.last_name"
-                class="inputs bg-light"
-                type="text"
-                required
-                placeholder="Last Name"
-              />
+              <ValidationProvider
+                v-slot="{ valid, errors }"
+                rules="required"
+              >
+                <b-form-group>
+                  <b-input
+                    v-if="action === 'signup'"
+                    v-model="userInfo.last_name"
+                    class="inputs bg-light"
+                    type="text"
+                    required
+                    placeholder="Last Name"
+                    :state="errors[0] ? false : (valid ? true : null)"
+                  />
+                  <b-form-invalid-feedback id="inputLiveFeedback">
+                    {{ errors[0] }}
+                  </b-form-invalid-feedback>
+                </b-form-group>
+              </ValidationProvider>
             </b-col>
           </b-row>
           <b-row align-h="center">
             <b-col cols="12" :md="action === 'login' ? 6 : 8" class="mt-4">
-              <b-form-input
-                v-model="userInfo.email"
-                class="inputs bg-light"
-                type="email"
-                required
-                placeholder="Email ID"
-              />
+              <ValidationProvider v-slot="{ valid, errors }" rules="required|email" name="Email">
+                <b-form-input
+                  v-model="userInfo.email"
+                  class="inputs bg-light"
+                  type="email"
+                  required
+                  placeholder="Email ID"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                />
+                <b-form-invalid-feedback id="inputLiveFeedback">
+                  {{ errors[0] }}
+                </b-form-invalid-feedback>
+              </ValidationProvider>
             </b-col>
           </b-row>
           <b-row align-h="center">
             <b-col cols="12" :md="action === 'login' ? 6 : 4" class="mt-4">
-              <b-form-input
-                v-model="userInfo.password"
-                type="password"
-                class="inputs bg-light"
-                required
-                placeholder="Password"
-              />
+              <ValidationProvider
+                v-slot="{ valid, errors }"
+                rules="required"
+                name="Password"
+                vid="password"
+              >
+                <b-form-input
+                  v-model="userInfo.password"
+                  type="password"
+                  class="inputs bg-light"
+                  required
+                  placeholder="Password"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                />
+                <b-form-invalid-feedback id="inputLiveFeedback">
+                  {{ errors[0] }}
+                </b-form-invalid-feedback>
+              </ValidationProvider>
             </b-col>
             <b-col v-if="action === 'signup'" cols="12" md="4">
-              <b-form-input
-                v-model="userInfo.confirm_password"
-                type="password"
-                class="inputs bg-light mt-4"
-                required
-                placeholder="Confirm Password"
-              />
+              <ValidationProvider
+                v-slot="{ valid, errors }"
+                rules="required|confirmed:password"
+                name="Password confirmation"
+              >
+                <b-form-input
+                  v-model="userInfo.confirm_password"
+                  type="password"
+                  class="inputs bg-light mt-4"
+                  required
+                  placeholder="Confirm Password"
+                  :state="errors[0] ? false : (valid ? true : null)"
+                />
+                <b-form-invalid-feedback id="inputLiveFeedback">
+                  {{ errors[0] }}
+                </b-form-invalid-feedback>
+              </ValidationProvider>
             </b-col>
           </b-row>
           <b-row align-h="center">
@@ -130,10 +179,12 @@
 </template>
 
 <script>
+import { ValidationProvider } from 'vee-validate'
 import googleAuth from '~/components/GoogleAuth'
 
 export default {
   components: {
+    ValidationProvider,
     googleAuth
   },
   props: {
@@ -145,12 +196,17 @@ export default {
   data () {
     return {
       userInfo: {
+        email: 'nit35h.7@gmail.com',
+        password: '12162221N'
       }
     }
   },
   methods: {
     submitForm () {
-      this.$store.dispatch(this.action, this.userInfo)
+      this.$store.dispatch(this.action, {
+        Authpayload: this.userInfo,
+        callback: () => { this.$router.push(`/email-sent?email=${this.userInfo.email}&context=signup`) }
+      })
     }
   }
 }

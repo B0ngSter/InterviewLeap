@@ -75,7 +75,7 @@ class BookInterviewView(CreateAPIView):
             send_email=True,
             email=self.request.user.email,
             redirect_url=link,
-            webhook="http://545a9362f251.ngrok.io/webhook/payment-response/"
+            webhook=""
         )
         cleaned_data = {"payment_request_id": response['payment_request']['id'],
                         "amount": response['payment_request']['amount'],

@@ -162,6 +162,9 @@ export default {
       //   // time_slots: ['12PM - 3PM', '3PM - 6PM'],
       //   // time_zone: 'static 12'
       // }
+      amount: null,
+      tax: null,
+      total_amount: null
     }
   },
   mounted () {
@@ -190,15 +193,21 @@ export default {
     },
     submit () {
       const payload = { ...this.candidateInfo }
-      payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
+      let endpoint
+      if (this.$store.state.is_mock) {
+        endpoint = '/something'
+      } else {
+        payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
+        endpoint = '/book-interview/'
+      }
       const formData = new FormData()
       Object.keys(payload).map((key) => {
         formData.append(key, payload[key])
       })
-      this.$axios.post('/book-interview/', formData)
+      this.$axios.post(endpoint, formData)
         .then((response) => {
           if (response.data.long_url) {
-            this.$router.push('response.data.long_url')
+            window.open(response.data.long_url, '_blank')
           }
           this.$toast.success('booked successfully', {
             action: {
@@ -213,7 +222,10 @@ export default {
           this.$toast.error(
             errorResponse.response.data.message || 'Could not Book your interview. Please try again later'
           )
+        }).finally(() => {
+          this.$store.commit('reset_mock_varibles')
         })
+      debugger
     }
   }
 }

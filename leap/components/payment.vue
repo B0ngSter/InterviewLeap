@@ -23,7 +23,7 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Date
                 </p>
@@ -31,7 +31,15 @@
                   {{ date() }}
                 </p>
               </b-col>
-              <b-col cols="3" offset-md="2">
+              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+                <p class="text-left text-secondary">
+                  Interview from
+                </p>
+                <p class="text-left text-danger-dark font-weight-bold">
+                  {{ this.$store.state.mock_interview_company_name }}
+                </p>
+              </b-col>
+              <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
                 <div class="mt-5 mb-5">
                   <b-button squared class="alert-danger text-danger-dark">
                     Cancel
@@ -52,7 +60,7 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row>
+            <b-row v-if="!this.$store.state.is_mock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
@@ -67,6 +75,26 @@
                 <b-card
                   no-body
                   class="p-3 pl-5 mt-3 border-0 alert-primary"
+                >
+                  {{ timeslot }}
+                </b-card>
+              </b-col>
+            </b-row>
+            <b-row v-if="this.$store.state.is_mock">
+              <b-col cols="12" class="pt-5 pl-4">
+                <p class="text-left text-secondary">
+                  Time Slots you have selected
+                </p>
+              </b-col>
+              <b-col
+                v-for="(timeslot, idy) in timeSlotsMock"
+                :key="idy"
+                cols="3"
+                class="mb-3 cursor-pointer"
+              >
+                <b-card
+                  no-body
+                  class="p-3 mt-3 border-0 alert-primary"
                 >
                   {{ timeslot }}
                 </b-card>
@@ -124,7 +152,7 @@
         </div>
       </b-col>
       <b-col cols="12">
-        <div class="text-center text-secondary mt-5">
+        <div class="text-center text-secondary mt-5 pt-5 pb-5 mb-5">
           2020 Stellar Software Technologies Pvt ltd
         </div>
       </b-col>
@@ -140,6 +168,10 @@ export default {
       required: true
     },
     timeSlots: {
+      type: Array,
+      required: true
+    },
+    timeSlotsMock: {
       type: Array,
       required: true
     },
@@ -195,7 +227,10 @@ export default {
       const payload = { ...this.candidateInfo }
       let endpoint
       if (this.$store.state.is_mock) {
-        endpoint = '/something'
+        endpoint = '/mock-interview-booking/'
+        payload.amount = this.amount
+        payload.tax = this.tax
+        payload.total_amount = this.total_amount
       } else {
         payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
         endpoint = '/book-interview/'
@@ -209,6 +244,7 @@ export default {
           if (response.data.long_url) {
             window.open(response.data.long_url, '_blank')
           }
+          this.$store.commit('reset_mock_varibles')
           this.$toast.success('booked successfully', {
             action: {
               text: 'Close',
@@ -222,10 +258,7 @@ export default {
           this.$toast.error(
             errorResponse.response.data.message || 'Could not Book your interview. Please try again later'
           )
-        }).finally(() => {
-          this.$store.commit('reset_mock_varibles')
         })
-      debugger
     }
   }
 }

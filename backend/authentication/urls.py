@@ -4,7 +4,7 @@ from django_rest_passwordreset.views import reset_password_validate_token,\
 from .views import LoginView, GoogleView, SignupView, CandidateProfileCreateListView, \
     InterviewerProfileCreateListView, CandidateProfileDetailView, InterviewerProfileDetailView, \
     IndustryListView, ResetPasswordConfirm, InterviewCreateView, VerifyUserView, basic_profile_details, \
-    ResendEmailVerificationAPIView, InterviewAcceptDeclineView
+    ResendEmailVerificationAPIView, InterviewAcceptDeclineView, InterviewerRequestsListView
 
 urlpatterns = [
     path('signup', SignupView.as_view()),
@@ -17,6 +17,7 @@ urlpatterns = [
     path('password-reset/confirm/', ResetPasswordConfirm.as_view(), name='reset-password-confirm'),
     path('candidate-profile/', CandidateProfileCreateListView.as_view()),
     path('interviewer-profile/', InterviewerProfileCreateListView.as_view()),
+    path('interview-requests/', InterviewerRequestsListView.as_view()),
     path('create-interview/', InterviewCreateView.as_view()),
     path('interviewer/<int:pk>/<str:action>/', InterviewAcceptDeclineView.as_view()),
     path('verify-user/<str:token>', VerifyUserView.as_view()),

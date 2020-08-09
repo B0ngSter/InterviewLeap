@@ -1,4 +1,5 @@
 import jwt
+import pytz
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core.mail import EmailMultiAlternatives, BadHeaderError
 from django.dispatch import receiver
@@ -30,7 +31,11 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
-from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, ResendVerificationTokenSerializer
+
+from root.models import BookInterview
+from .interview_schedule import interview_schedule
+from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
+    ResendVerificationTokenSerializer, InterviewerRequestsListSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -183,8 +188,9 @@ class LoginView(TokenObtainPairView):
             user = User.objects.get(email=email)
             is_profile_completed = False
             meta_data = {
-                "meta_data": {"role": user.role, "full_name": user.get_full_name(), "is_profile_completed": is_profile_completed}
-                }
+                "meta_data": {"role": user.role, "full_name": user.get_full_name(),
+                              "is_profile_completed": is_profile_completed}
+            }
             try:
                 candidate_profile = CandidateProfile.objects.get(user=user.id)
                 if candidate_profile:
@@ -394,7 +400,7 @@ class GoogleView(APIView):
                 "role": user.role,
                 "full_name": user.get_full_name(),
                 "profile_picture": profile_picture,
-                "is_profile_completed": is_profile_completed,          # check profile and update this boolean
+                "is_profile_completed": is_profile_completed,  # check profile and update this boolean
             }
         response.update({"meta_data": meta_data})
         return Response(response, status=status.HTTP_200_OK)
@@ -727,30 +733,110 @@ class InterviewCreateView(CreateAPIView):
 
 class InterviewAcceptDeclineView(CreateAPIView):
 
+    """
+        InterviewAcceptDecline   -- Interviewer Side
+        actions -- Post -- Interview Accept/Decline(Interviewer)
+        api -- auth/interviewer/12/accept/  -- in accept place it can be (accept/decline)
+        Request params -- {
+                    "candidate_email": "madhu@gmail.com", (string)
+                    "date": "2020-06-21", (string)
+                    "start_time": "10:00",
+                    "end_time": "11:00"
+                    }
+
+        Response Dict -- {
+                    "message": "Interview Invite has been sent to Candidate Successfully",
+                    "interview_link": "https://www.google.com/calendar/event?eid=djZlNTI1ODUyNGEyAc3RvY2tyb29tLmlv"
+                    }
+        Response Status -- 200 Ok along with interview link details and success message
+        Error Code -- 400 Bad Request
+        Error message -- Raise proper error messages
+        """
+
+    def _date_time_naive_format(self, date, time):
+        date_time = date + ' ' + time
+        naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        return naive
+
+    def _date_time_format(self, date, time, timezone):
+        date_time = date + ' ' + time
+        local = pytz.timezone(timezone)
+        naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        local_dt = local.localize(naive, is_dst=None)
+        utc_dt = local_dt.astimezone(pytz.utc).isoformat()
+        return utc_dt
+
     def create(self, request, *args, **kwargs):
-        if self.args['action'] == 'accept':
-            interview_obj = Interview.objects.get(interviewer=self.request.user, pk=self.args['pk'])
+        if self.kwargs['action'] == 'accept':
+            interview_info = request.data.dict()
+            interview_obj = Interview.objects.get(interviewer=self.request.user, pk=self.kwargs['pk'])
+            interview_info["recipients"] = [request.data['candidate_email'], 'madhu@equiv.in']
+            interview_info['start_time'] = self._date_time_naive_format(request.data['date'],
+                                                                        request.data['start_time'])
+            interview_info['end_time'] = self._date_time_naive_format(request.data['date'], request.data['end_time'])
             interview_slot = InterviewSlots.objects.get(interview=interview_obj,
-                                                        interview_start_time=request.data['start_time'],
-                                                        interview_end_time=request.data['end_time'])
-            #call google meet integration with interview details return link
-        elif self.args['action'] == 'decline':
+                                                        interview_start_time=interview_info['start_time'],
+                                                        interview_end_time=interview_info['end_time'])
+            timezone = interview_obj.timezone
+            interview_info['start_time'] = self._date_time_format(request.data['date'], request.data['start_time']
+                                                                  , timezone)
+            interview_info['end_time'] = self._date_time_format(request.data['date'], request.data['end_time']
+                                                                , timezone)
+            interview_info['timezone'] = interview_obj.timezone
+            interview_info['title'] = interview_obj.job_title
+            interview_info['description'] = interview_obj.description
+            response = interview_schedule(interview_info)
+            interview_link= response['htmlLink']
+            candidate_obj = User.objects.get(email=request.data['candidate_email'])
+            interview_slot.__dict__.update({'candidate': candidate_obj})
+            interview_slot.save()
+            success_message = "Interview Invite has been sent to Candidate Successfully"
+            return Response({"message": success_message,
+                             "interview_link": interview_link}, status=status.HTTP_200_OK)
+        elif self.kwargs['action'] == 'decline':
             pass
         else:
-            return Response({'message':"Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': "Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class InterviewerRequestsListView(ListAPIView):
+    """
+           Retrieve -- Retrieve list of interview requests to Interviewer booked by candidate(custom interviews).
+           Actions -- GET method
+           Response Status -- 200 Ok
+           Response sample dict -- {
+                    "id": 1,
+                    "booking_id": "RHHG75SD",
+                    "company_type": null,
+                    "applied_designation": null,
+                    "date": null,
+                    "time_zone": null,
+                    "time_slots": [],
+                    "is_payment_done": false,
+                    "candidate": 14,
+                    "payment_detail": null,
+                    "skills": [
+                        python,django
+                    ]
+                }
+            ]
+    """
 
+    serializer_class = InterviewerRequestsListSerializer
 
-def _date_time_naive_format(time, date):
-    date_time = date + ' ' + time
-    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
-    return naive
+    def get(self, request, *args, **kwargs):
+        skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
+        interview_requests = BookInterview.objects.all()
+        for skill in skills:
+            interview_requests = interview_requests.filter(skills__title__icontains=skill)
+        serializer = self.get_serializer(interview_requests, many=True).data
+        return Response(serializer, status=status.HTTP_200_OK)
 
 
 def basic_profile_details(request):
     if request.user.is_authenticated:
-        payload = {'profile': {'first_name': request.user.first_name, 'last_name': request.user.last_name, 'role': request.user.role}}
+        payload = {'profile': {'first_name': request.user.first_name, 'last_name': request.user.last_name,
+                               'role': request.user.role}}
         if request.user.profile_picture:
             payload['profile_picture'] = request.user.profile_picture.url
         return JsonResponse(payload, status=200)

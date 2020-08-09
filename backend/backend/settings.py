@@ -288,6 +288,9 @@ AWS_DEFAULT_ACL = None
 AWS_S3_CUSTOM_DOMAIN = 's3.ap-south-1.amazonaws.com/' + AWS_STORAGE_BUCKET_NAME
 MEDIA_URL = 'https://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/' + 'media/'
 
+GoogleCalendarSecretFilePath = CONFIG.GoogleCalendarSecretFilePath
+TokenFile = CONFIG.TokenFile
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 

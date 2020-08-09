@@ -4,6 +4,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password, get_password_validators
 from django.core import exceptions
+
+from root.models import BookInterview
 from .models import User, Interview, InterviewSlots
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
@@ -238,3 +240,10 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
         date_time = date + ' ' + time
         naive = datetime.datetime.strptime(date_time, "%m-%d-%Y %H:%M")
         return naive
+
+
+class InterviewerRequestsListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BookInterview
+        fields = '__all__'

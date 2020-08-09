@@ -1,17 +1,15 @@
 <template>
   <b-container>
-    <b-form id="auth_form">
-      <b-row>
-        <p>
-          Dashboard
-        </p>
-      </b-row>
-    </b-form>
+    <mockInterviewListing />
   </b-container>
 </template>
 
-<script>
+<script>import mockInterviewListing from '~/components/mockInterviewListing'
 export default {
+  layout: 'app-page',
+  components: {
+    mockInterviewListing
+  },
   data () {
     return {
     }

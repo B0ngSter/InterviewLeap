@@ -1,12 +1,16 @@
 export const state = () => {
-  return {}
+  return {
+    mock_interview_company_name: null,
+    is_mock: null
+  }
 }
 
 export const actions = {
   signup (context, signupArgs) {
-    this.$axios.post('/auth/signup', signupArgs)
+    this.$axios.post('/auth/signup', signupArgs.Authpayload)
       .then((response) => {
-        this.$router.push('/email-sent')
+        // this.$router.push('/email-sent')
+        signupArgs.callback()
       })
       .catch((errorResponse) => {
         this.$toast.error(
@@ -23,7 +27,7 @@ export const actions = {
       })
   },
   login (context, payload) {
-    this.$auth.loginWith('local', { data: payload })
+    this.$auth.loginWith('local', { data: payload.Authpayload })
       .then((response) => {
       })
       .catch((errorResponse) => {
@@ -52,6 +56,19 @@ export const actions = {
       .catch((errorResponse) => {
         args.errorCallback(errorResponse)
       })
+  }
+}
+
+export const mutations = {
+  is_mock_interview (state) {
+    state.is_mock = true
+  },
+  mock_interview_company_name (state, companyName) {
+    state.mock_interview_company_name = companyName
+  },
+  reset_mock_varibles (state) {
+    state.mock_interview_company = null
+    state.is_mock = null
   }
 }
 export const getters = {

@@ -206,7 +206,7 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interview
-        fields = ['pk', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'skills']
+        fields = ['pk', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'quoted_price', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')

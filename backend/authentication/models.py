@@ -141,6 +141,7 @@ class Interview(models.Model):
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])
     timezone = models.CharField(max_length=256)
+    quoted_price = models.CharField(max_length=24, default=600)
     skills = models.ManyToManyField(to=Skill)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

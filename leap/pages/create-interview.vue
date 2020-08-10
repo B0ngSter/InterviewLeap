@@ -25,20 +25,37 @@
             <b-container class="bg-white">
               <b-row>
                 <b-col cols="12" md="6" class="pt-5 pb-5">
-                  <label class="sr-only" for="last_name">L</label>
-                  <b-input
-                    v-model="userInfo.job_title"
-                    class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                    placeholder="Job Title"
-                  />
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.userInfo.job_title.$model"
+                      class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
+                      name="example-input-1"
+                      placeholder="Job Title"
+                      :state="validateState('job_title')"
+                      aria-describedby="input-1-live-feedback"
+                    />
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </b-col>
                 <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
-                  <label class="sr-only" for="last_name">R</label>
-                  <b-input
-                    v-model="userInfo.exp_years"
-                    class="mb-2 mb-sm-0 mr-md-4 ml-md-3 flex-fill"
-                    placeholder="Experience Required (Optional)"
-                  />
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.userInfo.exp_years.$model"
+                      class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
+                      placeholder="Experience Required (Optional)"
+                      :state="validateState('exp_years')"
+                      aria-describedby="input-1-live-feedback"
+                    />
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </b-col>
               </b-row>
             </b-container>
@@ -53,8 +70,15 @@
                     <b-form-input
                       v-model="skill_search_query"
                       placeholder="Core Skills"
+                      list="Skill-options"
                       :disabled="skills_filled"
+                      @change="skillApi"
                     />
+                    <datalist id="Skill-options">
+                      <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
+                        {{ Skill }}
+                      </option>
+                    </datalist>
                     <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
@@ -88,30 +112,47 @@
         <b-col cols="12" class="mt-2">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row align-v="center" align-content="start">
+              <b-row>
                 <b-col cols="12" md="6" class="pt-5 pb-5 pl-4">
-                  <b-form-input
-                    v-model="userInfo.description"
-                    class="bg-white"
-                    required
-                    placeholder="Brief description"
-                  />
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.userInfo.description.$model"
+                      class="bg-white"
+                      required
+                      placeholder="Brief description"
+                      :state="validateState('description')"
+                      aria-describedby="input-1-live-feedback"
+                    />
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </b-col>
                 <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
-                  <label class="sr-only" for="timeZones">timeZones</label>
-                  <b-input
-                    id="timeZones"
-                    v-model="userInfo.timezone"
-                    list="timeZones-options"
-                    class="mb-2 mb-sm-0 ml-md-4 mr-md-3 flex-fill"
-                    placeholder="Time Zone"
-                    autocomplete="off"
-                  />
-                  <datalist id="timeZones-options">
-                    <option v-for="(timeZones, idx) in timeZone" :key="idx">
-                      {{ timeZones }}
-                    </option>
-                  </datalist>
+                  <b-form-group>
+                    <b-input
+                      id="timeZones"
+                      v-model="$v.userInfo.timezone.$model"
+                      required
+                      list="timeZones-options"
+                      class="mb-2 mb-sm-0 ml-md-4 mr-md-3"
+                      :state="validateState('timezone')"
+                      placeholder="Time Zone"
+                      autocomplete="off"
+                    />
+                    <datalist id="timeZones-options">
+                      <option v-for="(timeZones, idx) in timeZone" :key="idx">
+                        {{ timeZones }}
+                      </option>
+                    </datalist>
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                 </b-col>
               </b-row>
             </b-container>
@@ -190,21 +231,28 @@
 
 <script>
 import Vue from 'vue'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
 export default {
   layout: 'app-page',
+  mixins: [validationMixin],
   data () {
     return {
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
       selected_date: null,
       date_row: {},
-      job_title: '',
       job_exp: '',
       userInfo: {
         skills: [],
+        job_title: null,
+        exp_years: null,
+        description: null,
+        timezone: null,
         pk: null
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
+      fetchedSkill: [],
       skill_search_query: ''
     }
   },
@@ -219,7 +267,19 @@ export default {
     this.updateInterview()
     // this.fetch_timeSlots()
   },
+  validations: {
+    userInfo: {
+      job_title: { required },
+      exp_years: { required },
+      description: { required },
+      timezone: { required }
+    }
+  },
   methods: {
+    validateState (name) {
+      const { $dirty, $error } = this.$v.userInfo[name]
+      return $dirty ? !$error : null
+    },
     // fetch_timeSlots () {
     //   this.$axios.get('/time-slot')
     //     .then((response) => {
@@ -233,11 +293,21 @@ export default {
             this.userInfo = this.response.data
           }
         })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
+        })
     },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {
           this.timeZone = response.data.timezone_list
+        })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
         })
     },
     month () {
@@ -329,6 +399,14 @@ export default {
         return
       }
       this.skill_search_query = ''
+    },
+    skillApi () {
+      this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
+        .then((response) => {
+          if (response.status === 200) {
+            this.fetchedSkill = response.data.result
+          }
+        })
     } // do not remove below code for time being
     // important learning can be extracted from code below
     // about data not being saved inside json

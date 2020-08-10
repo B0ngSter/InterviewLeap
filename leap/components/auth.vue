@@ -21,104 +21,100 @@
           </p>
           <b-row v-if="action === 'signup'" align-h="center">
             <b-col cols="12" md="4" class="mt-4">
-              <ValidationProvider
-                v-slot="{ valid, errors }"
-                rules="required"
-              >
-                <b-form-group>
-                  <b-input
-                    v-if="action === 'signup'"
-                    v-model="userInfo.first_name"
-                    class="inputs bg-light"
-                    type="text"
-                    required
-                    placeholder="First Name"
-                    :state="errors[0] ? false : (valid ? true : null)"
-                  />
-                  <b-form-invalid-feedback id="inputLiveFeedback">
-                    {{ errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </ValidationProvider>
+              <b-form-group>
+                <b-form-input
+                  v-if="action === 'signup'"
+                  v-model="$v.userInfo.first_name.$model"
+                  class="inputs bg-light"
+                  required
+                  placeholder="First Name"
+                  :state="validateState('first_name')"
+                  aria-describedby="input-1-live-feedback"
+                />
+                <b-form-invalid-feedback
+                  id="input-1-live-feedback"
+                >
+                  This is a required field.
+                </b-form-invalid-feedback>
+              </b-form-group>
             </b-col>
             <b-col cols="12" md="4" class="mt-4">
-              <ValidationProvider
-                v-slot="{ valid, errors }"
-                rules="required"
-              >
-                <b-form-group>
-                  <b-input
-                    v-if="action === 'signup'"
-                    v-model="userInfo.last_name"
-                    class="inputs bg-light"
-                    type="text"
-                    required
-                    placeholder="Last Name"
-                    :state="errors[0] ? false : (valid ? true : null)"
-                  />
-                  <b-form-invalid-feedback id="inputLiveFeedback">
-                    {{ errors[0] }}
-                  </b-form-invalid-feedback>
-                </b-form-group>
-              </ValidationProvider>
+              <b-form-group>
+                <b-form-input
+                  v-if="action === 'signup'"
+                  v-model="$v.userInfo.last_name.$model"
+                  class="inputs bg-light"
+                  required
+                  type="text"
+                  placeholder="Last Name"
+                  :state="validateState('last_name')"
+                  aria-describedby="input-1-live-feedback"
+                />
+                <b-form-invalid-feedback
+                  id="input-1-live-feedback"
+                >
+                  This is a required field.
+                </b-form-invalid-feedback>
+              </b-form-group>
             </b-col>
           </b-row>
           <b-row align-h="center">
             <b-col cols="12" :md="action === 'login' ? 6 : 8" class="mt-4">
-              <ValidationProvider v-slot="{ valid, errors }" rules="required|email" name="Email">
+              <b-form-group>
                 <b-form-input
-                  v-model="userInfo.email"
+                  v-model="$v.userInfo.email.$model"
                   class="inputs bg-light"
-                  type="email"
                   required
+                  type="email"
                   placeholder="Email ID"
-                  :state="errors[0] ? false : (valid ? true : null)"
+                  :state="validateState('email')"
+                  aria-describedby="input-1-live-feedback"
                 />
-                <b-form-invalid-feedback id="inputLiveFeedback">
-                  {{ errors[0] }}
+                <b-form-invalid-feedback
+                  id="input-1-live-feedback"
+                >
+                  This is a required field.
                 </b-form-invalid-feedback>
-              </ValidationProvider>
+              </b-form-group>
             </b-col>
           </b-row>
           <b-row align-h="center">
             <b-col cols="12" :md="action === 'login' ? 6 : 4" class="mt-4">
-              <ValidationProvider
-                v-slot="{ valid, errors }"
-                rules="required"
-                name="Password"
-                vid="password"
-              >
+              <b-form-group>
                 <b-form-input
-                  v-model="userInfo.password"
-                  type="password"
+                  v-model="$v.userInfo.password.$model"
                   class="inputs bg-light"
                   required
+                  type="password"
                   placeholder="Password"
-                  :state="errors[0] ? false : (valid ? true : null)"
+                  :state="validateState('password')"
+                  aria-describedby="input-1-live-feedback"
                 />
-                <b-form-invalid-feedback id="inputLiveFeedback">
-                  {{ errors[0] }}
+                <b-form-invalid-feedback
+                  id="input-1-live-feedback"
+                >
+                  This is a required field.
                 </b-form-invalid-feedback>
-              </ValidationProvider>
+              </b-form-group>
             </b-col>
             <b-col v-if="action === 'signup'" cols="12" md="4">
-              <ValidationProvider
-                v-slot="{ valid, errors }"
-                rules="required|confirmed:password"
-                name="Password confirmation"
-              >
+              <b-form-group>
                 <b-form-input
-                  v-model="userInfo.confirm_password"
-                  type="password"
+                  v-if="action === 'signup'"
+                  v-model="$v.userInfo.confirm_password.$model"
                   class="inputs bg-light mt-4"
+                  type="password"
                   required
                   placeholder="Confirm Password"
-                  :state="errors[0] ? false : (valid ? true : null)"
+                  :state="validateState('confirm_password')"
+                  aria-describedby="input-1-live-feedback"
                 />
-                <b-form-invalid-feedback id="inputLiveFeedback">
-                  {{ errors[0] }}
+                <b-form-invalid-feedback
+                  id="input-1-live-feedback"
+                >
+                  This is a required field.
                 </b-form-invalid-feedback>
-              </ValidationProvider>
+              </b-form-group>
             </b-col>
           </b-row>
           <b-row align-h="center">
@@ -179,14 +175,14 @@
 </template>
 
 <script>
-import { ValidationProvider } from 'vee-validate'
+import { validationMixin } from 'vuelidate'
+import { required, email } from 'vuelidate/lib/validators'
 import googleAuth from '~/components/GoogleAuth'
-
 export default {
   components: {
-    ValidationProvider,
     googleAuth
   },
+  mixins: [validationMixin],
   props: {
     action: {
       type: String,
@@ -196,13 +192,34 @@ export default {
   data () {
     return {
       userInfo: {
-        email: 'nit35h.7@gmail.com',
-        password: '12162221N'
+        first_name: null,
+        last_name: null,
+        email: null,
+        password: null,
+        confirm_password: null
       }
     }
   },
+  validations: {
+    userInfo: {
+      first_name: { required },
+      last_name: { required },
+      password: { required },
+      confirm_password: { required },
+      email: { required, email }
+    }
+  },
   methods: {
+    validateState (name) {
+      const { $dirty, $error } = this.$v.userInfo[name]
+      return $dirty ? !$error : null
+    },
     submitForm () {
+      if (this.action === 'login') {
+        delete this.userInfo.first_name
+        delete this.userInfo.last_name
+        delete this.userInfo.confirm_password
+      }
       this.$store.dispatch(this.action, {
         Authpayload: this.userInfo,
         callback: () => { this.$router.push(`/email-sent?email=${this.userInfo.email}&context=signup`) }

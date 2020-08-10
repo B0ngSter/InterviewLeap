@@ -7,7 +7,7 @@ export const state = () => {
 
 export const actions = {
   signup (context, signupArgs) {
-    this.$axios.post('/auth/signup', signupArgs.Authpayload)
+    this.$axios.post('/auth/signup', { ...signupArgs.Authpayload })
       .then((response) => {
         // this.$router.push('/email-sent')
         signupArgs.callback()
@@ -66,7 +66,7 @@ export const mutations = {
   mock_interview_company_name (state, companyName) {
     state.mock_interview_company_name = companyName
   },
-  reset_mock_varibles (state) {
+  reset_mock_variables (state) {
     state.mock_interview_company = null
     state.is_mock = null
   }

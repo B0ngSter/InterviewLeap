@@ -3,7 +3,7 @@
     <b-row class="mt-5">
       <b-col cols="12" md="3" class="pb-5 mb-5">
         <h3 class="font-weight-bold">
-          Hello, Tessa
+          Hello, {{ this.$store.state.auth.user.first_name }}
         </h3>
         <p class="text-secondary">
           Your upcoming interviews
@@ -93,26 +93,26 @@ export default {
     return {
       searchString: '',
       mocks: [
-        {
-          jobTitle: 'Senior Android Developer',
-          company: 'Amazon',
-          Exp: '5-8 Years'
-        },
-        {
-          jobTitle: 'Hadoop Developer',
-          company: 'E & Y',
-          Exp: '5-8 Years'
-        },
-        {
-          jobTitle: '.NET Developer',
-          company: 'JP Morgan',
-          Exp: '5-8 Years'
-        },
-        {
-          jobTitle: 'UX Desiger',
-          company: 'Deloitte',
-          Exp: '5-8 Years'
-        }
+        // {
+        //   jobTitle: 'Senior Android Developer',
+        //   company: 'Amazon',
+        //   Exp: '5-8 Years'
+        // },
+        // {
+        //   jobTitle: 'Hadoop Developer',
+        //   company: 'E & Y',
+        //   Exp: '5-8 Years'
+        // },
+        // {
+        //   jobTitle: '.NET Developer',
+        //   company: 'JP Morgan',
+        //   Exp: '5-8 Years'
+        // },
+        // {
+        //   jobTitle: 'UX Desiger',
+        //   company: 'Deloitte',
+        //   Exp: '5-8 Years'
+        // }
       ],
       companyName: ''
     }
@@ -137,6 +137,11 @@ export default {
     this.$axios.get('/dashboard/').then((response) => {
       this.mock = response.data.mocks
     })
+      .catch((errorResponse) => {
+        this.$toast.error(
+          errorResponse.response.data.message || 'Something went wrong'
+        )
+      })
   },
   methods: {
     BookMockInterview (idx) {

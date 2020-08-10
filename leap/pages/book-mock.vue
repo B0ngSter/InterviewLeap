@@ -28,16 +28,15 @@
             <b-container class="bg-white">
               <b-row>
                 <b-col cols="12" md="6" class="pt-5 pb-5">
-                  <ValidationProvider
-                    v-slot="{ valid, errors }"
-                    rules="required"
-                  >
-                    <b-input
-                      id="timeZones"
-                      v-model="candidateInfo.time_zone"
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.candidateInfo.time_zone.$model"
+                      class="bg-white"
+                      required
+                      :state="validateState('time_zone')"
+                      aria-describedby="input-1-live-feedback"
                       list="timeZones-options"
-                      :state="errors[0] ? false : (valid ? true : null)"
-                      placeholder="timeZones"
+                      placeholder="time zones"
                       autocomplete="off"
                     />
                     <datalist id="timeZones-options">
@@ -45,10 +44,12 @@
                         {{ timeZones }}
                       </option>
                     </datalist>
-                    <b-form-invalid-feedback id="inputLiveFeedback">
-                      {{ errors[0] }}
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
                     </b-form-invalid-feedback>
-                  </ValidationProvider>
+                  </b-form-group>
                 </b-col>
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-datepicker
@@ -118,14 +119,15 @@
 </template>
 
 <script>
-import { ValidationProvider } from 'vee-validate'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
 import Payment from '~/components/payment'
 export default {
   layout: 'app-page',
   components: {
-    ValidationProvider,
     Payment
   },
+  mixins: [validationMixin],
   data () {
     return {
       payment: false,
@@ -135,6 +137,7 @@ export default {
       time_slot: [],
       time_slots_mock: [],
       candidateInfo: {
+        time_zone: null,
         time_slots: []
       },
       skill_search_query: '',
@@ -149,7 +152,16 @@ export default {
   mounted () {
     this.fetch_timeZone()
   },
+  validations: {
+    candidateInfo: {
+      time_zone: { required }
+    }
+  },
   methods: {
+    validateState (name) {
+      const { $dirty, $error } = this.$v.candidateInfo[name]
+      return $dirty ? !$error : null
+    },
     // fetch_timeSlots () {
     //   this.$axios.get('/time-slot')
     //     .then((response) => {

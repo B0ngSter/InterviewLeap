@@ -37,8 +37,7 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    { src: '~/plugins/axios.js' },
-    { src: '~/plugins/vee-validate.js' }
+    { src: '~/plugins/axios.js' }
   ],
   /*
   ** Auto import components
@@ -114,6 +113,6 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    transpile: ['@nuxtjs/auth', 'vee-validate/dist/rules']
+    transpile: ['@nuxtjs/auth']
   }
 }

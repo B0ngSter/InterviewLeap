@@ -1,5 +1,5 @@
 <template>
-  <b-container v-if="payment" class="py-5">
+  <b-container class="py-5">
     <b-row align-v="start" align-content="start" class="flex-grow-1">
       <b-col cols="12">
         <b-breadcrumb class="bg-light pl-0">
@@ -41,7 +41,7 @@
               </b-col>
               <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
                 <div class="mt-5 mb-5">
-                  <b-button squared class="alert-danger text-danger-dark">
+                  <b-button squared class="alert-danger text-danger-dark" @click="cancle">
                     Cancel
                   </b-button>
                 </div>
@@ -144,11 +144,9 @@
       </b-col>
       <b-col cols="12">
         <div class="text-center mt-5">
-          <a target="_blank">
-            <b-button variant="primary" @click="submit">
-              proceed to pay
-            </b-button>
-          </a>
+          <b-button variant="primary" @click="submit">
+            proceed to pay
+          </b-button>
         </div>
       </b-col>
       <b-col cols="12">
@@ -169,11 +167,11 @@ export default {
     },
     timeSlots: {
       type: Array,
-      required: true
+      required: false
     },
     timeSlotsMock: {
       type: Array,
-      required: true
+      required: false
     },
     payment: {
       type: Boolean,
@@ -206,6 +204,11 @@ export default {
         this.tax = response.data.tax
         this.amount = response.data.amount
       })
+      .catch((errorResponse) => {
+        this.$toast.error(
+          errorResponse.response.data.message || 'Something went wrong'
+        )
+      })
   },
   methods: {
     date () {
@@ -220,8 +223,7 @@ export default {
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
     },
     reschedule () {
-      this.payment = false
-      this.$emit('reschedule', this.payment)
+      this.$emit('reschedule', false)
     },
     submit () {
       const payload = { ...this.candidateInfo }
@@ -235,17 +237,13 @@ export default {
         payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
         endpoint = '/book-interview/'
       }
-      const formData = new FormData()
-      Object.keys(payload).map((key) => {
-        formData.append(key, payload[key])
-      })
-      this.$axios.post(endpoint, formData)
+      this.$axios.post(endpoint, payload)
         .then((response) => {
           if (response.data.long_url) {
             window.open(response.data.long_url, '_blank')
           }
-          this.$store.commit('reset_mock_varibles')
-          this.$toast.success('booked successfully', {
+          this.$store.commit('reset_mock_variables')
+          this.$toast.success('Booked successfully', {
             action: {
               text: 'Close',
               onClick: (e, toastObject) => {
@@ -256,9 +254,12 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Could not Book your interview. Please try again later'
+            errorResponse.response.data.message || 'Could not book your interview. Please try again later'
           )
         })
+    },
+    cancle () {
+      this.$router.push('/dashboard')
     }
   }
 }

@@ -62,6 +62,7 @@
                       list="Skill-options"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
+                      @change="skillApi"
                     />
                     <datalist id="Skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -103,15 +104,14 @@
             <b-container class="bg-white">
               <b-row>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
-                  <ValidationProvider
-                    v-slot="{ valid, errors }"
-                    rules="required"
-                  >
-                    <b-input
-                      id="timeZones"
-                      v-model="candidateInfo.time_zone"
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.candidateInfo.time_zone.$model"
+                      class="bg-white"
+                      required
+                      :state="validateState('time_zone')"
+                      aria-describedby="input-1-live-feedback"
                       list="timeZones-options"
-                      :state="errors[0] ? false : (valid ? true : null)"
                       placeholder="timeZones"
                       autocomplete="off"
                     />
@@ -120,10 +120,12 @@
                         {{ timeZones }}
                       </option>
                     </datalist>
-                    <b-form-invalid-feedback id="inputLiveFeedback">
-                      {{ errors[0] }}
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
                     </b-form-invalid-feedback>
-                  </ValidationProvider>
+                  </b-form-group>
                 </b-col>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
                   <b-form-datepicker
@@ -135,19 +137,21 @@
                   />
                 </b-col>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
-                  <ValidationProvider
-                    v-slot="{ valid, errors }"
-                    rules="required"
-                  >
-                    <b-input
-                      v-model="candidateInfo.applied_designation"
+                  <b-form-group>
+                    <b-form-input
+                      v-model="$v.candidateInfo.applied_designation.$model"
+                      class="bg-white"
+                      required
                       placeholder="Role you’re interviewed for Eg: Senior Android Developer"
-                      :state="errors[0] ? false : (valid ? true : null)"
+                      :state="validateState('applied_designation')"
+                      aria-describedby="input-1-live-feedback"
                     />
-                    <b-form-invalid-feedback id="inputLiveFeedback">
-                      {{ errors[0] }}
+                    <b-form-invalid-feedback
+                      id="input-1-live-feedback"
+                    >
+                      This is a required field.
                     </b-form-invalid-feedback>
-                  </ValidationProvider>
+                  </b-form-group>
                 </b-col>
               </b-row>
             </b-container>
@@ -207,14 +211,15 @@
 </template>
 
 <script>
-import { ValidationProvider } from 'vee-validate'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
 import Payment from '~/components/payment'
 export default {
   layout: 'app-page',
   components: {
-    ValidationProvider,
     Payment
   },
+  mixins: [validationMixin],
   data () {
     return {
       payment: false,
@@ -224,7 +229,9 @@ export default {
       candidateInfo: {
         skills: [],
         company_type: '',
-        time_slots: []
+        time_slots: [],
+        time_zone: null,
+        applied_designation: null
       },
       skill_search_query: '',
       fetchedSkill: []
@@ -237,9 +244,18 @@ export default {
   },
   mounted () {
     this.fetch_timeZone()
-    this.skillApi()
+  },
+  validations: {
+    candidateInfo: {
+      applied_designation: { required },
+      time_zone: { required }
+    }
   },
   methods: {
+    validateState (name) {
+      const { $dirty, $error } = this.$v.candidateInfo[name]
+      return $dirty ? !$error : null
+    },
     // fetch_timeSlots () {
     //   this.$axios.get('/time-slot')
     //     .then((response) => {
@@ -250,6 +266,11 @@ export default {
       this.$axios.get('/book-interview')
         .then((response) => {
           this.timeZone = response.data.timezone_list
+        })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
         })
     },
     addSlot (idy) {

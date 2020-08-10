@@ -60,7 +60,7 @@ export default {
             route: '/book-interview'
           }, {
             title: 'Past Interviews',
-            route: 'create-interview'
+            route: 'past-interview'
           }, {
             title: 'Profile',
             route: '/profile'
@@ -82,7 +82,7 @@ export default {
             route: '/profile'
           }, {
             title: 'Interview Requests',
-            route: 'requests'
+            route: '/interview-request'
           }, {
             title: 'FAQs',
             route: 'faqs'

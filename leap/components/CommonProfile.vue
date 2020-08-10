@@ -33,38 +33,42 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.first_name"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.first_name.$model"
+                        class="bg-white"
+                        required
                         placeholder="First Name"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('first_name')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     class="mt-4"
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.last_name"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.last_name.$model"
+                        class="bg-white"
+                        required
                         placeholder="Last Name"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('last_name')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     class="mt-4"
@@ -83,20 +87,22 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.phone_number"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.phone_number.$model"
+                        class="bg-white"
+                        required
                         type="number"
                         placeholder="Mobile Number"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('phone_number')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        Not a valid number.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col cols="12" class="mt-4">
                     <div class="text-center">
@@ -125,26 +131,28 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.industry"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.industry.$model"
+                        class="bg-white"
+                        required
+                        :state="validateState('industry')"
+                        aria-describedby="input-1-live-feedback"
                         list="industry-options"
                         placeholder="Industry"
                         autocomplete="off"
-                        :state="errors[0] ? false : (valid ? true : null)"
                       />
                       <datalist id="industry-options">
                         <option v-for="(industry, idx) in industry_choices" :key="idx">
                           {{ industry }}
                         </option>
                       </datalist>
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
@@ -152,21 +160,22 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.exp_years"
-                        placeholder="Total Experience"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.exp_years.$model"
+                        class="bg-white"
+                        required
                         type="number"
-                        min="0"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        placeholder="Total Experience"
+                        :state="validateState('exp_years')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
@@ -174,19 +183,21 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.company"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.company.$model"
+                        class="bg-white"
+                        required
                         placeholder="Current Company"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('company')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Experienced' || $store.getters.is_interviewer"
@@ -194,19 +205,21 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.designation"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.designation.$model"
+                        class="bg-white"
+                        required
                         placeholder="Designation"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('designation')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
@@ -214,19 +227,21 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.education"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.education.$model"
+                        class="bg-white"
+                        required
                         placeholder="Highest Qualification"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('education')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
@@ -234,19 +249,21 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.college"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.college.$model"
+                        class="bg-white"
+                        required
                         placeholder="College / University"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('college')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
@@ -254,19 +271,22 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.years_of_passing"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.years_of_passing.$model"
+                        class="bg-white"
+                        required
+                        type="number"
                         placeholder="Year of passing"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('years_of_passing')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col
                     v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate"
@@ -274,58 +294,60 @@
                     cols="12"
                     md="6"
                   >
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.job_title"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.job_title.$model"
+                        class="bg-white"
+                        required
                         placeholder="Position looking for Eg: Java Developer"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('job_title')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-form-file
-                        id="resume"
-                        placeholder="Your latest resume"
-                        drop-placeholder="Drop resume here..."
-                        :state="errors[0] ? false : (valid ? true : null)"
-                      />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
-                      </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    <b-form-file
+                      id="resume"
+                      placeholder="Your latest resume"
+                      drop-placeholder="Drop resume here..."
+                    />
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.linkedin"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.linkedin.$model"
+                        class="bg-white"
+                        required
                         placeholder="Linkedin URL"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState('linkedin')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12">
                     <b-input-group>
                       <b-form-input
                         v-model="skill_search_query"
                         placeholder="Core Skills"
+                        list="Skill-options"
                         :disabled="skills_filled"
+                        @change="skillApi"
                       />
+                      <datalist id="Skill-options">
+                        <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
+                          {{ Skill }}
+                        </option>
+                      </datalist>
                       <b-input-group-append>
                         <b-button variant="secondary" :disabled="skills_filled" @click="addSkill">
                           Add
@@ -376,66 +398,73 @@
               <b-container>
                 <b-row>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.account_info.acc_name"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.account_info.acc_name.$model"
+                        class="bg-white"
                         required
                         placeholder="Account holder’s name"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState_forAccount('acc_name')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.account_info.account_number"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.account_info.account_number.$model"
                         type="number"
+                        class="bg-white"
+                        required
                         placeholder="Account Number"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState_forAccount('account_number')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.account_info.ifsc_code"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.account_info.ifsc_code.$model"
+                        class="bg-white"
+                        required
                         placeholder="IFSC"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState_forAccount('ifsc_code')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
-                    <ValidationProvider
-                      v-slot="{ valid, errors }"
-                      rules="required"
-                    >
-                      <b-input
-                        v-model="profile.account_info.bank"
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.account_info.bank.$model"
+                        class="bg-white"
+                        required
                         placeholder="Bank Name"
-                        :state="errors[0] ? false : (valid ? true : null)"
+                        :state="validateState_forAccount('bank')"
+                        aria-describedby="input-1-live-feedback"
                       />
-                      <b-form-invalid-feedback id="inputLiveFeedback">
-                        {{ errors[0] }}
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
                       </b-form-invalid-feedback>
-                    </ValidationProvider>
+                    </b-form-group>
                   </b-col>
                 </b-row>
               </b-container>
@@ -453,22 +482,37 @@
 </template>
 
 <script>
-import { ValidationProvider } from 'vee-validate'
+import { validationMixin } from 'vuelidate'
+import { required, minLength, maxLength, url } from 'vuelidate/lib/validators'
 export default {
-  components: {
-    ValidationProvider
-  },
+  mixins: [validationMixin],
   data () {
     return {
       profile: {
         skills: [],
-        first_name: '',
-        last_name: '',
+        first_name: null,
+        last_name: null,
         email: '',
-        account_info: {},
+        exp_years: null,
+        industry: null,
+        designation: null,
+        phone_number: null,
+        education: null,
+        years_of_passing: null,
+        job_title: null,
+        company: null,
+        account_info: {
+          acc_name: null,
+          account_number: null,
+          ifsc_code: null,
+          bank: null
+        },
+        college: null,
+        linkedin: null,
         resume: null,
         professional_status: ''
       },
+      fetchedSkill: [],
       current_tab: 0,
       industry_choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       professional_status_options: [
@@ -492,7 +536,37 @@ export default {
     this.fetch_industry_choices()
     this.fetch_profile_data()
   },
+  validations: {
+    profile: {
+      first_name: { required },
+      last_name: { required },
+      college: { required },
+      exp_years: { required },
+      industry: { required },
+      designation: { required },
+      phone_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
+      education: { required },
+      company: { required },
+      years_of_passing: { required },
+      job_title: { required },
+      linkedin: { required, url },
+      account_info: {
+        acc_name: { required },
+        account_number: { required },
+        ifsc_code: { required },
+        bank: { required }
+      }
+    }
+  },
   methods: {
+    validateState (name) {
+      const { $dirty, $error } = this.$v.profile[name]
+      return $dirty ? !$error : null
+    },
+    validateState_forAccount (name) {
+      const { $dirty, $error } = this.$v.profile.account_info[name]
+      return $dirty ? !$error : null
+    },
     removeTag (skillIndex) {
       this.profile.skills.splice(skillIndex, 1)
     },
@@ -505,6 +579,30 @@ export default {
     save_profile () {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
+      if (payload.company == null && payload.college !== null) {
+        delete payload.company
+        delete payload.designation
+        delete payload.exp_years
+        delete payload.industry
+        delete payload.account_info
+      }
+      if (payload.college == null && payload.company !== null) {
+        delete payload.college
+        delete payload.years_of_passing
+        delete payload.education
+        delete payload.job_title
+        delete payload.account_info
+      }
+      if (payload.college == null && payload.company == null) {
+        delete payload.college
+        delete payload.years_of_passing
+        delete payload.education
+        delete payload.job_title
+        delete payload.company
+        delete payload.designation
+        delete payload.exp_years
+        delete payload.industry
+      }
       const formData = new FormData()
       formData.append('resume', document.getElementById('resume').files[0])
       Object.keys(payload).map((key) => {
@@ -544,6 +642,11 @@ export default {
         .then((response) => {
           this.industry_choices = response.data.industries
         })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
+        })
     },
     fetch_profile_data () {
       let profileApiURL
@@ -562,10 +665,35 @@ export default {
           response.data.skills = []
         }
         if (!response.data.account_info) {
-          response.data.account_info = {}
+          response.data.account_info = {
+            acc_name: null,
+            account_number: null,
+            ifsc_code: null,
+            bank: null
+          }
+        }
+        if (response.data.phone_number == null) {
+          response.data.college = null
+          response.data.exp_years = null
+          response.data.industry = null
+          response.data.designation = null
+          response.data.phone_number = null
+          response.data.education = null
+          response.data.company = null
+          response.data.years_of_passing = null
+          response.data.job_title = null
+          response.data.linkedin = null
         }
         this.profile = response.data
       })
+    },
+    skillApi () {
+      this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
+        .then((response) => {
+          if (response.status === 200) {
+            this.fetchedSkill = response.data.result
+          }
+        })
     }
   }
 }

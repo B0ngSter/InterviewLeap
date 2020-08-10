@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +10,7 @@ from authentication.models import Skill
 from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
-from django.http import BadHeaderError
+from django.http import BadHeaderError, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from root.serializers import BookInterviewCreateSerializer, PaymentSerializer
@@ -180,13 +180,9 @@ def mojo_handler(request):
             payment_obj.status = "Failed"
             payment_obj.save(update_fields=['status'])
             # send mail
-        # http_handler = BaseHTTPRequestHandler()
-        # return http_handler.send_response(200)
-        status_code = 200
-        return Response({"message": "Payment status"}, status=status_code)
+        return HttpResponse(200)
     else:
-        status_code = 400
-        return Response({"message": "Server error"}, status=status_code)
+        return HttpResponse(400)
 
 
 class CandidateDashboardView(ListAPIView):

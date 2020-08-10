@@ -135,6 +135,7 @@ export default {
   },
   mounted () {
     this.$axios.get('/dashboard/').then((response) => {
+      this.mock = response.data.mocks
     })
   },
   methods: {

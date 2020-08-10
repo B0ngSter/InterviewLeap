@@ -573,6 +573,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
+        profile_data['account_info'] = json.loads(profile_data['account_info'])
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():

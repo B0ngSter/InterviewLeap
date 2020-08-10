@@ -294,7 +294,7 @@
                       rules="required"
                     >
                       <b-form-file
-                        v-model="profile.resume"
+                        id="resume"
                         placeholder="Your latest resume"
                         drop-placeholder="Drop resume here..."
                         :state="errors[0] ? false : (valid ? true : null)"
@@ -506,8 +506,13 @@ export default {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       const formData = new FormData()
+      formData.append('resume', document.getElementById('resume').files[0])
       Object.keys(payload).map((key) => {
-        formData.append(key, payload[key])
+        if (key === 'account_info') {
+          formData.append(key, JSON.stringify(payload[key]))
+        } else {
+          formData.append(key, payload[key])
+        }
       })
       let profileApiURL
       if (this.$store.getters.is_candidate) {

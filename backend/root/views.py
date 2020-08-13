@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, MockBookingSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
@@ -16,12 +16,13 @@ from django.utils.decorators import method_decorator
 from root.serializers import BookInterviewCreateSerializer, PaymentSerializer
 import requests
 from instamojo_wrapper import Instamojo
-from .models import PaymentDetails, BookInterview
+from .models import PaymentDetails, BookInterview, PaymentStatusLog
 from authentication.models import Interview, InterviewerProfile
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import hmac
 from hashlib import sha1
+from django.db import transaction, IntegrityError
 # import xhtml2pdf.pisa as pisa
 
 api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/')
@@ -69,6 +70,7 @@ class BookInterviewView(CreateAPIView):
         tax_amount = (payment_amount * tax) / 100
         total_amount = payment_amount + (payment_amount * tax) / 100
         link = "{frontend_url}/book-interview".format(frontend_url=settings.FRONTEND_URL)
+        webhook_url = "{domain}/webhook/payment-response/".format(domain=settings.WEBHOOK_STAGING_URL)
         response = api.payment_request_create(
             amount=total_amount,
             purpose='Interview Leap',
@@ -79,22 +81,23 @@ class BookInterviewView(CreateAPIView):
         )
         cleaned_data = {"payment_request_id": response['payment_request']['id'],
                         "amount": response['payment_request']['amount'],
-                        "tax_amount": tax_amount
+                        "email": self.request.user.email,
+                        "created_at": response['payment_request']['created_at']
+                        # "tax_amount": tax_amount
                         }
-        payment_serializer = PaymentSerializer(data=cleaned_data)
-        if payment_serializer.is_valid():
-            payment_serializer.save()
 
         interview_dict['candidate'] = request.user.id
         if 'skills' in interview_dict:
             interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
         interview_dict['time_slots'] = interview_dict['time_slots'].split(',')
-        interview_dict['payment_detail'] = PaymentDetails.objects.get(payment_request_id=response['payment_request']['id']).id
         serializer = self.get_serializer(data=interview_dict)
         long_url = response['payment_request']['longurl']
-
         if serializer.is_valid():
             serializer.save()
+            cleaned_data['interview_slug'] = serializer.data['slug']
+            payment_serializer = PaymentSerializer(data=cleaned_data)
+            if payment_serializer.is_valid():
+                payment_serializer.save()
             return Response({"long_url": long_url}, status=status.HTTP_200_OK)
         else:
             if serializer.errors.get('message'):
@@ -168,20 +171,34 @@ def mojo_handler(request):
     mac_calculated = hmac.new(SALT, message, sha1).hexdigest()
     if mac_provided == mac_calculated:
         if data['status'] == "Credit":
-            payment_obj = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
-            payment_obj.__dict__.update(**data)
-            payment_obj.save()
-            book_interview = BookInterview.objects.filter(payment_detail__payment_request_id=data['payment_request_id']).first()
-            book_interview.is_payment_done = True
-            book_interview.save(update_fields=['is_payment_done'])
-
+            try:
+                with transaction.atomic():
+                    check_payment = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
+                    data['other_detail'] = {"fees": data.pop('fees'), "long_url": data.pop('longurl'), "short_url": data.pop('shorturl')}
+                    payment_obj = PaymentDetails.objects.create(**data)
+                    payment_obj.save()
+                    # payment_details = api.payment_request_payment_status(payment_obj.payment_request_id, payment_obj.payment_id)
+                    # payment_data = {"instrument_type": payment_details['instrument_type'],
+                    #                 "billing_instrument": payment_details['billing_instrument']}
+                    # payment_obj.__dict__.update(**payment_data)
+                    book_interview = BookInterview.objects.filter(slug=check_payment.interview_slug).first()
+                    book_interview.is_payment_done = True
+                    book_interview.payment_detail = PaymentDetails.objects.get(payment_request_id=data['payment_request_id'])
+                    book_interview.save()
+                    check_payment.delete()
+                    # send mail, update calculate tax, instrument, billing
+            except IntegrityError:
+                transaction.rollback()
         else:
-            payment_obj = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
-            payment_obj.status = "Failed"
-            payment_obj.save(update_fields=['status'])
-            # send mail
+            payment_log_obj = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
+            payment_log_obj.status = "Failed"
+            payment_log_obj.save(update_fields=['status'])
         return HttpResponse(200)
     else:
+        payment_log_obj = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
+        payment_log_obj.status = "Failed-400"
+        payment_log_obj.save(update_fields=['status'])
+        #check for HTTPResponseRedirect
         return HttpResponse(400)
 
 
@@ -218,3 +235,13 @@ class SkillSearchView(ListAPIView):
                 return Response({"message": "No skill with this key found!"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MockBookingView(CreateAPIView):
+
+    serializer_class = MockBookingSerializer
+
+    def create(self, request, *args, **kwargs):
+        mock_slug = kwargs.get('slug')
+        pass
+

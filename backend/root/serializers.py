@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from authentication.models import Skill
+from authentication.models import Skill, InterviewSlots
 from authentication.serializers import SkillSerializer
-from .models import BookInterview, PaymentDetails
+from .models import BookInterview, PaymentDetails, PaymentStatusLog
 from django.db import transaction, IntegrityError
 
 
@@ -46,7 +46,7 @@ class BookInterviewCreateSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = PaymentDetails
+        model = PaymentStatusLog
         fields = '__all__'
 
 
@@ -55,3 +55,10 @@ class SKillSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = ['title']
+
+
+class MockBookingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = InterviewSlots
+        fields = '__all__'

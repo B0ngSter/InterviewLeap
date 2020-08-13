@@ -5,8 +5,10 @@ from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import ArrayField, JSONField
-
+from django.utils.text import slugify
 from backend.storage_backends import PrivateMediaStorage
+import random
+import string
 
 phone_regex = RegexValidator(
     regex=r'^\+?1?\d{9,15}$',
@@ -135,6 +137,7 @@ class InterviewerProfile(models.Model):
 
 
 class Interview(models.Model):
+    slug = models.SlugField(null=True, blank=True)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=256, null=True, blank=True)
     description = models.TextField()
@@ -148,6 +151,13 @@ class Interview(models.Model):
 
     def __str__(self):
         return self.job_title
+
+    def save(self, *args, **kwargs):
+        super(Interview, self).save(*args, **kwargs)
+        if not self.slug:
+            slug_value = "{}".format(''.join(random.choices(string.ascii_lowercase + string.digits, k=8)))
+            self.slug = slugify(slug_value)
+            self.save()
 
 
 class InterviewSlots(models.Model):

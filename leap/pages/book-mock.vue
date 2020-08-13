@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-container v-if="!payment" class="py-5">
+    <b-container v-if="!hide_payment_details" class="py-5">
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
@@ -30,7 +30,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.candidateInfo.time_zone.$model"
+                      v-model="$v.candidate_info.time_zone.$model"
                       class="bg-white"
                       required
                       :state="validateState('time_zone')"
@@ -53,7 +53,7 @@
                 </b-col>
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-datepicker
-                    v-model="candidateInfo.date"
+                    v-model="candidate_info.date"
                     :date-disabled-fn="allowedDates"
                     placeholder="Select Date"
                     menu-class="w-100"
@@ -94,7 +94,11 @@
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5">
-            <b-button variant="primary" :disabled="candidateInfo.time_slots.length === 0 || candidateInfo.time_zone == null || candidateInfo.date == null" @click="submit">
+            <b-button
+              variant="primary"
+              :disabled="candidate_info.time_slots.length === 0 || candidate_info.time_zone == null || candidate_info.date == null"
+              @click="submit"
+            >
               Book  Interview
             </b-button>
           </div>
@@ -107,13 +111,10 @@
       </b-row>
     </b-container>
     <Payment
-      v-if="payment"
-      :candidate-info="candidateInfo"
-      :fetchedate="candidateInfo.date"
-      :payment="payment"
-      :time-slots="candidateInfo.time_slots"
+      v-if="hide_payment_details"
+      :candidate-info="candidate_info"
       :time-slots-mock="time_slots_mock"
-      @reschedule="payment = $event"
+      @reschedule="hide_payment_details = $event"
     />
   </div>
 </template>
@@ -123,43 +124,41 @@ import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import Payment from '~/components/payment'
 export default {
-  layout: 'app-page',
   components: {
     Payment
   },
+  layout: 'app-page',
   mixins: [validationMixin],
   data () {
     return {
-      payment: false,
+      hide_payment_details: false,
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       time_slot: [],
       time_slots_mock: [],
-      candidateInfo: {
+      candidate_info: {
         time_zone: null,
         time_slots: []
-      },
-      skill_search_query: '',
-      fetchedSkill: []
+      }
     }
   },
   computed: {
     skills_filled () {
-      return this.candidateInfo.skills.length >= 5
+      return this.candidate_info.skills.length >= 5
     }
   },
   mounted () {
     this.fetch_timeZone()
   },
   validations: {
-    candidateInfo: {
+    candidate_info: {
       time_zone: { required }
     }
   },
   methods: {
     validateState (name) {
-      const { $dirty, $error } = this.$v.candidateInfo[name]
+      const { $dirty, $error } = this.$v.candidate_info[name]
       return $dirty ? !$error : null
     },
     // fetch_timeSlots () {
@@ -176,7 +175,7 @@ export default {
     },
     addSlot (idy) {
       this.time_slot.includes(idy) ? this.time_slot.splice(this.time_slot.indexOf(idy), 1) : this.time_slot.push(idy)
-      this.candidateInfo.time_slots.includes(this.time_slots_to_be_sent[idy]) ? this.candidateInfo.time_slots.splice(this.time_slot.indexOf(this.time_slots_to_be_sent[idy]), 1) : this.candidateInfo.time_slots.push(this.time_slots_to_be_sent[idy])
+      this.candidate_info.time_slots.includes(this.time_slots_to_be_sent[idy]) ? this.candidate_info.time_slots.splice(this.time_slot.indexOf(this.time_slots_to_be_sent[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots_to_be_sent[idy])
       this.time_slots_mock.includes(this.time_slots[idy]) ? this.time_slots_mock.splice(this.time_slot.indexOf(this.time_slots[idy]), 1) : this.time_slots_mock.push(this.time_slots[idy])
     },
     allowedDates (val) {
@@ -195,7 +194,7 @@ export default {
       }
     },
     submit () {
-      this.payment = true
+      this.hide_payment_details = true
       this.$store.commit('is_mock_interview')
     }
   }

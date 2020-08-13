@@ -41,7 +41,7 @@
               </b-col>
               <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
                 <div class="mt-5 mb-5">
-                  <b-button squared class="alert-danger text-danger-dark" @click="cancle">
+                  <b-button squared class="alert-danger text-danger-dark" @click="cancel">
                     Cancel
                   </b-button>
                 </div>
@@ -67,7 +67,7 @@
                 </p>
               </b-col>
               <b-col
-                v-for="(timeslot, idy) in timeSlots"
+                v-for="(timeslot, idy) in candidateInfo.time_slots"
                 :key="idy"
                 cols="3"
                 class="mb-3 cursor-pointer"
@@ -161,21 +161,9 @@
 <script>
 export default {
   props: {
-    fetchedate: {
-      type: String,
-      required: true
-    },
-    timeSlots: {
-      type: Array,
-      required: false
-    },
     timeSlotsMock: {
       type: Array,
       required: false
-    },
-    payment: {
-      type: Boolean,
-      required: true
     },
     candidateInfo: {
       type: Object,
@@ -213,11 +201,11 @@ export default {
   methods: {
     date () {
       let month = ''
-      this.fetchedate.slice(5, 7).includes('0') ? month = this.fetchedate.slice(6, 7) : month = this.fetchedate.slice(5, 7)
+      this.candidateInfo.date.slice(5, 7).includes('0') ? month = this.candidateInfo.date.slice(6, 7) : month = this.candidateInfo.date.slice(5, 7)
       const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       month = monthList[parseInt(month) - 1]
-      const date = this.fetchedate.slice(8, 10)
-      const year = this.fetchedate.slice(0, 4)
+      const date = this.candidateInfo.date.slice(8, 10)
+      const year = this.candidateInfo.date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
@@ -226,22 +214,24 @@ export default {
       this.$emit('reschedule', false)
     },
     submit () {
-      const payload = { ...this.candidateInfo }
+      let payload = {}
       let endpoint
+      const slug = this.$route.query.id.slice(2, this.$route.query.id.length - 1)
       if (this.$store.state.is_mock) {
-        endpoint = '/mock-interview-booking/'
+        endpoint = `/book-mock/${slug}`
+        payload.start_time = this.candidateInfo.time_slots[0].slice(0, 5)
+        payload.end_time = this.candidateInfo.time_slots[0].slice(8, 13)
         payload.amount = this.amount
         payload.tax = this.tax
         payload.total_amount = this.total_amount
       } else {
+        payload = { ...this.candidateInfo }
         payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
         endpoint = '/book-interview/'
       }
       this.$axios.post(endpoint, payload)
         .then((response) => {
-          if (response.data.long_url) {
-            window.open(response.data.long_url, '_blank')
-          }
+          window.open(response.data.long_url, '_blank')
           this.$store.commit('reset_mock_variables')
           this.$toast.success('Booked successfully', {
             action: {
@@ -258,7 +248,7 @@ export default {
           )
         })
     },
-    cancle () {
+    cancel () {
       this.$router.push('/dashboard')
     }
   }

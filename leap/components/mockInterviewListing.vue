@@ -69,7 +69,10 @@
               </b-col>
               <b-col cols="4">
                 <div class="text-right">
-                  <b-button class="bg-primary" @click="BookMockInterview(idx)">
+                  <b-button
+                    class="bg-primary"
+                    @click="BookMockInterview(idx)"
+                  >
                     Book
                   </b-button>
                 </div>
@@ -94,21 +97,25 @@ export default {
       searchString: '',
       mocks: [
         // {
+        //   slug: 'ufsadsa2',
         //   jobTitle: 'Senior Android Developer',
         //   company: 'Amazon',
         //   Exp: '5-8 Years'
         // },
         // {
+        //   slug: 'ufsadsa3',
         //   jobTitle: 'Hadoop Developer',
         //   company: 'E & Y',
         //   Exp: '5-8 Years'
         // },
         // {
+        //   slug: 'ufsadsa4',
         //   jobTitle: '.NET Developer',
         //   company: 'JP Morgan',
         //   Exp: '5-8 Years'
         // },
         // {
+        //   slug: 'ufsadsa5',
         //   jobTitle: 'UX Desiger',
         //   company: 'Deloitte',
         //   Exp: '5-8 Years'
@@ -146,7 +153,7 @@ export default {
   methods: {
     BookMockInterview (idx) {
       this.$store.commit('mock_interview_company_name', this.mocks[idx].company)
-      this.$router.push('/book-mock')
+      this.$router.push('/book-mock?id=${' + this.filteredMocks[idx].slug + '}')
     }
   }
 }

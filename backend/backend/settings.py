@@ -292,7 +292,7 @@ MEDIA_URL = 'https://' + AWS_STORAGE_BUCKET_NAME + '.s3.amazonaws.com/' + 'media
 GoogleCalendarSecretFilePath = CONFIG.GoogleCalendarSecretFilePath
 TokenFile = CONFIG.TokenFile
 
-WEBHOOK_STAGING_URL = 'http://staging.interviewleap.com'
+WEBHOOK_STAGING_URL = 'http://api.staging.interviewleap.com'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -321,3 +321,4 @@ CANDIDATE_TIME_SLOTS = (
 CUSTOM_PAYMENT_AMOUNT = 600
 TAX_PERCENTAGE = 18
 PAYMENT_PURPOSE = 'Interview Leap'
+INSTAMOJO_TESTING_URL = 'https://test.instamojo.com/api/1.1/'

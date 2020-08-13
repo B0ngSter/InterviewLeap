@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        .table1{
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            background-color: #fff;
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th, td {
+          padding: 5px;
+          text-align: left;
+        }
+        .table .table {
+            background-color: #fff;
+        }
+
+        .list-group {
+            display: block;
+            width: 100%;
+            list-style: none;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .list-group p {
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            list-style: none;
+            font-size: 1.1em;
+        }
+        .common_font_color{
+            color:#353333;
+        }
+
+    </style>
+<body>
+<div class="container">
+    <div class="card">
+<!--        add logo here-->
+        <div class="card-header">
+            <br><br>
+            <h3 style="font-size:21px;">Hello {{full_name}}!</h3>
+        </div>
+
+        <div class="list-group">
+            <p class="common_font_color" style="font-size:15px;">We are happy to guide you</p>
+            <p class="common_font_color" style="font-size:15px;" >Here's a copy of your payment towards the subscription for any future reference.</p>
+        </div>
+        <br><br>
+
+        <table class="common_font_color" style="font-size:15px;">
+            <thead>
+                <tr style="margin-left:-30%;">
+                    <th>Invoice No.</th>
+                    <th>Date</th>
+                </tr>
+                <tr style="margin-left:-30%;">
+                    <th class="text-uppercase" style="color:#5F5D5D;">{{invoice_number}}</th>
+                    <th style="color:#5F5D5D;">{{paid_on}}</th>
+                </tr>
+            </thead>
+        </table>
+        <br>
+        <div>
+            <h4 style="font-size:21px;">Subscription Charges</h4>
+        </div>
+        <table class="table1">
+            <thead style="font-size:13px;">
+                <tr>
+                    <th>Interview Leap(charged amount) <span style="font-size:10px; color:gray;">including 18% GST</span></th>
+                    <th>Rs. {{amount}}</th>
+
+                </tr>
+                <tr>
+                    <th>Tax charged</th>
+                    <th>Rs. {{tax}}</th>
+
+                </tr>
+                <tr style="font-size:21px;">
+                    <th>Total INR</th>
+                    <th>Rs. {{total_amount}}</th>
+                </tr>
+            </thead>
+        </table>
+        <br><br>
+        <div style="">
+        <table style="background-color:#3B3838; color:white; border:1px solid #3B3838;">
+            <tbody>
+                <thead style="font-size:11px;">
+                    <tr>
+                        <th>****</th>
+                        <th colspan="2">From:</th>
+                    </tr>
+                    <tr>
+                        <th>{{full_name}}</th>
+                        <th colspan="2">Stellar Software Technologies Private Limited<br> D.No 2/23/1/4,Sai Sadan,2nd Floor, DD Colony, Baghamberpet, Hyderabad,Telangana - 500013</th>
+                    </tr>
+                    <tr>
+                        <th>{{email}}</th>
+                        <th colspan="2">GSTIN No : 36AAVCS6722K1ZM</th>
+
+                    </tr>
+                    <tr>
+                        <th>PAYMENT</th>
+                        <th colspan="2">PAN No : AAVCS6722K & SAC Code : 998313</th>
+
+                    </tr>
+                    <tr>
+                        <th>Paid to: Stellar Software</th>
+                        <th colspan="2">CIN: U72200TG2015PTC098351</th>
+                    </tr>
+                    <tr>
+                        <th>-</th>
+                        <th colspan="2">Contact us at: support@equiv.in</th>
+                    </tr>
+                </thead>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -56,9 +56,3 @@ class SKillSearchSerializer(serializers.ModelSerializer):
         model = Skill
         fields = ['title']
 
-
-class MockBookingSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = InterviewSlots
-        fields = '__all__'

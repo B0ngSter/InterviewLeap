@@ -8,16 +8,16 @@ import string
 
 
 class PaymentDetails(models.Model):
-    payment_request_id = models.CharField(max_length=150,  null=True, blank=True)
+    payment_request_id = models.CharField(max_length=150)
     buyer = models.EmailField(null=True, blank=True)
     buyer_name = models.CharField(max_length=120, null=True, blank=True)
     buyer_phone = models.CharField(max_length=30, null=True, blank=True)
-    amount = models.CharField(max_length=54, null=True, blank=True)
-    tax_amount = models.CharField(max_length=50, null=True, blank=True)
+    amount = models.CharField(max_length=54)
+    tax_amount = models.CharField(max_length=50)
     currency = models.CharField(max_length=120, null=True, blank=True)
-    purpose = models.CharField(max_length=220, null=True, blank=True)
-    payment_id = models.CharField(max_length=120,  null=True, blank=True)
-    status = models.CharField(max_length=20, null=True, blank=True)
+    purpose = models.CharField(max_length=220)
+    payment_id = models.CharField(max_length=120)
+    status = models.CharField(max_length=20)
     instrument_type = models.CharField(max_length=50, null=True, blank=True)
     billing_instrument = models.CharField(max_length=200, null=True, blank=True)
     payout_id = models.CharField(max_length=120,  null=True, blank=True)

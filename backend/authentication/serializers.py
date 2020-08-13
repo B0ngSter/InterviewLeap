@@ -246,4 +246,4 @@ class InterviewerRequestsListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookInterview
-        fields = '__all__'
+        fields = ['applied_designation', 'date', 'time_slots', 'candidate']

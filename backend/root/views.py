@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pytz
-from authentication.models import Skill
+from authentication.models import Skill, InterviewSlots
+from authentication.serializers import InterviewerRequestsListSerializer
 from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
@@ -22,9 +23,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import hmac
 from hashlib import sha1
+from django.utils import timezone
+
 # import xhtml2pdf.pisa as pisa
 
-api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/')
+api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN,
+                endpoint='https://test.instamojo.com/api/1.1/')
 
 
 class BookInterviewView(CreateAPIView):
@@ -52,13 +56,13 @@ class BookInterviewView(CreateAPIView):
     def get(self, request, *args, **kwargs):
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
-        total_amount = payment_amount + (payment_amount*tax)/100
+        total_amount = payment_amount + (payment_amount * tax) / 100
         response = {
-                    "timezone_list": pytz.all_timezones,
-                    "amount": settings.CUSTOM_PAYMENT_AMOUNT,
-                    "tax": int(round(payment_amount*tax)/100),
-                    "total_amount": round(total_amount)
-                    }
+            "timezone_list": pytz.all_timezones,
+            "amount": settings.CUSTOM_PAYMENT_AMOUNT,
+            "tax": int(round(payment_amount * tax) / 100),
+            "total_amount": round(total_amount)
+        }
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -89,7 +93,8 @@ class BookInterviewView(CreateAPIView):
         if 'skills' in interview_dict:
             interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
         interview_dict['time_slots'] = interview_dict['time_slots'].split(',')
-        interview_dict['payment_detail'] = PaymentDetails.objects.get(payment_request_id=response['payment_request']['id']).id
+        interview_dict['payment_detail'] = PaymentDetails.objects.get(
+            payment_request_id=response['payment_request']['id']).id
         serializer = self.get_serializer(data=interview_dict)
         long_url = response['payment_request']['longurl']
 
@@ -154,7 +159,7 @@ def send_mail_on_subscription(request, email, full_name, amount, invoice_number,
         print("mail sent***")
 
     except BadHeaderError:
-        return Response({"message":'Invalid header found.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": 'Invalid header found.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @require_POST
@@ -171,7 +176,8 @@ def mojo_handler(request):
             payment_obj = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
             payment_obj.__dict__.update(**data)
             payment_obj.save()
-            book_interview = BookInterview.objects.filter(payment_detail__payment_request_id=data['payment_request_id']).first()
+            book_interview = BookInterview.objects.filter(
+                payment_detail__payment_request_id=data['payment_request_id']).first()
             book_interview.is_payment_done = True
             book_interview.save(update_fields=['is_payment_done'])
 
@@ -185,21 +191,41 @@ def mojo_handler(request):
         return HttpResponse(400)
 
 
-class CandidateDashboardView(ListAPIView):
+class CandidateInterviewerDashboardView(ListAPIView):
     queryset = Interview.objects.all()
+    serializer_class = InterviewerRequestsListSerializer
     pagination_class = 10
 
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        mock_list = []
-        for data in queryset:
-            profile_obj = InterviewerProfile.objects.get(user=data.interviewer)
-            mock_list.append({"job_title": data.job_title,
-                              "company": profile_obj.company,
-                              "exp_years": profile_obj.exp_years,
-                              })
+        if request.user.role == 'Interviewer':
+            dashboard_details = {}
+            skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
+            interview_requests = BookInterview.objects.filter(candidate__isnull=True, date__gte=timezone.now())
+            interviews_created = InterviewSlots.objects.filter(interview__interviewer=request.user)
+            interviews_taken = interviews_created.filter(candidate__isnull=False,
+                                                         interview_end_time__lt=timezone.now())
 
-        return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
+            for skill in skills:
+                interview_requests = interview_requests.filter(skills__title__icontains=skill)
+            dashboard_details['new_interview_requests'] = interview_requests.count()
+            dashboard_details['interview_created'] = interviews_created.count()
+            dashboard_details['interview_taken'] = interviews_taken.count()
+            dashboard_details['total_earnings'] = 0  # need to implement
+            interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
+            dashboard_details['interview_requests'] = interview_requests_serialize
+            return Response(dashboard_details, status=status.HTTP_200_OK)
+            pass
+        else:
+            queryset = self.get_queryset()
+            mock_list = []
+            for data in queryset:
+                profile_obj = InterviewerProfile.objects.get(user=data.interviewer)
+                mock_list.append({"job_title": data.job_title,
+                                  "company": profile_obj.company,
+                                  "exp_years": profile_obj.exp_years,
+                                  })
+
+            return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
 
 
 class SkillSearchView(ListAPIView):

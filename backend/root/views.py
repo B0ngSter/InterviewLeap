@@ -192,6 +192,26 @@ def mojo_handler(request):
 
 
 class CandidateInterviewerDashboardView(ListAPIView):
+    """
+               Retrieve -- Retrieve dashboard detaisl based on the role.
+               For Interviewer:
+               Actions -- GET method
+               Response Status -- 200 Ok
+               Response sample dict -- {
+                        "new_interview_requests": 1,
+                        "interview_created": 1,
+                        "interview_taken": 1,
+                        "total_earnings": 1,
+                        "interview_requests": {
+                        "applied_designation": null,
+                        "time_slots": [],
+                        "date": datetime,
+                        "candidate": FK,
+                        }
+            }
+            For Candidate:
+
+        """
     queryset = Interview.objects.all()
     serializer_class = InterviewerRequestsListSerializer
     pagination_class = 10
@@ -200,11 +220,10 @@ class CandidateInterviewerDashboardView(ListAPIView):
         if request.user.role == 'Interviewer':
             dashboard_details = {}
             skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
-            interview_requests = BookInterview.objects.filter(candidate__isnull=True, date__gte=timezone.now())
             interviews_created = InterviewSlots.objects.filter(interview__interviewer=request.user)
             interviews_taken = interviews_created.filter(candidate__isnull=False,
                                                          interview_end_time__lt=timezone.now())
-
+            interview_requests = BookInterview.objects.filter(candidate__isnull=True, date__gte=timezone.now())
             for skill in skills:
                 interview_requests = interview_requests.filter(skills__title__icontains=skill)
             dashboard_details['new_interview_requests'] = interview_requests.count()
@@ -214,7 +233,6 @@ class CandidateInterviewerDashboardView(ListAPIView):
             interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
             dashboard_details['interview_requests'] = interview_requests_serialize
             return Response(dashboard_details, status=status.HTTP_200_OK)
-            pass
         else:
             queryset = self.get_queryset()
             mock_list = []

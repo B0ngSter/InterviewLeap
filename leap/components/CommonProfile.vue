@@ -339,11 +339,11 @@
                       <b-form-input
                         v-model="skill_search_query"
                         placeholder="Core Skills"
-                        list="Skill-options"
+                        list="skill-options"
                         :disabled="skills_filled"
-                        @change="skillApi"
+                        @change="fetchSkills"
                       />
-                      <datalist id="Skill-options">
+                      <datalist id="skill-options">
                         <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                           {{ Skill }}
                         </option>
@@ -687,7 +687,7 @@ export default {
         this.profile = response.data
       })
     },
-    skillApi () {
+    fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {

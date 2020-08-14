@@ -23,10 +23,12 @@ from hashlib import sha1
 import datetime
 from django.db import transaction, IntegrityError
 import xhtml2pdf.pisa as pisa
+from backend.decorators import profile_complete
 
 api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint=settings.INSTAMOJO_TESTING_URL)
 
 
+@method_decorator(profile_complete, name='dispatch')
 class BookInterviewView(CreateAPIView):
     """
         Book Interview   -- Authenticated Candidate can create/book interview  they are willing to interviewed!
@@ -185,7 +187,7 @@ def mojo_handler(request):
                     book_interview.save()
                     check_payment.delete()
                     send_mail_on_subscription(request, payment_obj.buyer, payment_obj.buyer_name, payment_obj.amount, book_interview.slug, payment_obj.created_at, payment_obj.tax_amount, payment_obj.amount)
-                    # send mail, update calculate tax, instrument, billing
+                    # update: instrument, billing
             except IntegrityError:
                 transaction.rollback()
         else:
@@ -213,8 +215,16 @@ class CandidateDashboardView(ListAPIView):
             mock_list.append({"job_title": data.job_title,
                               "company": profile_obj.company if profile_obj else '',
                               "exp_years": profile_obj.exp_years if profile_obj else '',
+                              "slug": data.slug
                               })
-        return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
+        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True)
+        booking_list = []
+        for each_row in custom_booking_obj:
+            booking_list.append({"date": each_row.date, "job_title": each_row.applied_designation, "slug": each_row.slug})
+
+        response = {"mocks": mock_list, "upcoming_interviews": booking_list}
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class SkillSearchView(ListAPIView):
@@ -235,6 +245,7 @@ class SkillSearchView(ListAPIView):
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(profile_complete, name='dispatch')
 class MockBookingView(APIView):
 
     def get(self, request, *args, **kwargs):

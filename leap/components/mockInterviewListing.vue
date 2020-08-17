@@ -2,27 +2,6 @@
   <b-container>
     <b-row class="mt-5">
       <b-col cols="12" md="3" class="pb-5 mb-5">
-        <h3 class="font-weight-bold">
-          Hello, {{ this.$store.state.auth.user.first_name }}
-        </h3>
-        <p class="text-secondary">
-          Your upcoming interviews
-        </p>
-      </b-col>
-      <b-col cols="12" md="6" class="pb-5 mb-5">
-        <div class="text-center">
-          <b-img
-            class="cursor-pointer"
-            src="@/static/kio.svg"
-            alt="Mock"
-            height="308"
-          />
-          <p class="font-weight-bold">
-            No interview scheduled for now
-          </p>
-        </div>
-      </b-col>
-      <b-col cols="12" md="3" class="pb-5 mb-5">
         <div class="text-right">
           <b-button class="bg-primary">
             Book interview
@@ -96,30 +75,42 @@ export default {
     return {
       searchString: '',
       mocks: [
-        // {
-        //   slug: 'ufsadsa2',
-        //   jobTitle: 'Senior Android Developer',
-        //   company: 'Amazon',
-        //   Exp: '5-8 Years'
-        // },
-        // {
-        //   slug: 'ufsadsa3',
-        //   jobTitle: 'Hadoop Developer',
-        //   company: 'E & Y',
-        //   Exp: '5-8 Years'
-        // },
-        // {
-        //   slug: 'ufsadsa4',
-        //   jobTitle: '.NET Developer',
-        //   company: 'JP Morgan',
-        //   Exp: '5-8 Years'
-        // },
-        // {
-        //   slug: 'ufsadsa5',
-        //   jobTitle: 'UX Desiger',
-        //   company: 'Deloitte',
-        //   Exp: '5-8 Years'
-        // }
+        {
+          slug: 'ufsadsa2',
+          jobTitle: 'Senior Android Developer',
+          company: 'Amazon',
+          Exp: '5-8 Years'
+        },
+        {
+          slug: 'ufsadsa3',
+          jobTitle: 'Hadoop Developer',
+          company: 'E & Y',
+          Exp: '5-8 Years'
+        },
+        {
+          slug: 'ufsadsa4',
+          jobTitle: '.NET Developer',
+          company: 'JP Morgan',
+          Exp: '5-8 Years'
+        },
+        {
+          slug: 'ufsadsa5',
+          jobTitle: 'UX Desiger',
+          company: 'Deloitte',
+          Exp: '5-8 Years'
+        }
+      ],
+      upcoming_interviews: [
+        {
+          date: '2020-08-21',
+          job_title: 'Byjus',
+          slug: 'rvfw5lvb'
+        },
+        {
+          date: '2020-08-21',
+          job_title: 'Byjus',
+          slug: 'ip3fjjmo'
+        }
       ],
       companyName: ''
     }

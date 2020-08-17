@@ -21,7 +21,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template v-slot:button-content>
-            <span class="font-weight-bold">{{ $store.getters.full_name }}</span>
+            <span class="font-weight-bold">{{ $store.state.auth }}</span>
             <b-img
               rounded
               :src="$store.getters.profile_pic"
@@ -91,9 +91,6 @@ export default {
       }
       return routes
     }
-  },
-  mounted () {
-    this.name = this.$store.getters.user_name
   },
   methods: {
     async logout () {

@@ -269,6 +269,18 @@ class CandidateInterviewFeedbackView(CreateAPIView):
     serializer_class = FeedbackCreateViewSerializer
 
     def create(self, request, *args, **kwargs):
+
+        """
+                   Detail -- Candidate can provide feedback for interview which he/she participated.
+                   Actions -- Post method
+                   Response Status -- 200 Ok
+                   Request dict --
+                                    {"date":"2020-08-10",
+                                    "start_time":"13:00",
+                                    "end_time":"14:00",
+                                    "feedback":{"rating":3, "text":"nice interview"}}
+        """
+
         interview_info = request.data
         interview_info['start_time'] = date_time_naive_format(request.data['date'],
                                                               request.data['start_time'])

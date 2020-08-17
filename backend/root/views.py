@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill, InterviewSlots
 from authentication.serializers import InterviewerRequestsListSerializer
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, FeedbackCreateViewSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
@@ -24,6 +24,7 @@ from django.views.decorators.http import require_POST
 import hmac
 from hashlib import sha1
 from django.utils import timezone
+from datetime import datetime
 
 # import xhtml2pdf.pisa as pisa
 
@@ -262,3 +263,30 @@ class SkillSearchView(ListAPIView):
                 return Response({"message": "No skill with this key found!"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CandidateInterviewFeedbackView(CreateAPIView):
+    serializer_class = FeedbackCreateViewSerializer
+
+    def create(self, request, *args, **kwargs):
+        interview_info = request.data
+        interview_info['start_time'] = date_time_naive_format(request.data['date'],
+                                                              request.data['start_time'])
+        interview_info['end_time'] = date_time_naive_format(request.data['date'], request.data['end_time'])
+        interview_slot = InterviewSlots.objects.get(interview__slug=kwargs['slug'],
+                                                    candidate__user=self.request.user,
+                                                    interview_start_time=interview_info['start_time'],
+                                                    interview_end_time=interview_info['end_time'])
+        serializer = self.get_serializer(interview_slot, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': "Thank you for your Feedback"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': "Some issue occurred while providing Feedback"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+def date_time_naive_format(date, time):
+    date_time = date + ' ' + time
+    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    return naive

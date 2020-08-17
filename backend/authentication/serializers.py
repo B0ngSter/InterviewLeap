@@ -208,15 +208,15 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interview
-        fields = ['pk', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'quoted_price', 'skills']
+        fields = ['slug', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'quoted_price', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        if 'pk' in validated_data:
+        try:
             interview_obj, created = Interview.objects.get(interviewer=self.context['request'].user,
-                                                           pk=validated_data['pk'])
-        else:
+                                                           slug=validated_data['slug'])
+        except ObjectDoesNotExist:
             interview_obj = Interview.objects.create(interviewer=self.context['request'].user)
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)

@@ -56,3 +56,19 @@ class SKillSearchSerializer(serializers.ModelSerializer):
         model = Skill
         fields = ['title']
 
+
+class BookInterviewUpdateSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
+
+    class Meta:
+        model = BookInterview
+        fields = ['company_type', 'applied_designation', 'date', 'time_zone', 'time_slots', 'skills']
+
+    def update(self, instance, validated_data):
+        if 'skills' in validated_data:
+            skills = validated_data.pop('skills')
+            skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+            instance.skills.set(skill_obj)
+        instance.__dict__.update(**validated_data)
+        instance.save()
+        return instance

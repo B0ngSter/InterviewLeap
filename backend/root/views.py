@@ -12,7 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer, BookInterviewUpdateSerializer
 import requests
 from instamojo_wrapper import Instamojo
 from .models import PaymentDetails, BookInterview, PaymentStatusLog
@@ -24,6 +24,7 @@ import datetime
 from django.db import transaction, IntegrityError
 import xhtml2pdf.pisa as pisa
 from backend.decorators import profile_complete
+from django.shortcuts import HttpResponseRedirect, reverse
 
 api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint=settings.INSTAMOJO_TESTING_URL)
 
@@ -175,19 +176,19 @@ def mojo_handler(request):
                     check_payment = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
                     data['other_detail'] = {"fees": data.pop('fees'), "long_url": data.pop('longurl'), "short_url": data.pop('shorturl')}
                     tax = settings.TAX_PERCENTAGE
-                    data['tax_amount'] = (data['amount'] * tax) / 100
+                    amount = int(float(data['amount']))
+                    tax = round(amount * tax) / 100
+                    data['tax_amount'] = str(tax)
                     payment_obj, created = PaymentDetails.objects.get_or_create(**data)
                     payment_obj.save()
-                    # payment_details = api.payment_request_payment_status(payment_obj.payment_request_id, payment_obj.payment_id)
-                    # payment_data = {"instrument_type": payment_details['instrument_type'], "billing_instrument": payment_details['billing_instrument']}
-                    # payment_obj.__dict__.update(**payment_data)
                     book_interview = BookInterview.objects.filter(slug=check_payment.interview_slug).first()
                     book_interview.is_payment_done = True
                     book_interview.payment_detail = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
                     book_interview.save()
                     check_payment.delete()
-                    send_mail_on_subscription(request, payment_obj.buyer, payment_obj.buyer_name, payment_obj.amount, book_interview.slug, payment_obj.created_at, payment_obj.tax_amount, payment_obj.amount)
-                    # update: instrument, billing
+                    send_mail_on_subscription(request, payment_obj.buyer, payment_obj.buyer_name, payment_obj.amount,
+                                              book_interview.slug, payment_obj.created_at, payment_obj.tax_amount,
+                                              payment_obj.amount)
             except IntegrityError:
                 transaction.rollback()
         else:
@@ -332,8 +333,6 @@ def mock_booking_webhook_handler(request):
                     data['tax_amount'] = str(tax)
                     payment_obj, created = PaymentDetails.objects.get_or_create(**data)
                     payment_obj.save()
-                    # update calculate tax, instrument, billing
-                    #chceck time slot also
                     mock_interview = InterviewSlots.objects.filter(interview__slug=payment_log.interview_slug).first()
                     mock_interview.is_payment_done = True
                     mock_interview.candidate = CandidateProfile.objects.get(user__email=payment_log.email)
@@ -355,3 +354,99 @@ def mock_booking_webhook_handler(request):
         payment_log_obj.status = "Failed-400"
         payment_log_obj.save(update_fields=['status'])
         return HttpResponse(400)
+
+
+class CustomBookInterviewUpdateView(RetrieveUpdateAPIView):
+    """
+            Update Book Interview   -- Authenticated Candidate can update their interview
+            actions -- Patch -- Book Interview
+            Request params -- {
+                        "company_type": "product","service","captive" (string)
+                        "skills": (string)
+                        "applied_designation" : "python developer" (string)
+                        "date": "2020-06-21", (string)
+                        "time_slots": [
+                                "9am - 10am",
+                                "2pm - 3pm"
+                                "6pm - 7pm",
+                        ] (array field)
+                    }
+            Response Status -- 200 Ok along with booking interview details
+            Error Code -- 400 Bad Request
+            Error message -- Raise with error messages
+    """
+
+    serializer_class = BookInterviewUpdateSerializer
+    lookup_field = 'slug'
+
+    def get_object(self):
+        interviewer = BookInterview.objects.get(slug=self.kwargs['slug'])
+        return interviewer
+
+    def update(self, request, *args, **kwargs):
+        interview_dict = request.data
+        booking_obj = self.get_object()
+        if 'skills' in interview_dict:
+            interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
+        serializer = self.get_serializer(booking_obj, data=interview_dict, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Your booking has been updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            error_message = ", ".join([error for error in serializer.errors.keys()])
+            error_message = "Invalid value for {}".format(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InterviewListView(ListAPIView):
+    """
+        List Api View: Api will give List of availble mock interview List and Upcoming Interviews
+        Resposne: {
+            "mocks": [
+                {
+                    "job_title": "Djangyghkjo Developer",
+                    "company": "",
+                    "exp_years": "",
+                    "slug": ghvfw5lvb
+                },
+                {
+                    "job_title": "Python developer",
+                    "company": "",
+                    "exp_years": "",
+                    "slug": uvfw8lvg
+                }
+            ],
+            "upcoming_interviews": [
+                {
+                    "date": "2020-08-21",
+                    "job_title": "Byjus",
+                    "slug": "rvfw5lvb"
+                },
+                {
+                    "date": "2020-08-21",
+                    "job_title": "Byjus",
+                    "slug": "ip3fjjmo"
+                }
+            ]
+        }
+    """
+    queryset = Interview.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        mock_list = []
+        for data in queryset:
+            profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
+            mock_list.append({"job_title": data.job_title,
+                              "company": profile_obj.company if profile_obj else '',
+                              "exp_years": profile_obj.exp_years if profile_obj else '',
+                              "slug": data.slug
+                              })
+        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True)
+        booking_list = []
+        for each_row in custom_booking_obj:
+            booking_list.append(
+                {"date": each_row.date, "job_title": each_row.applied_designation, "slug": each_row.slug})
+
+        response = {"mocks": mock_list, "upcoming_interviews": booking_list}
+        return Response(response, status=status.HTTP_200_OK)

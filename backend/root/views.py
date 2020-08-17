@@ -271,14 +271,17 @@ class CandidateInterviewFeedbackView(CreateAPIView):
     def create(self, request, *args, **kwargs):
 
         """
-                   Detail -- Candidate can provide feedback for interview which he/she participated.
+                   Detail -- Interviewer can provide feedback for interview which he/she participated.
                    Actions -- Post method
                    Response Status -- 200 Ok
                    Request dict --
                                     {"date":"2020-08-10",
                                     "start_time":"13:00",
                                     "end_time":"14:00",
-                                    "feedback":{"rating":3, "text":"nice interview"}}
+                                    "feedback":{"technical_skill":"Exceptional","communication_skill":"Exceptional",
+                                    "presentation_skill":"Exceptional","understanding_of_role":"Exceptional",
+                                    "text":"nice interview", "strength":"coding skills",
+                                    "limitations":"understanding the problem","consider_for_job":"yes"}}
         """
 
         interview_info = request.data
@@ -286,7 +289,7 @@ class CandidateInterviewFeedbackView(CreateAPIView):
                                                               request.data['start_time'])
         interview_info['end_time'] = date_time_naive_format(request.data['date'], request.data['end_time'])
         interview_slot = InterviewSlots.objects.get(interview__slug=kwargs['slug'],
-                                                    candidate__user=self.request.user,
+                                                    interview__interviewer=self.request.user,
                                                     interview_start_time=interview_info['start_time'],
                                                     interview_end_time=interview_info['end_time'])
         serializer = self.get_serializer(interview_slot, data=request.data, partial=True)

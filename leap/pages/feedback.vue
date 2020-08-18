@@ -23,28 +23,28 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="12" class="pt-5 pb-5 pl-4 border-bottom border-light">
+              <b-col cols="12" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Date &amp; time
                 </p>
-                <h4 class="text-left text-dark font-weight-bold">
+                <h4 class="text-left text-dark font-weight-bold border-bottom border-light">
                   <!-- {{ date() }} -->
                 </h4>
               </b-col>
-              <b-col cols="5" class="pt-3 pb-5 pl-4">
-                <p class="text-left text-danger-dark  font-weight-bold">
+              <b-col cols="5" class="pt-5 pb-5 pl-4">
+                <p class="text-left text-danger-dark font-weight-bold">
                   Role - Front-end developer
                 </p>
               </b-col>
               <b-col cols="4">
-                <div class="pt-3 mb-5">
+                <div class="pt-5 mb-5">
                   <p class="text-right font-weight-bold">
                     View Candidate Profile >
                   </p>
                 </div>
               </b-col>
               <b-col cols="3">
-                <div class="pt-3 mb-5">
+                <div class="pt-5 mb-5">
                   <p class="text-right font-weight-bold">
                     Downloud Resume
                   </p>
@@ -61,12 +61,15 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="12" class="pt-5 pb-2 pl-4 border-bottom border-light">
+              <b-col cols="12" md="6" class="pt-5 pb-2 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary">
                   Technical Skill
                 </p>
               </b-col>
-              <b-col cols="3" class="pt-3 pb-5">
+              <b-col cols="12" md="6" class="pt-5 pb-2 pl-4 border-bottom border-light">
+                <b-progress :value="value" :max="max" show-progress animated />
+              </b-col>
+              <b-col cols="2" class="pt-3 pb-5">
                 <b-form-radio v-model="feedback.technical_skill" class="font-weight-bold" value="Exceptional" size="md">
                   Exceptional
                 </b-form-radio>
@@ -109,7 +112,7 @@
 <script>
 
 export default {
-  auth: 'guest',
+  layout: 'app-page',
   data () {
     return {
       feedback: {
@@ -121,7 +124,20 @@ export default {
         strength: '',
         limitations: '',
         consider_for_job: ''
-      }
+      },
+      max: 100,
+      value: 0
+    }
+  },
+  computed () {
+    if (this.feedback.technical_skill === 'Exceptional') {
+      this.value = 100
+    } else if (this.feedback.technical_skill === 'Meets Requirenment') {
+      this.value = 75
+    } else if (this.feedback.technical_skill === 'Need Training') {
+      this.value = 50
+    } else if (this.feedback.technical_skill === 'Doesn\'t meet requirenment') {
+      this.value = 25
     }
   }
 }

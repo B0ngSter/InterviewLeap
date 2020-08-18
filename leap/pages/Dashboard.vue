@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row class="mt-5">
-      <b-col cols="12" md="3" class="pb-5 mb-5">
+      <b-col cols="12" md="8" class="mb-5">
         <h3 class="font-weight-bold">
           Hello, {{ this.$store.state.auth.user.first_name }}
         </h3>
@@ -9,22 +9,22 @@
           Below are your insights
         </p>
       </b-col>
-      <b-col cols="12" md="9">
-        <b-button @click="router.push('/create-interview')">
+      <b-col cols="12" md="4">
+        <b-button to="/create-interview" variant="primary">
           Create an Interview
         </b-button>
       </b-col>
-      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="pa-5">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_requests.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.new_interview_requests }}
                 </h4>
@@ -36,17 +36,17 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="pa-5">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_taken.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.interview_taken }}
                 </h4>
@@ -58,17 +58,17 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="pa-5">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_created.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.interview_created }}
                 </h4>
@@ -80,17 +80,17 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="pa-5">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/earning.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.total_earnings }}
                 </h4>
@@ -102,15 +102,25 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col v-if="$store.getters.is_interviewer" cols="12">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" class="mt-5">
         <h4 class="text-left font-weight-bold">
           New Interview Requests
         </h4>
-        <b-img
-          v-if="interviewer_insights.interview_requests == null"
-          src="@/static/blank_state_interviewer.svg"
-          alt="InterviewLeap logo"
-        />
+        <div class="text-center pt-4">
+          <b-img
+            src="@/static/blank_state_interviewer.svg"
+            alt="InterviewLeap logo"
+          />
+          <p class="font-weight-bold mt-5">
+            No interview requests now.
+          </p>
+          <p class="text-secondary">
+            No worries you can Create an Interview
+          </p>
+          <b-button to="/create-interview" variant="primary" class="mt-4 mb-4">
+            Create an Interview
+          </b-button>
+        </div>
       </b-col>
       <b-col v-if="$store.getters.is_candidate" cols="12">
         <mockInterviewListing />
@@ -140,6 +150,12 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.$axios.get('/dashboard/')
+      .then((response) => {
+        debugger
+      })
   }
 }
 </script>

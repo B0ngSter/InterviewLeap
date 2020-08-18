@@ -264,7 +264,7 @@ export default {
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
-    this.updateInterview()
+    // this.updateInterview()
     // this.fetch_timeSlots()
   },
   validations: {
@@ -286,19 +286,19 @@ export default {
     //       this.time_slots = response.data.time_slot
     //     })
     // },
-    updateInterview () {
-      this.$axios.get('/auth/create-interview/')
-        .then((response) => {
-          if (response.data.includes('pk')) {
-            this.userInfo = this.response.data
-          }
-        })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Something went wrong'
-          )
-        })
-    },
+    // updateInterview () {
+    //   this.$axios.get('/auth/create-interview/')
+    //     .then((response) => {
+    //       if (response.data.includes('pk')) {
+    //         this.userInfo = this.response.data
+    //       }
+    //     })
+    //     .catch((errorResponse) => {
+    //       this.$toast.error(
+    //         errorResponse.response.data.message || 'Something went wrong'
+    //       )
+    //     })
+    // },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {

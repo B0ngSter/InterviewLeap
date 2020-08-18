@@ -9,7 +9,7 @@
           Below are your insights
         </p>
       </b-col>
-      <b-col cols="12" md="4">
+      <b-col cols="12" md="4" class="text-right">
         <b-button to="/create-interview" variant="primary">
           Create an Interview
         </b-button>
@@ -18,13 +18,13 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
+              <b-col cols="4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_requests.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
+              <b-col cols="8" class="pt-5 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.new_interview_requests }}
                 </h4>
@@ -40,13 +40,13 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
+              <b-col cols="4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_taken.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
+              <b-col cols="8" class="pt-5 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.interview_taken }}
                 </h4>
@@ -62,13 +62,13 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
+              <b-col cols="4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/interview_created.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
+              <b-col cols="8" class="pt-5 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.interview_created }}
                 </h4>
@@ -84,13 +84,13 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-4 pb-2 pl-4">
+              <b-col cols="4" class="pt-4 pb-2 pl-4">
                 <b-img
                   src="@/static/earning.svg"
                   alt="InterviewLeap logo"
                 />
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-4 pb-2 pl-4">
+              <b-col cols="8" class="pt-5 pb-2 pl-4">
                 <h4 class="text-left font-weight-bold">
                   {{ interviewer_insights.total_earnings }}
                 </h4>
@@ -106,7 +106,7 @@
         <h4 class="text-left font-weight-bold">
           New Interview Requests
         </h4>
-        <div class="text-center pt-4">
+        <div v-if="interviewer_insights.interview_requests.length === 0" class="text-center pt-4">
           <b-img
             src="@/static/blank_state_interviewer.svg"
             alt="InterviewLeap logo"
@@ -121,6 +121,55 @@
             Create an Interview
           </b-button>
         </div>
+      </b-col>
+      <b-col cols="12" class="mt-5 mb-5">
+        <b-card v-for="(request, idx) in interviewer_insights.interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
+          <b-container class="bg-white">
+            <b-row>
+              <b-col cols="12" md="4" class="pt-5 pb-5 pl-4 border-bottom border-light">
+                <p class="text-left text-secondary">
+                  Date &amp; time
+                </p>
+                <h4 class="text-left text-dark font-weight-bold">
+                  <!-- {{ date() }} -->
+                </h4>
+              </b-col>
+              <b-col cols="3" offset-md="2" class="border-bottom border-light">
+                <div class="mt-5 mb-5">
+                  <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_request">
+                    Decline
+                  </b-button>
+                </div>
+              </b-col>
+              <b-col cols="3" class="border-bottom border-light">
+                <div class="mt-5 mb-5">
+                  <b-button squared class="alert-primary text-primary" @click="accept_interview_request">
+                    Accept
+                  </b-button>
+                </div>
+              </b-col>
+              <b-col cols="5" class="pt-5 pb-5 pl-4">
+                <p class="text-left text-danger-dark font-weight-bold">
+                  Role - Front-end developer
+                </p>
+              </b-col>
+              <b-col cols="4">
+                <div class="pt-5 mb-5">
+                  <p class="text-right font-weight-bold">
+                    View Candidate Profile >
+                  </p>
+                </div>
+              </b-col>
+              <b-col cols="3">
+                <div class="pt-5 mb-5">
+                  <p class="text-right font-weight-bold">
+                    Downloud Resume
+                  </p>
+                </div>
+              </b-col>
+            </b-row>
+          </b-container>
+        </b-card>
       </b-col>
       <b-col v-if="$store.getters.is_candidate" cols="12">
         <mockInterviewListing />
@@ -142,19 +191,27 @@ export default {
         interview_created: 1,
         interview_taken: 1,
         total_earnings: 1,
-        interview_requests: {
-          applied_designation: null,
-          time_slots: [],
-          date: 'datetime',
-          candidate: 'FK'
-        }
+        interview_requests: [
+          {
+            applied_designation: null,
+            time_slots: [],
+            date: 'datetime',
+            candidate: 'FK'
+          },
+          {
+            applied_designation: null,
+            time_slots: [],
+            date: 'datetime',
+            candidate: 'FK'
+          }
+        ]
       }
     }
   },
   mounted () {
     this.$axios.get('/dashboard/')
       .then((response) => {
-        debugger
+        this.interviewer_insights = response.data
       })
   }
 }

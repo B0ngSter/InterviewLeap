@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row align-v="start" align-content="start" class="flex-grow-1">
-      <b-col cols="12">
+      <b-col cols="12" class="mt-5">
         <b-breadcrumb class="bg-light pl-0">
           <b-breadcrumb-item>
             Dashboard
@@ -129,16 +129,16 @@ export default {
       value: 0
     }
   },
-  computed () {
-    if (this.feedback.technical_skill === 'Exceptional') {
-      this.value = 100
-    } else if (this.feedback.technical_skill === 'Meets Requirenment') {
-      this.value = 75
-    } else if (this.feedback.technical_skill === 'Need Training') {
-      this.value = 50
-    } else if (this.feedback.technical_skill === 'Doesn\'t meet requirenment') {
-      this.value = 25
-    }
+  methods: {
+    // if (this.feedback.technical_skill === 'Exceptional') {
+    //   return this.value = 100
+    // } else if (this.feedback.technical_skill === 'Meets Requirenment') {
+    //   return this.value = 75
+    // } else if (this.feedback.technical_skill === 'Need Training') {
+    //   return this.value = 50
+    // } else if (this.feedback.technical_skill === 'Doesn\'t meet requirenment') {
+    //   return this.value = 25
+    // }
   }
 }
 </script>

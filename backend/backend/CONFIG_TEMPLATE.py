@@ -32,3 +32,5 @@ AWS_DEFAULT_ACL = None
 PAYMENT_API_KEY = ''
 PAYMENT_AUTH_TOKEN = ''
 PAYMENT_SALT = ''
+
+INSTAMOJO_URL = 'https://www.instamojo.com/api/1.1/'

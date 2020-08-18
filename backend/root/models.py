@@ -66,7 +66,10 @@ class PaymentStatusLog(models.Model):
     payment_request_id = models.CharField(max_length=150)
     status = models.CharField(max_length=120, null=True, blank=True)
     amount = models.CharField(max_length=120)
+    tax_amount = models.CharField(max_length=50)
     email = models.EmailField(max_length=40)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     interview_slug = models.CharField(max_length=120)  # This will hold the value against mock/custom booking interview
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
@@ -25,8 +26,11 @@ from django.db import transaction, IntegrityError
 import xhtml2pdf.pisa as pisa
 from backend.decorators import profile_complete
 from django.shortcuts import HttpResponseRedirect, reverse
+import json
 
-api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint=settings.INSTAMOJO_TESTING_URL)
+api = Instamojo(api_key=settings.PAYMENT_API_KEY,
+                auth_token=settings.PAYMENT_AUTH_TOKEN,
+                endpoint=settings.INSTAMOJO_URL)
 
 
 @method_decorator(profile_complete, name='dispatch')
@@ -84,8 +88,8 @@ class BookInterviewView(CreateAPIView):
         cleaned_data = {"payment_request_id": response['payment_request']['id'],
                         "amount": response['payment_request']['amount'],
                         "email": self.request.user.email,
-                        "created_at": response['payment_request']['created_at']
-                        # "tax_amount": tax_amount
+                        "created_at": response['payment_request']['created_at'],
+                        "tax_amount": tax_amount
                         }
 
         interview_dict['candidate'] = request.user.id
@@ -173,12 +177,22 @@ def mojo_handler(request):
         if data['status'] == "Credit":
             try:
                 with transaction.atomic():
-                    check_payment = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
-                    data['other_detail'] = {"fees": data.pop('fees'), "long_url": data.pop('longurl'), "short_url": data.pop('shorturl')}
-                    tax = settings.TAX_PERCENTAGE
-                    amount = int(float(data['amount']))
-                    tax = round(amount * tax) / 100
-                    data['tax_amount'] = str(tax)
+                    check_payment = PaymentStatusLog.objects.get(payment_request_id=data['payment_request_id'])
+                    data['tax_amount'] = check_payment.tax_amount
+                    # headers = {"X-Api-Key": settings.PAYMENT_API_KEY,
+                    #            "X-Auth-Token": settings.PAYMENT_AUTH_TOKEN}
+                    # url = '{}/payments/{}/'.format(settings.INSTAMOJO_URL, data['payment_id'])
+                    # response_data = requests.get(url, headers=headers)
+                    # payment_details = json.loads(response_data.text)
+                    # data['instrument_type'] = payment_details['payment']['instrument_type']
+                    # data['billing_instrument'] = payment_details['payment']['billing_instrument']
+                    # data['payout_id'] = payment_details['payment']['payout']['id']
+                    # data['payout_at'] = payment_details['payment']['payout']['paid_out_at']
+                    data['other_detail'] = {"fees": data.pop('fees'),
+                                            "long_url": data.pop('longurl'),
+                                            "short_url": data.pop('shorturl'),
+                                            # "payment_details": payment_details
+                                            }
                     payment_obj, created = PaymentDetails.objects.get_or_create(**data)
                     payment_obj.save()
                     book_interview = BookInterview.objects.filter(slug=check_payment.interview_slug).first()
@@ -278,17 +292,18 @@ class MockBookingView(APIView):
         slot_obj = InterviewSlots.objects.filter(interview__slug=mock_slug,
                                                  interview_start_time=start_date_time,
                                                  interview_end_time=end_date_time,
-                                                 candidate=None
+                                                 candidate__isnull=True
                                                  )
         if slot_obj.exists():
             payment_amount = int(slot_obj.first().interview.quoted_price)
             tax = settings.TAX_PERCENTAGE
+            tax_amount = (payment_amount * tax) / 100
             total_amount = payment_amount + (payment_amount * tax) / 100
             link = "{frontend_url}/dashboard".format(frontend_url=settings.FRONTEND_URL)
             webhook_url = "{domain}/webhook/mock-interview/".format(domain=settings.WEBHOOK_STAGING_URL)
             response = api.payment_request_create(
                 amount=total_amount,
-                purpose='Interview Leap mock',
+                purpose='Interview Leap',
                 send_email=True,
                 email=self.request.user.email,
                 redirect_url=link,
@@ -298,7 +313,11 @@ class MockBookingView(APIView):
                             "amount": response['payment_request']['amount'],
                             "email": self.request.user.email,
                             "created_at": response['payment_request']['created_at'],
-                            'interview_slug': mock_slug}
+                            'interview_slug': mock_slug,
+                            "start_time": start_date_time,
+                            "end_time": end_date_time,
+                            "tax_amount": tax_amount
+                            }
 
             payment_serializer = PaymentSerializer(data=cleaned_data)
             if payment_serializer.is_valid():
@@ -325,15 +344,27 @@ def mock_booking_webhook_handler(request):
         if data['status'] == "Credit":
             try:
                 with transaction.atomic():
-                    payment_log = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
-                    data['other_detail'] = {"fees": data.pop('fees'), "long_url": data.pop('longurl'), "short_url": data.pop('shorturl')}
-                    tax = settings.TAX_PERCENTAGE
-                    amount = int(float(data['amount']))
-                    tax = round(amount * tax)/100
-                    data['tax_amount'] = str(tax)
+                    payment_log = PaymentStatusLog.objects.get(payment_request_id=data['payment_request_id'])
+                    data['tax_amount'] = payment_log.tax_amount
+                    # headers = {"X-Api-Key": settings.PAYMENT_API_KEY,
+                    #            "X-Auth-Token": settings.PAYMENT_AUTH_TOKEN}
+                    # url = '{}/payments/{}/'.format(settings.INSTAMOJO_URL, data['payment_id'])
+                    # response_data = requests.get(url, headers=headers)
+                    # payment_details = json.loads(response_data.text)
+                    # data['instrument_type'] = payment_details['payment']['instrument_type']
+                    # data['billing_instrument'] = payment_details['payment']['billing_instrument']
+                    # data['payout_id'] = payment_details['payment']['payout']['id']
+                    # data['payout_at'] = payment_details['payment']['payout']['paid_out_at']
+                    data['other_detail'] = {"fees": data.pop('fees'),
+                                            "long_url": data.pop('longurl'),
+                                            "short_url": data.pop('shorturl'),
+                                            # "payment_details": payment_details
+                                            }
                     payment_obj, created = PaymentDetails.objects.get_or_create(**data)
                     payment_obj.save()
-                    mock_interview = InterviewSlots.objects.filter(interview__slug=payment_log.interview_slug).first()
+                    mock_interview = InterviewSlots.objects.get(interview__slug=payment_log.interview_slug,
+                                                                interview_start_time=payment_log.start_time,
+                                                                interview_end_time=payment_log.end_time)
                     mock_interview.is_payment_done = True
                     mock_interview.candidate = CandidateProfile.objects.get(user__email=payment_log.email)
                     mock_interview.payment_detail = PaymentDetails.objects.get(payment_request_id=data['payment_request_id'])
@@ -345,12 +376,12 @@ def mock_booking_webhook_handler(request):
             except IntegrityError:
                 transaction.rollback()
         else:
-            payment_log_obj = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
+            payment_log_obj = PaymentStatusLog.objects.get(payment_request_id=data['payment_request_id'])
             payment_log_obj.status = "Failed"
             payment_log_obj.save(update_fields=['status'])
         return HttpResponse(200)
     else:
-        payment_log_obj = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
+        payment_log_obj = PaymentStatusLog.objects.get(payment_request_id=data['payment_request_id'])
         payment_log_obj.status = "Failed-400"
         payment_log_obj.save(update_fields=['status'])
         return HttpResponse(400)
@@ -435,6 +466,19 @@ class InterviewListView(ListAPIView):
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         mock_list = []
+        search_list = []
+        if 'keyword' in request.GET.keys():
+            keyword = request.GET.get('keyword')
+            open_mocks = queryset.filter(Q(job_title__icontains=keyword) | Q(exp_years__icontains=keyword) |
+                                         Q(skills__title__iexact=keyword)).distinct()
+
+            for data in open_mocks:
+                profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
+                search_list.append({"job_title": data.job_title,
+                                  "company": profile_obj.company if profile_obj else '',
+                                  "exp_years": profile_obj.exp_years if profile_obj else '',
+                                  "slug": data.slug
+                                  })
         for data in queryset:
             profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
             mock_list.append({"job_title": data.job_title,
@@ -448,5 +492,5 @@ class InterviewListView(ListAPIView):
             booking_list.append(
                 {"date": each_row.date, "job_title": each_row.applied_designation, "slug": each_row.slug})
 
-        response = {"mocks": mock_list, "upcoming_interviews": booking_list}
+        response = {"mocks": mock_list, "upcoming_  interviews": booking_list, "search_list": search_list}
         return Response(response, status=status.HTTP_200_OK)

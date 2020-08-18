@@ -89,12 +89,12 @@
                   >
                     <b-form-group>
                       <b-form-input
-                        v-model="$v.profile.phone_number.$model"
+                        v-model="$v.profile.mobile_number.$model"
                         class="bg-white"
                         required
                         type="number"
                         placeholder="Mobile Number"
-                        :state="validateState('phone_number')"
+                        :state="validateState('mobile_number')"
                         aria-describedby="input-1-live-feedback"
                       />
                       <b-form-invalid-feedback
@@ -273,12 +273,12 @@
                   >
                     <b-form-group>
                       <b-form-input
-                        v-model="$v.profile.years_of_passing.$model"
+                        v-model="$v.profile.year_of_passing.$model"
                         class="bg-white"
                         required
                         type="number"
                         placeholder="Year of passing"
-                        :state="validateState('years_of_passing')"
+                        :state="validateState('year_of_passing')"
                         aria-describedby="input-1-live-feedback"
                       />
                       <b-form-invalid-feedback
@@ -496,9 +496,9 @@ export default {
         exp_years: null,
         industry: null,
         designation: null,
-        phone_number: null,
+        mobile_number: null,
         education: null,
-        years_of_passing: null,
+        year_of_passing: null,
         job_title: null,
         company: null,
         account_info: {
@@ -544,10 +544,10 @@ export default {
       exp_years: { required },
       industry: { required },
       designation: { required },
-      phone_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
+      mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
       education: { required },
       company: { required },
-      years_of_passing: { required },
+      year_of_passing: { required },
       job_title: { required },
       linkedin: { required, url },
       account_info: {
@@ -579,30 +579,30 @@ export default {
     save_profile () {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
-      if (payload.company == null && payload.college !== null) {
-        delete payload.company
-        delete payload.designation
-        delete payload.exp_years
-        delete payload.industry
-        delete payload.account_info
-      }
-      if (payload.college == null && payload.company !== null) {
-        delete payload.college
-        delete payload.years_of_passing
-        delete payload.education
-        delete payload.job_title
-        delete payload.account_info
-      }
-      if (payload.college == null && payload.company == null) {
-        delete payload.college
-        delete payload.years_of_passing
-        delete payload.education
-        delete payload.job_title
-        delete payload.company
-        delete payload.designation
-        delete payload.exp_years
-        delete payload.industry
-      }
+      // if (payload.company == null && payload.college !== null) {
+      //   delete payload.company
+      //   delete payload.designation
+      //   delete payload.exp_years
+      //   delete payload.industry
+      //   delete payload.account_info
+      // }
+      // if (payload.college == null && payload.company !== null) {
+      //   delete payload.college
+      //   delete payload.year_of_passing
+      //   delete payload.education
+      //   delete payload.job_title
+      //   delete payload.account_info
+      // }
+      // if (payload.college == null && payload.company == null) {
+      //   delete payload.college
+      //   delete payload.year_of_passing
+      //   delete payload.education
+      //   delete payload.job_title
+      //   delete payload.company
+      //   delete payload.designation
+      //   delete payload.exp_years
+      //   delete payload.industry
+      // }
       const formData = new FormData()
       formData.append('resume', document.getElementById('resume').files[0])
       Object.keys(payload).map((key) => {
@@ -672,18 +672,18 @@ export default {
             bank: null
           }
         }
-        if (response.data.phone_number == null) {
-          response.data.college = null
-          response.data.exp_years = null
-          response.data.industry = null
-          response.data.designation = null
-          response.data.phone_number = null
-          response.data.education = null
-          response.data.company = null
-          response.data.years_of_passing = null
-          response.data.job_title = null
-          response.data.linkedin = null
-        }
+        // if (response.data.mobile_number == null) {
+        //   response.data.college = null
+        //   response.data.exp_years = null
+        //   response.data.industry = null
+        //   response.data.designation = null
+        //   response.data.mobile_number = null
+        //   response.data.education = null
+        //   response.data.company = null
+        //   response.data.year_of_passing = null
+        //   response.data.job_title = null
+        //   response.data.linkedin = null
+        // }
         this.profile = response.data
       })
     },

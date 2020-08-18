@@ -520,6 +520,7 @@ class CandidateProfileCreateListView(ListCreateAPIView):
         try:
             candidate_obj = CandidateProfile.objects.get(user=self.request.user)
             candidate_serializer = CandidateProfileCreateListSerializer(candidate_obj).data
+            candidate_serializer.update(user_serializer)
         except ObjectDoesNotExist:
             candidate_serializer.update(user_serializer)
         return Response(candidate_serializer, status=status.HTTP_200_OK)
@@ -572,6 +573,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         try:
             interviewer_obj = InterviewerProfile.objects.get(user=self.request.user)
             interviewer_serializer = InterviewerProfileCreateListSerializer(interviewer_obj).data
+            interviewer_serializer.update(user_serializer)
         except ObjectDoesNotExist:
             interviewer_serializer.update(user_serializer)
         return Response(interviewer_serializer, status=status.HTTP_200_OK)

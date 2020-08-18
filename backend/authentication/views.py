@@ -571,6 +571,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         return Response(interviewer_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
+        user_serializer = {}
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         profile_data['account_info'] = json.loads(profile_data['account_info'])
@@ -583,7 +584,9 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            response = serializer.data
+            response.update(user_serializer)
+            return Response(response, status=status.HTTP_200_OK)
         else:
             if serializer.errors.get('message'):
                 error_message = serializer.errors.get('message')[0]

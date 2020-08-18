@@ -25,10 +25,10 @@
             <b-row align-v="center" align-content="start">
               <b-col cols="4" class="pt-5 pb-5">
                 <p class="text-left font-weight-bold">
-                  {{ mockInterview.jobTitle }}
+                  {{ mockInterview.job_title }}
                 </p>
                 <p class="text-left text-secondary">
-                  {{ mockInterview.Exp }}
+                  {{ mockInterview.exp_years }}
                 </p>
               </b-col>
               <b-col cols="4">
@@ -70,27 +70,27 @@ export default {
       mocks: [
         {
           slug: 'ufsadsa2',
-          jobTitle: 'Senior Android Developer',
+          job_title: 'Senior Android Developer',
           company: 'Amazon',
-          Exp: '5-8 Years'
+          exp_years: '5-8 Years'
         },
         {
           slug: 'ufsadsa3',
-          jobTitle: 'Hadoop Developer',
+          job_title: 'Hadoop Developer',
           company: 'E & Y',
-          Exp: '5-8 Years'
+          exp_years: '5-8 Years'
         },
         {
           slug: 'ufsadsa4',
-          jobTitle: '.NET Developer',
+          job_title: '.NET Developer',
           company: 'JP Morgan',
-          Exp: '5-8 Years'
+          exp_years: '5-8 Years'
         },
         {
           slug: 'ufsadsa5',
-          jobTitle: 'UX Desiger',
+          job_title: 'UX Desiger',
           company: 'Deloitte',
-          Exp: '5-8 Years'
+          exp_years: '5-8 Years'
         }
       ],
       upcoming_interviews: [
@@ -117,7 +117,7 @@ export default {
       }
       searchStr = searchStr.trim().toLowerCase()
       mocks = mocks.filter((item) => {
-        if (item.jobTitle.toLowerCase().includes(searchStr)) {
+        if (item.job_title.toLowerCase().includes(searchStr)) {
           return item
         }
       })
@@ -126,7 +126,7 @@ export default {
   },
   mounted () {
     this.$axios.get('/Interview-list/').then((response) => {
-      this.mock = response.data.mocks
+      this.mocks = response.data.mocks
     })
       .catch((errorResponse) => {
         this.$toast.error(

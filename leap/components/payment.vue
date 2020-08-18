@@ -204,7 +204,7 @@ export default {
     fetch_company_name () {
       this.$axios.get('/Interview-list/').then((response) => {
         response.data.mocks.map((key) => {
-          if (key.slug === this.$route.param.slug) {
+          if (key.slug === this.$route.params.slug) {
             this.company_name = key.company
           }
         })
@@ -232,6 +232,7 @@ export default {
         payload.start_time = this.candidateInfo.time_slots[0].slice(0, 5)
         payload.end_time = this.candidateInfo.time_slots[0].slice(8, 13)
         payload.amount = this.amount
+        payload.date = this.candidateInfo.date
         payload.tax = this.tax
         payload.total_amount = this.total_amount
       } else {
@@ -243,14 +244,6 @@ export default {
         .then((response) => {
           window.open(response.data.long_url, '_blank')
           this.$store.commit('reset_mock_variables')
-          this.$toast.success('Booked successfully', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
-              }
-            }
-          })
         })
         .catch((errorResponse) => {
           this.$toast.error(

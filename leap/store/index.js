@@ -1,6 +1,5 @@
 export const state = () => {
   return {
-    mock_interview_company_name: null,
     is_mock: null
   }
 }
@@ -63,11 +62,7 @@ export const mutations = {
   is_mock_interview (state) {
     state.is_mock = true
   },
-  mock_interview_company_name (state, companyName) {
-    state.mock_interview_company_name = companyName
-  },
   reset_mock_variables (state) {
-    state.mock_interview_company = null
     state.is_mock = null
   }
 }

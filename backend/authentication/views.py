@@ -527,12 +527,18 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
+        user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
+                                                context={"request": request})
+        if user_serializer.is_valid():
+            user_serializer.save()
         if 'skills' in profile_data:
             profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
         serializer = self.get_serializer(data=profile_data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            response = serializer.data
+            response.update(user_serializer.data)
+            return Response(response, status=status.HTTP_200_OK)
         else:
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
@@ -571,7 +577,6 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         return Response(interviewer_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        user_serializer = {}
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         profile_data['account_info'] = json.loads(profile_data['account_info'])
@@ -585,7 +590,7 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         if serializer.is_valid():
             serializer.save()
             response = serializer.data
-            response.update(user_serializer)
+            response.update(user_serializer.data)
             return Response(response, status=status.HTTP_200_OK)
         else:
             if serializer.errors.get('message'):

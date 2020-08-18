@@ -21,7 +21,7 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template v-slot:button-content>
-            <span class="font-weight-bold">{{ $store.state.auth }}</span>
+            <span class="font-weight-bold">{{ $store.state.auth.user.first_name }}</span>
             <b-img
               rounded
               :src="$store.getters.profile_pic"

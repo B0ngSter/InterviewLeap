@@ -36,7 +36,7 @@
                   Interview from
                 </p>
                 <p class="text-left text-danger-dark font-weight-bold">
-                  {{ this.$store.state.mock_interview_company_name }}
+                  {{ company_name }}
                 </p>
               </b-col>
               <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
@@ -60,7 +60,7 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row v-if="!this.$store.state.is_mock">
+            <b-row v-if="!$store.state.is_mock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
@@ -182,7 +182,8 @@ export default {
       // }
       amount: null,
       tax: null,
-      total_amount: null
+      total_amount: null,
+      company_name: null
     }
   },
   mounted () {
@@ -197,8 +198,18 @@ export default {
           errorResponse.response.data.message || 'Something went wrong'
         )
       })
+    this.fetch_company_name()
   },
   methods: {
+    fetch_company_name () {
+      this.$axios.get('/Interview-list/').then((response) => {
+        response.data.mocks.map((key) => {
+          if (key.slug === this.$route.param.slug) {
+            this.company_name = key.company
+          }
+        })
+      })
+    },
     date () {
       let month = ''
       this.candidateInfo.date.slice(5, 7).includes('0') ? month = this.candidateInfo.date.slice(6, 7) : month = this.candidateInfo.date.slice(5, 7)
@@ -216,9 +227,8 @@ export default {
     submit () {
       let payload = {}
       let endpoint
-      const slug = this.$route.query.id.slice(2, this.$route.query.id.length - 1)
       if (this.$store.state.is_mock) {
-        endpoint = `/book-mock/${slug}`
+        endpoint = `/book-mock/${this.$route.params.slug}/`
         payload.start_time = this.candidateInfo.time_slots[0].slice(0, 5)
         payload.end_time = this.candidateInfo.time_slots[0].slice(8, 13)
         payload.amount = this.amount

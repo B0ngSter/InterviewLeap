@@ -1,13 +1,6 @@
 <template>
   <b-container>
     <b-row class="mt-5">
-      <b-col cols="12" md="3" class="pb-5 mb-5">
-        <div class="text-right">
-          <b-button class="bg-primary">
-            Book interview
-          </b-button>
-        </div>
-      </b-col>
       <b-col cols="12" md="6" class="mt-5 mb-5">
         <h4 class="font-weight-bold">
           Open Mock Interviews
@@ -50,7 +43,7 @@
                 <div class="text-right">
                   <b-button
                     class="bg-primary"
-                    @click="BookMockInterview(idx)"
+                    :to="`/book-mock/${mockInterview.slug}`"
                   >
                     Book
                   </b-button>
@@ -132,7 +125,7 @@ export default {
     }
   },
   mounted () {
-    this.$axios.get('/dashboard/').then((response) => {
+    this.$axios.get('/Interview-list/').then((response) => {
       this.mock = response.data.mocks
     })
       .catch((errorResponse) => {
@@ -140,12 +133,6 @@ export default {
           errorResponse.response.data.message || 'Something went wrong'
         )
       })
-  },
-  methods: {
-    BookMockInterview (idx) {
-      this.$store.commit('mock_interview_company_name', this.mocks[idx].company)
-      this.$router.push('/book-mock?id=${' + this.filteredMocks[idx].slug + '}')
-    }
   }
 }
 </script>

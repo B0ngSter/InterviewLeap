@@ -249,7 +249,7 @@ export default {
         exp_years: null,
         description: null,
         timezone: null,
-        pk: null
+        slug: 'sasade'
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       fetchedSkill: [],

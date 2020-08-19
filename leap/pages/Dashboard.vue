@@ -192,18 +192,18 @@ export default {
         interview_taken: 1,
         total_earnings: 1,
         interview_requests: [
-          {
-            applied_designation: null,
-            time_slots: [],
-            date: 'datetime',
-            candidate: 'FK'
-          },
-          {
-            applied_designation: null,
-            time_slots: [],
-            date: 'datetime',
-            candidate: 'FK'
-          }
+          // {
+          //   applied_designation: null,
+          //   time_slots: [],
+          //   date: 'datetime',
+          //   candidate: 'FK'
+          // },
+          // {
+          //   applied_designation: null,
+          //   time_slots: [],
+          //   date: 'datetime',
+          //   candidate: 'FK'
+          // }
         ]
       }
     }
@@ -213,6 +213,10 @@ export default {
       .then((response) => {
         this.interviewer_insights = response.data
       })
+  },
+  methods: {
+    decline_interview_request () {},
+    accept_interview_request () {}
   }
 }
 </script>

@@ -410,6 +410,11 @@ class CustomBookInterviewUpdateView(RetrieveUpdateAPIView):
     serializer_class = BookInterviewUpdateSerializer
     lookup_field = 'slug'
 
+    def get(self, request, *args, **kwargs):
+        booking_obj = BookInterview.objects.get(slug=self.kwargs['slug'])
+        response = BookInterviewUpdateSerializer(booking_obj).data
+        return Response(response, status=status.HTTP_200_OK)
+
     def get_object(self):
         interviewer = BookInterview.objects.get(slug=self.kwargs['slug'])
         return interviewer

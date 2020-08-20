@@ -497,5 +497,5 @@ class InterviewListView(ListAPIView):
             booking_list.append(
                 {"date": each_row.date, "job_title": each_row.applied_designation, "slug": each_row.slug})
 
-        response = {"mocks": mock_list, "upcoming_  interviews": booking_list, "search_list": search_list}
+        response = {"mocks": mock_list, "upcoming_interviews": booking_list, "search_list": search_list}
         return Response(response, status=status.HTTP_200_OK)

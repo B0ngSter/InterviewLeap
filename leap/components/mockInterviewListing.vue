@@ -15,11 +15,11 @@
             placeholder="Search by role"
           />
           <b-input-group-prepend is-text>
-            <b-icon icon="search" />
+            <b-icon icon="search" @click="search_mock" />
           </b-input-group-prepend>
         </b-input-group>
       </b-col>
-      <b-col v-for="(mockInterview, idx) in filteredMocks" :key="idx" class="mt-3" cols="12">
+      <b-col v-for="(mockInterview, idx) in mocks" :key="idx" class="mt-3" cols="12">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row align-v="center" align-content="start">
@@ -68,64 +68,64 @@ export default {
     return {
       searchString: '',
       mocks: [
-        {
-          slug: 'ufsadsa2',
-          job_title: 'Senior Android Developer',
-          company: 'Amazon',
-          exp_years: '5-8 Years'
-        },
-        {
-          slug: 'ufsadsa3',
-          job_title: 'Hadoop Developer',
-          company: 'E & Y',
-          exp_years: '5-8 Years'
-        },
-        {
-          slug: 'ufsadsa4',
-          job_title: '.NET Developer',
-          company: 'JP Morgan',
-          exp_years: '5-8 Years'
-        },
-        {
-          slug: 'ufsadsa5',
-          job_title: 'UX Desiger',
-          company: 'Deloitte',
-          exp_years: '5-8 Years'
-        }
+        // {
+        //   slug: 'ufsadsa2',
+        //   job_title: 'Senior Android Developer',
+        //   company: 'Amazon',
+        //   exp_years: '5-8 Years'
+        // },
+        // {
+        //   slug: 'ufsadsa3',
+        //   job_title: 'Hadoop Developer',
+        //   company: 'E & Y',
+        //   exp_years: '5-8 Years'
+        // },
+        // {
+        //   slug: 'ufsadsa4',
+        //   job_title: '.NET Developer',
+        //   company: 'JP Morgan',
+        //   exp_years: '5-8 Years'
+        // },
+        // {
+        //   slug: 'ufsadsa5',
+        //   job_title: 'UX Desiger',
+        //   company: 'Deloitte',
+        //   exp_years: '5-8 Years'
+        // }
       ],
       upcoming_interviews: [
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'rvfw5lvb'
-        },
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'ip3fjjmo'
-        }
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'rvfw5lvb'
+        // },
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'ip3fjjmo'
+        // }
       ],
       companyName: ''
     }
   },
-  computed: {
-    filteredMocks () {
-      let searchStr = this.searchString
-      let mocks = this.mocks
-      if (!searchStr) {
-        return mocks
-      }
-      searchStr = searchStr.trim().toLowerCase()
-      mocks = mocks.filter((item) => {
-        if (item.job_title.toLowerCase().includes(searchStr)) {
-          return item
-        }
-      })
-      return mocks
-    }
-  },
+  // computed: {
+  //   filteredMocks () {
+  //     let searchStr = this.searchString
+  //     let mocks = this.mocks
+  //     if (!searchStr) {
+  //       return mocks
+  //     }
+  //     searchStr = searchStr.trim().toLowerCase()
+  //     mocks = mocks.filter((item) => {
+  //       if (item.job_title.toLowerCase().includes(searchStr)) {
+  //         return item
+  //       }
+  //     })
+  //     return mocks
+  //   }
+  // },
   mounted () {
-    this.$axios.get('/Interview-list/').then((response) => {
+    this.$axios.get('/interview-list/').then((response) => {
       this.mocks = response.data.mocks
     })
       .catch((errorResponse) => {
@@ -133,6 +133,13 @@ export default {
           errorResponse.response.data.message || 'Something went wrong'
         )
       })
+  },
+  methods: {
+    search_mock () {
+      this.$axios.get(`/interview-list?keyword=${this.searchString}`).then((response) => {
+        this.mocks = response.data.search_list
+      })
+    }
   }
 }
 </script>

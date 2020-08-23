@@ -113,6 +113,7 @@
     <Payment
       v-if="hide_payment_details"
       :candidate-info="candidate_info"
+      :is-mock="isMock"
       :time-slots-mock="time_slots_mock"
       @reschedule="hide_payment_details = $event"
     />
@@ -132,6 +133,7 @@ export default {
   data () {
     return {
       hide_payment_details: false,
+      isMock: false,
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
@@ -195,7 +197,7 @@ export default {
     },
     submit () {
       this.hide_payment_details = true
-      this.$store.commit('is_mock_interview')
+      this.isMock = true
     }
   }
 }

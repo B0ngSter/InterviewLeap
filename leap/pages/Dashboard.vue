@@ -58,7 +58,7 @@
               </b-col>
               <b-col cols="3">
                 <div class="mt-5 mb-5">
-                  <b-button squared class="alert-primary text-primary" @click="reschedule">
+                  <b-button squared class="alert-primary text-primary" :to="`/book-interview/${upcoming_interviews[idx].slug}`">
                     Reschedule
                   </b-button>
                 </div>
@@ -83,16 +83,16 @@ export default {
   data () {
     return {
       upcoming_interviews: [
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'rvfw5lvb'
-        },
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'ip3fjjmo'
-        }
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'rvfw5lvb'
+        // },
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'ip3fjjmo'
+        // }
       ]
       // upcoming_interviews: []
     }
@@ -115,12 +115,9 @@ export default {
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
     },
-    reschedule (idx) {
-      this.$router.push('/book-mock?id=${' + this.upcoming_interviews[idx].slug + '}')
-    },
     cancel (idx) {},
     fetch_interview () {
-      this.$axios.get('/Interview-list/').then((response) => {
+      this.$axios.get('/interview-list/').then((response) => {
         this.upcoming_interviews = response.data.upcoming_interviews
       })
         .catch((errorResponse) => {

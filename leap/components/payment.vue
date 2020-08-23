@@ -23,7 +23,7 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="isMock ? 3 : 4" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Date
                 </p>
@@ -31,7 +31,7 @@
                   {{ date() }}
                 </p>
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="isMock" cols="3" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Interview from
                 </p>
@@ -39,7 +39,7 @@
                   {{ company_name }}
                 </p>
               </b-col>
-              <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
+              <b-col cols="3" :offset-md="isMock ? 0 : 2">
                 <div class="mt-5 mb-5">
                   <b-button squared class="alert-danger text-danger-dark" @click="cancel">
                     Cancel
@@ -60,7 +60,7 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row v-if="!$store.state.is_mock">
+            <b-row v-if="!isMock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
@@ -80,7 +80,7 @@
                 </b-card>
               </b-col>
             </b-row>
-            <b-row v-if="this.$store.state.is_mock">
+            <b-row v-if="isMock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
@@ -168,6 +168,9 @@ export default {
     candidateInfo: {
       type: Object,
       required: true
+    },
+    isMock: {
+      type: Boolean
     }
   },
   data () {
@@ -202,7 +205,7 @@ export default {
   },
   methods: {
     fetch_company_name () {
-      this.$axios.get('/Interview-list/').then((response) => {
+      this.$axios.get('/interview-list/').then((response) => {
         response.data.mocks.map((key) => {
           if (key.slug === this.$route.params.slug) {
             this.company_name = key.company
@@ -227,7 +230,7 @@ export default {
     submit () {
       let payload = {}
       let endpoint
-      if (this.$store.state.is_mock) {
+      if (this.isMock) {
         endpoint = `/book-mock/${this.$route.params.slug}/`
         payload.start_time = this.candidateInfo.time_slots[0].slice(0, 5)
         payload.end_time = this.candidateInfo.time_slots[0].slice(8, 13)
@@ -242,8 +245,9 @@ export default {
       }
       this.$axios.post(endpoint, payload)
         .then((response) => {
-          window.open(response.data.long_url, '_blank')
-          this.$store.commit('reset_mock_variables')
+          if (response.data.long_url) {
+            window.open(response.data.long_url, '_blank')
+          }
         })
         .catch((errorResponse) => {
           this.$toast.error(

@@ -62,7 +62,7 @@
                       list="skill-options"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
-                      @change="fetchSkills"
+                      @keypress="fetchSkills"
                     />
                     <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -179,7 +179,7 @@
           <b-card
             no-body
             class="p-3 pl-5 mt-3 border-0"
-            :class="{ 'alert-primary': time_slot.includes(idy) }"
+            :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]) }"
             @click="addSlot(idy)"
           >
             {{ timeslot }}
@@ -212,7 +212,6 @@ import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import Payment from '~/components/payment'
 export default {
-  layout: 'app-page',
   components: {
     Payment
   },
@@ -241,6 +240,7 @@ export default {
   },
   mounted () {
     this.fetch_timeZone()
+    this.fetch_update()
   },
   validations: {
     candidate_info: {
@@ -249,6 +249,17 @@ export default {
     }
   },
   methods: {
+    fetch_update () {
+      if (this.$route.params.slug) {
+        this.$axios.get(`book-interview/${this.$route.params.slug}/update/`)
+          .then((response) => {
+            response.data.skills = response.data.skills.map((key) => {
+              return key.title
+            })
+            this.candidate_info = response.data
+          })
+      }
+    },
     validateState (name) {
       const { $dirty, $error } = this.$v.candidate_info[name]
       return $dirty ? !$error : null
@@ -271,8 +282,7 @@ export default {
         })
     },
     addSlot (idy) {
-      this.time_slot.includes(idy) ? this.time_slot.splice(this.time_slot.indexOf(idy), 1) : this.time_slot.push(idy)
-      this.candidate_info.time_slots.includes(this.time_slots[idy]) ? this.candidate_info.time_slots.splice(this.time_slot.indexOf(this.time_slots[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots[idy])
+      this.candidate_info.time_slots.includes(this.time_slots[idy]) ? this.candidate_info.time_slots.splice(this.candidate_info.time_slots.indexOf(this.time_slots[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots[idy])
     },
     allowedDates (val) {
       const today = new Date()
@@ -301,7 +311,27 @@ export default {
       this.skill_search_query = ''
     },
     submit () {
-      this.hide_payment_details = true
+      if (this.$route.params.slug) {
+        const payload = { ...this.candidate_info }
+        payload.skills = payload.skills.toString()
+        this.$axios.put(`book-interview/${this.$route.params.slug}/update/`, payload)
+          .then((response) => {
+            this.$toast.success('Your changes were saved', {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
+              }
+            })
+          }).catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Could not save your changes. Please try again later'
+            )
+          })
+      } else {
+        this.hide_payment_details = true
+      }
     },
     fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)

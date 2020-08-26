@@ -28,7 +28,7 @@
                   Date &amp; time
                 </p>
                 <h4 class="text-left text-dark font-weight-bold border-bottom border-light">
-                  <!-- {{ date() }} -->
+                  {{ date() }}
                 </h4>
               </b-col>
               <b-col cols="5" class="pt-5 pb-5 pl-4">
@@ -323,6 +323,16 @@
 
 export default {
   layout: 'app-page',
+  props: {
+    id: {
+      type: Number,
+      required: true
+    },
+    interviewRequests: {
+      type: Array,
+      required: true
+    }
+  },
   data () {
     return {
       technical_skill: '',
@@ -346,6 +356,17 @@ export default {
     }
   },
   methods: {
+    date () {
+      let month = ''
+      this.interviewRequests[this.id].date.slice(5, 7).includes('0') ? month = this.interviewRequests[this.id].date.slice(6, 7) : month = this.interviewRequests[this.id].date.slice(5, 7)
+      const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      month = monthList[parseInt(month) - 1]
+      const date = this.interviewRequests[this.id].date.slice(8, 10)
+      const year = this.interviewRequests[this.id].date.slice(0, 4)
+      const amplifiedDate = month + ' ' + date + ',' + year
+      const day = String(new Date(amplifiedDate))
+      return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
+    },
     progressBar (x) {
       if (x === 'Exceptional') {
         this.technical_skill_progress_value = 100

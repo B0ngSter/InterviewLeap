@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        {#background-color: #5DCC99;#}
+    }
+    .card {
+        background-color: #f7f8fc;
+        width: 70%;
+    }
+    .left-padding {
+        margin-left: 20%;
+    }
+    .padding-top {
+        padding-top: 10%;
+    }
+    .card-text {
+        padding: 3rem;
+    }
+    .start-header {
+        font-family: "aktiv-grotesk",sans-serif;
+        font-size: x-large;
+        font-weight: bold;
+    }
+    .inline-text-header{
+        color: #82919C;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .inline-text{
+        color: #82919C;
+    }
+
+</style>
+<body>
+    <div class="left-padding">
+        <span class="padding-top start-header">Report</span>
+        <div class="card inline-text">
+            <p class="card-text">
+                <span style="">Date. &amp; Time ({{ report_data.interview_type }})</span>
+                <span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Interviewer From</span>
+                <br>
+                <span>{{ report_data.date }}  &nbsp; &nbsp;{{ report_data.time_slot }}
+                <span style="color: #FF7B5A;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {{ report_data.company }}</span>
+                </span>
+            </p>
+        </div>
+        <br>
+        <span style="color: #0E293C; font-size: large;">Interviewer's evaluation on your performance</span>
+        {% if report_data.feedback.technical_skill %}
+        <div class="card inline-text">
+            <p class="card-text">
+                <span class="inline-text-header">Technical Skill: <span style="color: #5DCC99;"> {{ report_data.feedback.technical_skill.0 }}</span></span>
+                <br>
+                {{ report_data.feedback.technical_skill.1 }}
+            </p>
+        </div>
+        {% endif %}
+        {% if report_data.feedback.communicational_skill %}
+        <div class="card inline-text">
+            <p class="card-text">
+                <span class="inline-text-header">Communication Skill: <span style="color: #69B0EC;"> {{ report_data.feedback.communicational_skill.0 }}</span></span>
+                <br>
+                {{ report_data.feedback.communicational_skill.1 }}
+            </p>
+        </div>
+        {% endif %}
+        {% if report_data.feedback.presentation_skill %}
+        <div class="card inline-text">
+            <p class="card-text">
+                <span class="inline-text-header">Presentation Skill: <span style="color: #FFC65A;"> {{ report_data.feedback.presentation_skill.0 }}</span></span>
+                <br>
+                {{ report_data.feedback.presentation_skill.1 }}
+            </p>
+        </div>
+        {% endif %}
+        {% if report_data.feedback.feedbackunderstanding_of_role %}
+        <div class="card inline-text">
+            <p class="card-text">
+                <span class="inline-text-header">Understanding of Role: <span style="color: #FF7B5A;"> {{ report_data.feedback.understanding_of_role.0 }}</span></span>
+                <br>
+                {{ report_data.feedback.understanding_of_role.1 }}
+            </p>
+        </div>
+        {% endif %}
+        {% if report_data.feedback.strength or report_data.feedback.limitations %}
+        <div class="card">
+            <p class="card-text">
+                <span style="color: #0E293C; font-size: large;">Your Overall Strengths and Limitations relate to this position</span><br><br><br>
+                <span class="inline-text">Thanks so much for attending your interview this morning. It was great to meet you and
+            I                   really appreciate the eort you made to attend the interview.</span><br><br>
+                <span>Strengths</span><br><span class="inline-text">{{ report_data.feedback.strength }}</span><br><br>
+                <span>Limitation</span><br>
+                <span class="inline-text">{{ report_data.feedback.limitations }}</span>
+            </p>
+        </div>
+        {% endif %}
+        {% if report_data.feedback.consider_for_job == 'yes' %}
+            <div class="card">
+                <p class="card-text" style="color: #5DCC99; font-size: large;">
+                    Interviewer considers you suitable for this role
+                </p>
+            </div>
+        {% else %}
+            <div class="card">
+                <p class="card-text" style="color: #FF7B5A; font-size: large;">
+                    Interviewer suggested, you need improvement.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -69,7 +69,7 @@ class BookInterviewView(CreateAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data.dict()
+        interview_dict = request.data
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         tax_amount = (payment_amount * tax) / 100

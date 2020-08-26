@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row class="mt-5">
-      <b-col cols="12" md="8" class="mb-5">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="8" class="mb-5">
         <h3 class="font-weight-bold">
           Hello, {{ this.$store.state.auth.user.first_name }}
         </h3>
@@ -9,7 +9,7 @@
           Below are your insights
         </p>
       </b-col>
-      <b-col cols="12" md="4" class="text-right">
+      <b-col v-if="$store.getters.is_interviewer" cols="12" md="4" class="text-right">
         <b-button to="/create-interview" variant="primary">
           Create an Interview
         </b-button>
@@ -187,24 +187,24 @@ export default {
   data () {
     return {
       interviewer_insights: {
-        new_interview_requests: 1,
-        interview_created: 1,
-        interview_taken: 1,
-        total_earnings: 1,
-        interview_requests: [
-          // {
-          //   applied_designation: null,
-          //   time_slots: [],
-          //   date: 'datetime',
-          //   candidate: 'FK'
-          // },
-          // {
-          //   applied_designation: null,
-          //   time_slots: [],
-          //   date: 'datetime',
-          //   candidate: 'FK'
-          // }
-        ]
+        // new_interview_requests: 1,
+        // interview_created: 1,
+        // interview_taken: 1,
+        // total_earnings: 1,
+        // interview_requests: [
+        //   {
+        //     applied_designation: null,
+        //     time_slots: [],
+        //     date: 'datetime',
+        //     candidate: 'FK'
+        //   },
+        //   {
+        //     applied_designation: null,
+        //     time_slots: [],
+        //     date: 'datetime',
+        //     candidate: 'FK'
+        //   }
+        // ]
       }
     }
   },

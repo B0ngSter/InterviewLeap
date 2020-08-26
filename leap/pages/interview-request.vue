@@ -28,7 +28,7 @@
         <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="12" md="4" class="pt-5 pb-5 pl-4 border-bottom border-light">
+              <b-col cols="12" md="" class="pt-5 pb-5 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary">
                   Date &amp; time
                 </p>
@@ -36,13 +36,29 @@
                   {{ date(idx) }}
                 </h4>
               </b-col>
-              <b-col v-if="!request.feedback && !interview_duration(idx)" cols="3" offset-md="2" class="border-bottom border-light">
-                <b-button squared class="alert-danger text-danger-dark mt-5 mb-5">
+              <b-col cols="12" md="6" class="mt-3">
+                <b-button
+                  v-for="(badge, idy) in request.time_slots"
+                  :key="idy"
+                  pill
+                  size="sm"
+                  variant="outline-secondary"
+                  :class="{
+                    'bg-primary': badge === selected_slot[0],
+                  }"
+                  class="p-3 mt-5 ml-1 text-dark cursor-pointer"
+                  @click="select_slot(idx, idy)"
+                >
+                  {{ badge }}
+                </b-button>
+              </b-col>
+              <b-col v-if="!request.feedback && !interview_duration(idx)" cols="2" class="border-bottom border-light">
+                <b-button squared class="alert-danger text-danger-dark mt-5 mb-5" @click="decline_interview_slot(idx)">
                   Decline
                 </b-button>
               </b-col>
-              <b-col v-if="!request.feedback && !interview_duration(idx)" cols="3" class="border-bottom border-light">
-                <b-button squared class="alert-primary text-primary mt-5 mb-5">
+              <b-col v-if="!request.feedback && !interview_duration(idx)" cols="2" class="border-bottom border-light">
+                <b-button squared class="alert-primary text-primary mt-5 mb-5" @click="accpet_interview_slot(idx)">
                   Accept
                 </b-button>
               </b-col>
@@ -94,10 +110,11 @@ export default {
   data () {
     return {
       interviewer_insights: {},
+      selected_slot: [],
       interview_requests: [
         {
           applied_designation: null,
-          time_slots: ['12PM - 3PM'],
+          time_slots: ['12PM - 3PM', '3PM - 6PM'],
           date: '2020-08-28',
           feedback: false,
           candidate: 'FK'
@@ -115,7 +132,7 @@ export default {
   mounted () {
     this.$axios.get('/auth/interview-requests/')
       .then((response) => {
-        this.interview_requests = response.data
+        // this.interview_requests = response.data
       })
   },
   methods: {
@@ -128,7 +145,7 @@ export default {
       const year = this.interview_requests[idx].date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
-      return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16) + ',' + this.interview_requests[idx].time_slots[0].slice(0, 4)
+      return day.slice(0, 3) + ',' + day.slice(3, 10)
     },
     interview_duration (idx) {
       const oneSpan = 3 * 60 * 60 * 1000 // in milliseconds
@@ -147,6 +164,23 @@ export default {
       } else {
         return false
       }
+    },
+    select_slot (idx, idy) {
+      this.selected_slot.includes(this.interview_requests[idx].time_slots[idy]) ? this.selected_slot.splice(this.selected_slot.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : this.selected_slot.push(this.interview_requests[idx].time_slots[idy])
+      if (this.selected_slot.length === 2) {
+        this.selected_slot.splice(0, 1)
+      }
+    },
+    accpet_interview_slot (idx) {
+      const payload = {}
+      payload.action = 'accept'
+      payload.timeslot = this.selected_slot[0]
+      payload.date = this.interview_requests[idx].date
+      payload.slug = this.interview_requests[idx].slug
+      this.$axios.post('/auth/interview-requests/', payload).then((response) => {})
+    },
+    decline_interview_slot (idx) {
+      this.interview_requests.splice(idx, 1)
     }
   }
 }

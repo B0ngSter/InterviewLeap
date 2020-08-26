@@ -60,3 +60,6 @@ class BookInterview(models.Model):
             slug_value = "{}".format(''.join(random.choices(string.ascii_lowercase + string.digits, k=8)))
             self.slug = slugify(slug_value)
             self.save()
+
+    def __str__(self):
+        return self.slug

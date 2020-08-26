@@ -837,7 +837,7 @@ class InterviewerRequestsListView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
-        interview_requests = BookInterview.objects.all()
+        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__null=True)
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
         serializer = self.get_serializer(interview_requests, many=True).data

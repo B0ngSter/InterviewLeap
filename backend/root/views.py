@@ -502,26 +502,35 @@ class InterviewListView(ListAPIView):
 
 
 class PastInterviewListView(ListAPIView):
+    queryset = InterviewSlots.objects.all()
 
     def get(self, request, *args, **kwargs):
         past_interview = []
-        custom_interview_obj = BookInterview.objects.all(candidate=self.request.user)
-        mock_interview_obj = InterviewSlots.objects.filter(candidate__user=self.request.user)
+        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user)
+        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user)
+        # blank state feedback for custom interview as feeback
+        report_data = {"strength": "", "limitations": "", "technical_skill": [],
+                       "consider_for_job": "", "presentation_skill": [],
+                       "communicational_skill": [], "understanding_of_role": []
+                        }
         for each_row in custom_interview_obj:
-            past_interview.append({"date": each_row.interview_start_time.date(),
+            past_interview.append({"date": each_row.date,
                                    "time_slot": '',
-                                   "title": each_row.applied_designation,
                                    "company": each_row.interviewer.company if each_row.interviewer else '',
-                                   "interview_type": "Direct Booked Interview"
+                                   "interview_type": "Direct Booked Interview",
+                                   "report_data": report_data
                                    })
         for each_row in mock_interview_obj:
-            profile_obj = InterviewerProfile.objects.filter(user=each_row.interviewer).first()
-            past_interview.append({"date": each_row.date,
-                                   "title": each_row.applied_designation,
+            start_time = each_row.interview_start_time.time().strftime("%I %p")
+            end_time = each_row.interview_end_time.time().strftime("%I %p")
+            profile_obj = InterviewerProfile.objects.filter(user=each_row.interview.interviewer).first()
+            past_interview.append({"date": each_row.interview_start_time.date(),
+                                   "time_slot": start_time +" - " + end_time,
                                    "company": profile_obj.company if profile_obj else '',
-                                   "interview_type": "Open Mock Interview"
+                                   "interview_type": "Open Mock Interview",
+                                   "report_data": each_row.feedback if each_row.feedback else report_data
                                    })
-        return Response(past_interview, status=status.HTTP_200_OK)
+        return Response({"past_interviews": past_interview}, status=status.HTTP_200_OK)
 
 
 def generate_pdf(request):

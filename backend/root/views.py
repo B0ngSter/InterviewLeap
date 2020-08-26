@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
@@ -219,20 +220,27 @@ class CandidateInterviewerDashboardView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         if request.user.role == 'Interviewer':
-            dashboard_details = {}
-            skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
+            dashboard_details = {"new_interview_requests": 0,
+                                 "interview_requests": []}
             interviews_created = InterviewSlots.objects.filter(interview__interviewer=request.user)
             interviews_taken = interviews_created.filter(candidate__isnull=False,
                                                          interview_end_time__lt=timezone.now())
-            interview_requests = BookInterview.objects.filter(candidate__isnull=True, date__gte=timezone.now())
-            for skill in skills:
-                interview_requests = interview_requests.filter(skills__title__icontains=skill)
-            dashboard_details['new_interview_requests'] = interview_requests.count()
+            try:
+                skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title',
+                                                                                                   flat=True)
+                if skills:
+                    for skill in skills:
+                        interview_requests = BookInterview.objects.filter(skills__title__icontains=skill,
+                                                                          date__gte=timezone.now())
+                    dashboard_details['new_interview_requests'] = interview_requests.count()
+                    interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
+                    dashboard_details['interview_requests'] = interview_requests_serialize
+            except ObjectDoesNotExist:
+                pass
             dashboard_details['interview_created'] = interviews_created.count()
             dashboard_details['interview_taken'] = interviews_taken.count()
             dashboard_details['total_earnings'] = 0  # need to implement
-            interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
-            dashboard_details['interview_requests'] = interview_requests_serialize
+
             return Response(dashboard_details, status=status.HTTP_200_OK)
         else:
             queryset = self.get_queryset()

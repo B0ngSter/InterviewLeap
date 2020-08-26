@@ -499,3 +499,40 @@ class InterviewListView(ListAPIView):
 
         response = {"mocks": mock_list, "upcoming_interviews": booking_list, "search_list": search_list}
         return Response(response, status=status.HTTP_200_OK)
+
+
+class PastInterviewListView(ListAPIView):
+
+    def get(self, request, *args, **kwargs):
+        past_interview = []
+        custom_interview_obj = BookInterview.objects.all(candidate=self.request.user)
+        mock_interview_obj = InterviewSlots.objects.filter(candidate__user=self.request.user)
+        for each_row in custom_interview_obj:
+            past_interview.append({"date": each_row.interview_start_time.date(),
+                                   "time_slot": '',
+                                   "title": each_row.applied_designation,
+                                   "company": each_row.interviewer.company if each_row.interviewer else '',
+                                   "interview_type": "Direct Booked Interview"
+                                   })
+        for each_row in mock_interview_obj:
+            profile_obj = InterviewerProfile.objects.filter(user=each_row.interviewer).first()
+            past_interview.append({"date": each_row.date,
+                                   "title": each_row.applied_designation,
+                                   "company": profile_obj.company if profile_obj else '',
+                                   "interview_type": "Open Mock Interview"
+                                   })
+        return Response(past_interview, status=status.HTTP_200_OK)
+
+
+def generate_pdf(request):
+    report = InterviewSlots.objects.all()
+    template_path = 'emailer/report.html'
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="Report.pdf"'
+
+    html = render_to_string(template_path, {'report': report})
+    print(html)
+    pisaStatus = pisa.CreatePDF(html, dest=response)
+
+    return response

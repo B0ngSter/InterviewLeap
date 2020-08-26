@@ -850,7 +850,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
         interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__isnull=True,
-                                                          is_payment_done=True, is_declined=False)
+                                                          is_declined=False)
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
         serializer = self.get_serializer(interview_requests, many=True).data
@@ -885,6 +885,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
             interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
                                                       slug=interview_info['slug'])
             interview_obj.is_declined = True
+            interview_obj.is_interview_scheduled = True
             interview_obj.save()
             return Response({"message": "Interview Declined"})
         else:

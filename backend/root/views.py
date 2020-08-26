@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill, InterviewSlots
 from authentication.serializers import InterviewerRequestsListSerializer
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, FeedbackCreateViewSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, FeedbackCreateViewSerializer, \
+    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
@@ -273,8 +274,8 @@ class SkillSearchView(ListAPIView):
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CandidateInterviewFeedbackView(CreateAPIView):
-    serializer_class = FeedbackCreateViewSerializer
+class MockInterviewFeedbackView(CreateAPIView):
+    serializer_class = MockFeedbackCreateViewSerializer
 
     def create(self, request, *args, **kwargs):
 
@@ -301,6 +302,36 @@ class CandidateInterviewFeedbackView(CreateAPIView):
                                                     interview_start_time=interview_info['start_time'],
                                                     interview_end_time=interview_info['end_time'])
         serializer = self.get_serializer(interview_slot, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': "Thank you for your Feedback"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': "Some issue occurred while providing Feedback"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomInterviewFeedbackView(CreateAPIView):
+
+    serializer_class = CustomFeedbackCreateViewSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        """
+                   Detail -- Interviewer can provide feedback for interview which he/she taken.
+                   Actions -- Post method
+                   Response Status -- 200 Ok
+                   Request dict --{
+                                    "feedback":{"technical_skill":["Exceptional","good skill"],
+                                    "communication_skill":["Exceptional","good skill"],
+                                    "presentation_skill":["Exceptional","good skill"],
+                                    "understanding_of_role":["Exceptional","good skill"],
+                                    "text":"nice interview", "strength":"coding skills",
+                                    "limitations":"understanding the problem","consider_for_job":"yes"}}
+        """
+
+        interviewer = InterviewerProfile.objects.get(user=self.request.user)
+        interview_obj = BookInterview.objects.get(slug=kwargs['slug'], interviewer=interviewer)
+        serializer = self.get_serializer(interview_obj, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': "Thank you for your Feedback"}, status=status.HTTP_200_OK)

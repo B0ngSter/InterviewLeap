@@ -57,9 +57,16 @@ class SKillSearchSerializer(serializers.ModelSerializer):
         fields = ['title']
 
 
-class FeedbackCreateViewSerializer(serializers.ModelSerializer):
+class MockFeedbackCreateViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterviewSlots
+        fields = ['feedback']
+
+
+class CustomFeedbackCreateViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BookInterview
         fields = ['feedback']
 

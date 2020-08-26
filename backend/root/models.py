@@ -43,8 +43,10 @@ class BookInterview(models.Model):
     interview_end_time = models.DateTimeField(null=True, blank=True)
     is_payment_done = models.BooleanField(default=False)
     is_interview_scheduled = models.BooleanField(default=False)
+    is_declined = models.BooleanField(default=False)
     interviewer = models.ForeignKey(InterviewerProfile, null=True, blank=True, on_delete=models.CASCADE)
     payment_detail = models.ForeignKey(PaymentDetails, null=True, blank=True, on_delete=models.DO_NOTHING)
+    feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

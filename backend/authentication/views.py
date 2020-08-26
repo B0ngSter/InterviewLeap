@@ -743,7 +743,6 @@ class InterviewCreateView(CreateAPIView):
 
 
 class InterviewAcceptDeclineView(CreateAPIView):
-
     """
         InterviewAcceptDecline   -- Interviewer Side
         actions -- Post -- Interview Accept/Decline(Interviewer)
@@ -797,7 +796,7 @@ class InterviewAcceptDeclineView(CreateAPIView):
             interview_info['title'] = interview_obj.job_title
             interview_info['description'] = interview_obj.description
             response = interview_schedule(interview_info)
-            interview_link= response['htmlLink']
+            interview_link = response['htmlLink']
             candidate_obj = User.objects.get(email=request.data['candidate_email'])
             interview_slot.__dict__.update({'candidate': candidate_obj})
             interview_slot.save()
@@ -810,7 +809,7 @@ class InterviewAcceptDeclineView(CreateAPIView):
             return Response({'message': "Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InterviewerRequestsListView(ListAPIView):
+class InterviewerRequestsListView(ListCreateAPIView):
     """
            Retrieve -- Retrieve list of interview requests to Interviewer booked by candidate(custom interviews).
            Actions -- GET method
@@ -835,13 +834,61 @@ class InterviewerRequestsListView(ListAPIView):
 
     serializer_class = InterviewerRequestsListSerializer
 
+    def _date_time_naive_format(self, date, time):
+        date_time = date + ' ' + time
+        naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        return naive
+
+    def _date_time_format(self, date, time, timezone):
+        date_time = date + ' ' + time
+        local = pytz.timezone(timezone)
+        naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        local_dt = local.localize(naive, is_dst=None)
+        utc_dt = local_dt.astimezone(pytz.utc).isoformat()
+        return utc_dt
+
     def get(self, request, *args, **kwargs):
         skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
-        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__null=True)
+        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__isnull=True,
+                                                          is_payment_done=True, is_declined=False)
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
         serializer = self.get_serializer(interview_requests, many=True).data
         return Response(serializer, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        interview_info = request.data
+        if interview_info['action'] == 'accept':
+            interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
+                                                      slug=interview_info['slug'])
+            if interview_obj.interviewer:
+                return Response({"message": "Sorry this interview is already taken by other Interviewer"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            timezone = interview_obj.time_zone
+            interview_info["recipients"] = [request.data['candidate_email'], self.request.user.email]
+            interview_info['start_time'] = self._date_time_format(request.data['date'], request.data['start_time']
+                                                                  , timezone)
+            interview_info['end_time'] = self._date_time_format(request.data['date'], request.data['end_time']
+                                                                , timezone)
+            interview_info['timezone'] = timezone
+            interview_info['title'] = interview_obj.applied_designation
+            interview_info['description'] = ""
+            response = interview_schedule(interview_info)
+            interview_link = response['htmlLink']
+            interviewer = InterviewerProfile.objects.get(user=self.request.user)
+            interview_obj.interviewer = interviewer
+            interview_obj.save()
+            success_message = "Interview Invite has been sent to Candidate Successfully"
+            return Response({"message": success_message,
+                             "interview_link": interview_link}, status=status.HTTP_200_OK)
+        elif self.kwargs['action'] == 'decline':
+            interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
+                                                      slug=interview_info['slug'])
+            interview_obj.is_declined = True
+            interview_obj.save()
+            return Response({"message": "Interview Declined"})
+        else:
+            return Response({'message': "Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def basic_profile_details(request):

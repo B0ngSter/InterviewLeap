@@ -243,7 +243,13 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
 
 class InterviewerRequestsListSerializer(serializers.ModelSerializer):
+    is_feedback = serializers.SerializerMethodField()
+
+    def get_is_feedback(self, obj):
+        if obj.feedback:
+            return True
+        return False
 
     class Meta:
         model = BookInterview
-        fields = ['applied_designation', 'date', 'time_slots', 'candidate']
+        fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate', 'is_feedback']

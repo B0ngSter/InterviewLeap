@@ -131,7 +131,7 @@
                   Date &amp; time
                 </p>
                 <h4 class="text-left text-dark font-weight-bold">
-                  <!-- {{ date() }} -->
+                  {{ date(idx) }}
                 </h4>
               </b-col>
               <b-col cols="3" offset-md="2" class="border-bottom border-light">
@@ -187,24 +187,24 @@ export default {
   data () {
     return {
       interviewer_insights: {
-        // new_interview_requests: 1,
-        // interview_created: 1,
-        // interview_taken: 1,
-        // total_earnings: 1,
-        // interview_requests: [
-        //   {
-        //     applied_designation: null,
-        //     time_slots: [],
-        //     date: 'datetime',
-        //     candidate: 'FK'
-        //   },
-        //   {
-        //     applied_designation: null,
-        //     time_slots: [],
-        //     date: 'datetime',
-        //     candidate: 'FK'
-        //   }
-        // ]
+        new_interview_requests: 1,
+        interview_created: 1,
+        interview_taken: 1,
+        total_earnings: 1,
+        interview_requests: [
+          {
+            applied_designation: null,
+            time_slots: [],
+            date: 'datetime',
+            candidate: 'FK'
+          },
+          {
+            applied_designation: null,
+            time_slots: [],
+            date: 'datetime',
+            candidate: 'FK'
+          }
+        ]
       }
     }
   },
@@ -215,6 +215,17 @@ export default {
       })
   },
   methods: {
+    date (idx) {
+      let month = ''
+      this.interviewer_insights.interview_requests[idx].date.slice(5, 7).includes('0') ? month = this.interviewer_insights.interview_requests[idx].date.slice(6, 7) : month = this.interviewer_insights.interview_requests[idx].date.slice(5, 7)
+      const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      month = monthList[parseInt(month) - 1]
+      const date = this.interviewer_insights.interview_requests[idx].date.slice(8, 10)
+      const year = this.interviewer_insights.interview_requests[idx].date.slice(0, 4)
+      const amplifiedDate = month + ' ' + date + ',' + year
+      const day = String(new Date(amplifiedDate))
+      return day.slice(0, 3) + ',' + day.slice(3, 10)
+    },
     decline_interview_request () {},
     accept_interview_request () {}
   }

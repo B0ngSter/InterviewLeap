@@ -4,7 +4,7 @@
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -112,7 +112,7 @@
                       :state="validateState('time_zone')"
                       aria-describedby="input-1-live-feedback"
                       list="timeZones-options"
-                      placeholder="timeZones"
+                      placeholder="Time zone"
                       autocomplete="off"
                     />
                     <datalist id="timeZones-options">

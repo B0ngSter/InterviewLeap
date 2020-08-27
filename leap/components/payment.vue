@@ -3,10 +3,10 @@
     <b-row align-v="start" align-content="start" class="flex-grow-1">
       <b-col cols="12">
         <b-breadcrumb class="bg-light pl-0">
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/book-interview">
             Book Interview
           </b-breadcrumb-item>
           <b-breadcrumb-item active>

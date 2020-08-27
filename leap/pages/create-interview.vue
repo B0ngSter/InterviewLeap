@@ -72,7 +72,7 @@
                       placeholder="Core Skills"
                       list="skill-options"
                       :disabled="skills_filled"
-                      @change="fetchSkills"
+                      @keypress="fetchSkills"
                     />
                     <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">

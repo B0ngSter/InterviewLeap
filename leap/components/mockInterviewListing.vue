@@ -15,7 +15,7 @@
             placeholder="Search by role"
           />
           <b-input-group-prepend is-text>
-            <b-icon icon="search" @click="search_mock" />
+            <b-icon icon="search" class="cursor-pointer" @click="search_mock" />
           </b-input-group-prepend>
         </b-input-group>
       </b-col>

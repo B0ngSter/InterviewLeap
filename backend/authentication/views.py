@@ -35,7 +35,7 @@ from django.core import files
 from root.models import BookInterview
 from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
-    ResendVerificationTokenSerializer, InterviewerRequestsListSerializer
+    ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -849,11 +849,16 @@ class InterviewerRequestsListView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
-        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__isnull=True,
+        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__isnull=False,
                                                           is_declined=False)
+        past_interviews = InterviewSlots.objects.filter(interview__interviewer=self.request.user,
+                                                        interview_start_time__lt=timezone.now(),
+                                                        interview_end_time__lt=timezone.now(),feedback__isnull=False)
+        past_interview_serializer = PastInterviewSerializer(past_interviews, many=True).data
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
         serializer = self.get_serializer(interview_requests, many=True).data
+        serializer['past_interviews'] = past_interview_serializer
         return Response(serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):

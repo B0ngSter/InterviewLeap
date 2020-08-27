@@ -9,14 +9,13 @@ from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill, InterviewSlots
 from authentication.serializers import InterviewerRequestsListSerializer
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer,\
-    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer,\
+    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer, BookInterviewCreateSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from root.serializers import BookInterviewCreateSerializer, PaymentSerializer
 import requests
 from instamojo_wrapper import Instamojo
 from .models import PaymentDetails, BookInterview

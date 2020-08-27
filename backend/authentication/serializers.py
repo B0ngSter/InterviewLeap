@@ -257,3 +257,18 @@ class InterviewerRequestsListSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookInterview
         fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate_email', 'is_feedback']
+
+
+class PastInterviewSerializer(serializers.ModelSerializer):
+    candidate_email = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    def get_candidate_email(self, obj):
+        return obj.candidate.email
+
+    def get_role(self, obj):
+        return obj.interview.job_title
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role']

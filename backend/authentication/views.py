@@ -893,7 +893,11 @@ class InterviewerRequestsListView(ListCreateAPIView):
                                                              interview_end_time__lt=timezone.now(),
                                                              feedback__isnull=False,
                                                              candidate__isnull=False)
-        mock_interviews_month = list(by_month(past_mock_interviews, 'interview_start_time'))
+
+        if past_mock_interviews:
+            mock_interviews_month = list(by_month(past_mock_interviews, 'interview_start_time'))
+        else:
+            mock_interviews_month = []
         past_interviews = {}
         for months, values in mock_interviews_month:
             past_interview_serializer = PastInterviewSerializer(values, many=True).data

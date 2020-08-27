@@ -259,12 +259,66 @@ class InterviewerRequestsListSerializer(serializers.ModelSerializer):
         fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate_email', 'is_feedback']
 
 
+class CustomInterviewSerializer(serializers.ModelSerializer):
+    candidate_email = serializers.SerializerMethodField()
+    mock_interview = serializers.SerializerMethodField()
+
+    def get_candidate_email(self, obj):
+        return obj.candidate.email
+
+    def get_mock_interview(self, obj):
+        return True
+
+    class Meta:
+        model = BookInterview
+        fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
+                  'candidate_email', 'mock_interview']
+
+
+class MockInterviewSerializer(serializers.ModelSerializer):
+    slug = serializers.SerializerMethodField()
+    applied_designation = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+    interview_start_time = serializers.SerializerMethodField()
+    interview_end_time = serializers.SerializerMethodField()
+    candidate_email = serializers.SerializerMethodField()
+    custom_interview = serializers.SerializerMethodField()
+
+    def get_slug(self, obj):
+        return obj.interview.slug
+
+    def get_applied_designation(self, obj):
+        return obj.interview.job_title
+
+    def get_date(self, obj):
+        return obj.interview_start_time.date()
+
+    def get_interview_start_time(self, obj):
+        return obj.interview_start_time.time()
+
+    def get_interview_end_time(self, obj):
+        return obj.interview_end_time.time()
+
+    def get_candidate_email(self, obj):
+        if obj.candidate:
+            return obj.candidate.user.email
+
+    def get_custom_interview(self, obj):
+        return True
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
+                  'candidate_email', 'custom_interview']
+
+
 class PastInterviewSerializer(serializers.ModelSerializer):
     candidate_email = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
 
     def get_candidate_email(self, obj):
-        return obj.candidate.email
+        if obj.candidate:
+            return obj.candidate.user.email
 
     def get_role(self, obj):
         return obj.interview.job_title

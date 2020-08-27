@@ -31,11 +31,16 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from templated_mail.mail import BaseEmailMessage
 from django.core import files
+from django.db.models import Func
+from django.db import models
+from collections import OrderedDict
 
 from root.models import BookInterview
+from authentication.dates import by_month
 from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
-    ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer
+    ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
+    CustomInterviewSerializer, MockInterviewSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -809,6 +814,12 @@ class InterviewAcceptDeclineView(CreateAPIView):
             return Response({'message': "Not a valid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class Month(Func):
+    function = 'EXTRACT'
+    template = '%(function)s(MONTH from %(expressions)s)'
+    output_field = models.IntegerField()
+
+
 class InterviewerRequestsListView(ListCreateAPIView):
     """
            Retrieve -- Retrieve list of interview requests to Interviewer booked by candidate(custom interviews).
@@ -849,16 +860,47 @@ class InterviewerRequestsListView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
-        interview_requests = BookInterview.objects.filter(is_interview_scheduled=False, interviewer__isnull=False,
+        mock_interviews = InterviewSlots.objects.filter(interview__interviewer=self.request.user)
+        custom_interviews = BookInterview.objects.filter(interviewer__user=self.request.user)
+        mock_interviews_feedback = mock_interviews.filter(interview_start_time__lt=timezone.now(),
+                                                          interview_end_time__lt=timezone.now(),
+                                                          feedback__isnull=True).order_by('created_at')
+        custom_interviews_feedback = custom_interviews.filter(interview_start_time__lt=timezone.now(),
+                                                              interview_end_time__lt=timezone.now(),
+                                                              feedback__isnull=True).order_by('created_at')
+        allotted_mock_interviews = mock_interviews.filter(interview_start_time__gte=timezone.now(),
+                                                          interview_end_time__gte=timezone.now(),
+                                                          candidate__isnull=False)
+        allotted_custom_interviews = custom_interviews.filter(interview_start_time__gte=timezone.now(),
+                                                              interview_end_time__gte=timezone.now())
+        interview_requests = BookInterview.objects.filter(interview_start_time__gt=timezone.now(),
+                                                          interview_end_time__gt=timezone.now(),
+                                                          is_interview_scheduled=False, interviewer__isnull=True,
                                                           is_declined=False)
-        past_interviews = InterviewSlots.objects.filter(interview__interviewer=self.request.user,
-                                                        interview_start_time__lt=timezone.now(),
-                                                        interview_end_time__lt=timezone.now(),feedback__isnull=False)
-        past_interview_serializer = PastInterviewSerializer(past_interviews, many=True).data
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
-        serializer = self.get_serializer(interview_requests, many=True).data
-        serializer['past_interviews'] = past_interview_serializer
+        serializer = {}
+        serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
+        serializer['custom_feedback'] = CustomInterviewSerializer(custom_interviews_feedback, many=True).data
+        serializer['mock_feedback'] = MockInterviewSerializer(mock_interviews_feedback, many=True).data
+        serializer['feedback'] = serializer.pop('custom_feedback') + serializer.pop('mock_feedback')
+        serializer['allotted_custom_interviews'] = CustomInterviewSerializer(allotted_custom_interviews, many=True).data
+        serializer['allotted_mock_interviews'] = MockInterviewSerializer(allotted_mock_interviews, many=True).data
+        serializer['upcoming_interviews'] = serializer.pop('allotted_custom_interviews') + \
+                                            serializer.pop('allotted_mock_interviews')
+        past_mock_interviews = InterviewSlots.objects.filter(interview__interviewer=self.request.user,
+                                                             interview_start_time__lt=timezone.now(),
+                                                             interview_end_time__lt=timezone.now(),
+                                                             feedback__isnull=False,
+                                                             candidate__isnull=False)
+        mock_interviews_month = list(by_month(past_mock_interviews, 'interview_start_time'))
+        past_interviews = {}
+        for months, values in mock_interviews_month:
+            past_interview_serializer = PastInterviewSerializer(values, many=True).data
+            past_interviews.update({months.strftime("%B"):past_interview_serializer})
+        if not request.data.get('sort_by') == 'oldest':
+            past_interviews = OrderedDict(reversed(list(past_interviews.items())))
+        serializer['past_interviews'] = past_interviews
         return Response(serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):

@@ -26,7 +26,7 @@
             src="@/static/down-arrow.svg"
             alt="Mock"
           />
-          <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span>
+          <a :href="report_pdf" target="_blank"><span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span></a>
         </div>
       </b-col>
       <b-col cols="12" md="4" class="mt-2 pt-2">
@@ -229,6 +229,7 @@ export default {
       presentation_skill_progress_value: 0,
       communicational_skill_progress_value: 0,
       understanding_of_role_progress_value: 0,
+      report_pdf: null,
       past_interviews: [
         {
           time_slots: ['12PM - 3PM'],
@@ -321,15 +322,8 @@ export default {
       const payload = {}
       payload.slug = this.pastInterviews[this.id].slug
       payload.pk = this.pastInterviews[this.id].pk
-      this.$axios.post('/report-details/', payload).then((response) => {
-        this.$toast.success('Success', {
-          action: {
-            text: 'Close',
-            onClick: (e, toastObject) => {
-              toastObject.goAway(0)
-            }
-          }
-        })
+      this.$axios.get(`/report-details/${this.pastInterviews[this.id].pk}/${this.pastInterviews[this.id].slug}/`).then((response) => {
+        this.report_pdf = response.data
       }).catch((errorResponse) => {
         this.$toast.error(
           errorResponse.response.data.message || 'Please try again later'

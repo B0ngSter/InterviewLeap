@@ -4,7 +4,7 @@
       <b-row class="mt-5">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -33,7 +33,7 @@
                     Date. &amp; Time
                   </p>
                   <p class="text-left text-dark font-weight-bold">
-                    {{ date(idx) }}, {{ interviews.time_slots }}
+                    {{ date(idx) }}, {{ interviews.time_slot }}
                   </p>
                 </b-col>
                 <b-col v-if="interviews.interview_type === 'Open Mock Interview'" class="pt-5 pb-5 pl-4">

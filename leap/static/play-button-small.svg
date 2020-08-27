@@ -1,0 +1,7 @@
+<svg id="play-button" xmlns="http://www.w3.org/2000/svg" width="29.43" height="29.43" viewBox="0 0 29.43 29.43">
+  <path id="Path_732" data-name="Path 732" d="M50.531,38a12.524,12.524,0,1,0,.014,0ZM47.966,55.033v-9l7.8,4.5Z" transform="translate(-35.816 -35.816)" fill="#72bf01"/>
+  <g id="Group_489" data-name="Group 489">
+    <path id="Path_733" data-name="Path 733" d="M203.38,174.417v-10.6l9.175,5.3Zm.92-9v7.411l6.416-3.706Z" transform="translate(-191.69 -154.404)" fill="#00755f"/>
+    <path id="Path_734" data-name="Path 734" d="M14.715,29.43A14.715,14.715,0,1,1,29.43,14.715,14.707,14.707,0,0,1,14.715,29.43Zm0-28.51a13.8,13.8,0,1,0,13.8,13.8A13.787,13.787,0,0,0,14.715.92Z" fill="#00755f"/>
+  </g>
+</svg>

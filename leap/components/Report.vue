@@ -3,10 +3,10 @@
     <b-row class="mt-5">
       <b-col cols="12">
         <b-breadcrumb class="bg-light pl-0">
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/past-interview">
             Past Interviews
           </b-breadcrumb-item>
           <b-breadcrumb-item active>
@@ -19,13 +19,26 @@
           Report
         </h3>
       </b-col>
-      <!-- <b-col offset-md="2" cols="12" md="3" class="mt-2 pt-2">
-        <div class="text-right">
-          <b-button class="bg-primary" to="/book-interview">
-            Book interview >
-          </b-button>
+      <b-col offset-md="2" cols="12" md="3" class="mt-2 pt-2">
+        <div class="text-left">
+          <b-img
+            class="cursor-pointer"
+            src="@/static/down-arrow.svg"
+            alt="Mock"
+          />
+          <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span>
         </div>
-      </b-col> -->
+      </b-col>
+      <b-col cols="12" md="4" class="mt-2 pt-2">
+        <div class="text-left">
+          <b-img
+            class="cursor-pointer"
+            src="@/static/play-button-small.svg"
+            alt="Mock"
+          />
+          <span class="text-secondary pl-4 cursor-pointer">Play Interview Recording</span>
+        </div>
+      </b-col>
       <b-col cols="12" class="mt-2">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
@@ -46,13 +59,15 @@
                   {{ pastInterviews[id].company }}
                 </p>
               </b-col>
-              <!-- <b-col cols="3" offset-md="2">
-                <div class="mt-5 mb-5">
-                  <b-button squared class="alert-success text-primary">
-                    View Report
-                  </b-button>
+              <b-col cols="3" offset-md="2" class="pr-5 mr-5 pt-5">
+                <div class="text-right">
+                  <b-img
+                    class="cursor-pointer"
+                    src="@/static/play-button.svg"
+                    alt="Mock"
+                  />
                 </div>
-              </b-col> -->
+              </b-col>
             </b-row>
           </b-container>
         </b-card>
@@ -301,6 +316,25 @@ export default {
       } else if (this.pastInterviews[this.id].report_data.consider_for_job === 'no') {
         return 'does not consider'
       }
+    },
+    downloud_report () {
+      const payload = {}
+      payload.slug = this.pastInterviews[this.id].slug
+      payload.pk = this.pastInterviews[this.id].pk
+      this.$axios.post('/report-details/', payload).then((response) => {
+        this.$toast.success('Success', {
+          action: {
+            text: 'Close',
+            onClick: (e, toastObject) => {
+              toastObject.goAway(0)
+            }
+          }
+        })
+      }).catch((errorResponse) => {
+        this.$toast.error(
+          errorResponse.response.data.message || 'Please try again later'
+        )
+      })
     }
     // fetch_interview () {
     //   this.$axios.get('/past-interview').then((response) => {

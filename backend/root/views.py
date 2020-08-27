@@ -508,7 +508,6 @@ class PastInterviewListView(ListAPIView):
         past_interview = []
         mock_interview_obj = self.queryset.filter(candidate__user=self.request.user)
         custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user)
-        # blank state feedback for custom interview as feeback
         report_data = {"strength": "", "limitations": "", "technical_skill": [],
                        "consider_for_job": "", "presentation_skill": [],
                        "communicational_skill": [], "understanding_of_role": []
@@ -524,7 +523,7 @@ class PastInterviewListView(ListAPIView):
                                    "time_slot": time_slot,
                                    "company": each_row.interviewer.company if each_row.interviewer else '',
                                    "interview_type": "Direct Booked Interview",
-                                   "report_data": report_data,
+                                   "report_data": each_row.feedback if each_row.feedback else report_data,
                                    "pk": each_row.id,
                                    "slug": each_row.slug
                                    })
@@ -583,10 +582,8 @@ class ReportDetailView(APIView):
             "feedback": interview_obj.feedback if interview_obj.feedback else report_data
         }
         template_path = 'emailer/report.html'
-
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="Report.pdf"'
-
         html = render_to_string(template_path, {'report_data': context})
         pisaStatus = pisa.CreatePDF(html, dest=response)
 

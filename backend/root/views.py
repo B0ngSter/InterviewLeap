@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
@@ -549,8 +550,8 @@ class PastInterviewListView(ListAPIView):
 class ReportDetailView(APIView):
 
     def get_object(self, **kwargs):
-        mock_interview_obj = InterviewSlots.objects.get(id=self.kwargs['pk'], interview__slug=self.kwargs['slug'])
-        if mock_interview_obj is not None:
+        try:
+            mock_interview_obj = InterviewSlots.objects.get(id=self.kwargs['pk'], interview__slug=self.kwargs['slug'])
             profile_obj = InterviewerProfile.objects.filter(user=mock_interview_obj.interview.interviewer).first()
             if profile_obj:
                 company = profile_obj.company
@@ -558,11 +559,11 @@ class ReportDetailView(APIView):
                 company = ''
             interview_type = "Open Mock Interview"
             return mock_interview_obj, interview_type, company , mock_interview_obj.interview_start_time.date()
-        else:
+        except ObjectDoesNotExist:
             custom_interview_obj = BookInterview.objects.get(id=self.kwargs['pk'], slug=self.kwargs['slug'])
             interview_type = "Direct Booked Interview",
             company = custom_interview_obj.interviewer.company if custom_interview_obj else ''
-            date = custom_interview_obj.date() if custom_interview_obj else ''
+            date = custom_interview_obj.date if custom_interview_obj else ''
             return custom_interview_obj, interview_type, company, date
 
     def get(self, request, *args, **kwargs):

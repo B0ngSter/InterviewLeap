@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill, InterviewSlots
 from authentication.serializers import InterviewerRequestsListSerializer
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, FeedbackCreateViewSerializer, \
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer,\
     MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives

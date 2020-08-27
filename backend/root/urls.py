@@ -9,9 +9,9 @@ urlpatterns = [
     path('dashboard/', CandidateDashboardView.as_view()),
     path('interview-list/', InterviewListView.as_view()),
     path('past-interview/', PastInterviewListView.as_view()),
+    path('report-details/', ReportDetailView.as_view()),
     path('webhook/payment-response/', mojo_handler, name='custom_booking'),
     path('book-mock/<slug:slug>/', MockBookingView.as_view()),
     path('webhook/mock-interview/', mock_booking_webhook_handler),
     path('book-interview/<slug:slug>/update/', CustomBookInterviewUpdateView.as_view()),
-    path('report-details/<int:pk>/<slug:slug>/', ReportDetailView.as_view()),
 ]

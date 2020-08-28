@@ -26,7 +26,7 @@
             src="@/static/down-arrow.svg"
             alt="Mock"
           />
-          <a :href="report_pdf" target="_blank"><span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span></a>
+          <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span>
         </div>
       </b-col>
       <b-col cols="12" md="4" class="mt-2 pt-2">
@@ -323,7 +323,8 @@ export default {
       payload.slug = this.pastInterviews[this.id].slug
       payload.pk = this.pastInterviews[this.id].pk
       this.$axios.get(`/report-details/${this.pastInterviews[this.id].pk}/${this.pastInterviews[this.id].slug}/`).then((response) => {
-        this.report_pdf = response.data
+        // debugger
+        // this.report_pdf = response.data
       }).catch((errorResponse) => {
         this.$toast.error(
           errorResponse.response.data.message || 'Please try again later'

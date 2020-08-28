@@ -13,9 +13,15 @@
             type="search"
             class="bg-light"
             placeholder="Search by role"
+            @keypress="search_mock"
           />
-          <b-input-group-prepend is-text>
-            <b-icon icon="search" class="cursor-pointer" @click="search_mock" />
+          <!-- <datalist id="industry-options">
+            <option v-for="(searchResult, idx) in mocks" :key="idx">
+              {{ searchResult.job_title }}
+            </option>
+          </datalist> -->
+          <b-input-group-prepend is-text @click="resetMockListing">
+            <b-icon icon="search" class="cursor-pointer" />
           </b-input-group-prepend>
         </b-input-group>
       </b-col>
@@ -139,6 +145,16 @@ export default {
       this.$axios.get(`/interview-list?keyword=${this.searchString}`).then((response) => {
         this.mocks = response.data.search_list
       })
+    },
+    resetMockListing () {
+      this.$axios.get('/interview-list/').then((response) => {
+        this.mocks = response.data.mocks
+      })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
+        })
     }
   }
 }

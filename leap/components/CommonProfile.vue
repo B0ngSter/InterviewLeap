@@ -2,7 +2,14 @@
   <b-container class="py-5">
     <b-row align-v="start" align-content="start" class="flex-grow-1">
       <p class="ml-3 mb-5">
-        <span class="font-weight-bold">Dashboard</span> / <span class="text-secondary">Profile</span>
+        <b-breadcrumb class="bg-light pl-0">
+          <b-breadcrumb-item to="/dashboard">
+            Dashboard
+          </b-breadcrumb-item>
+          <b-breadcrumb-item active>
+            Profile
+          </b-breadcrumb-item>
+        </b-breadcrumb>
       </p>
       <b-col cols="12">
         <p v-if="!$store.getters.is_profile_completed && $store.getters.is_interviewer" class="float-right text-danger-dark">
@@ -106,7 +113,7 @@
                   </b-col>
                   <b-col cols="12" class="mt-4">
                     <div class="text-center">
-                      <b-button variant="primary" @click="current_tab=1">
+                      <b-button variant="primary" :disabled="!profile.mobile_number" @click="current_tab=1">
                         Next
                       </b-button>
                     </div>
@@ -311,8 +318,17 @@
                     </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
+                    <div v-if="existing_resume && !re_upload_resume">
+                      <a :href="existing_resume" target="_blank">Current Resume</a>
+                      <b-button class="ml-5" variant="primary" @click="re_upload_resume = true">
+                        Click to change
+                      </b-button>
+                    </div>
                     <b-form-file
+                      v-else
                       id="resume"
+                      v-model="profile.resume"
+                      style="width: 100%;"
                       placeholder="Your latest resume"
                       drop-placeholder="Drop resume here..."
                     />
@@ -402,7 +418,7 @@
                   </b-col>
                   <b-col class="mt-4" cols="12">
                     <div v-if="$store.getters.is_candidate" class="text-center">
-                      <b-button variant="primary" :disabled="profile.professional_status === ''" @click="save_profile">
+                      <b-button variant="primary" :disabled="profile.industry_candidate === '' && profile.professional_status === ''" @click="save_profile">
                         Save
                       </b-button>
                     </div>
@@ -515,6 +531,8 @@ export default {
       profile: {
         skills: [],
         first_name: null,
+        existing_resume: false,
+        re_upload_resume: false,
         last_name: null,
         email: '',
         exp_years: null,
@@ -626,7 +644,11 @@ export default {
         delete payload.job_title
       }
       const formData = new FormData()
-      formData.append('resume', document.getElementById('resume').files[0])
+      // if (!this.existing_resume) {
+      //   formData.append('resume', document.getElementById('resume').files[0])
+      // } else {
+      //   formData.append('resume', this.existing_resume)
+      // }
       Object.keys(payload).map((key) => {
         if (key === 'account_info') {
           formData.append(key, JSON.stringify(payload[key]))
@@ -678,6 +700,7 @@ export default {
         profileApiURL = '/auth/interviewer-profile/'
       }
       this.$axios.get(profileApiURL).then((response) => {
+        this.existing_resume = response.data.resume
         if (response.data.skills) {
           response.data.skills = response.data.skills.map((key) => {
             return key.title

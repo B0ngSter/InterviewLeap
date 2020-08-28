@@ -24,7 +24,20 @@
             </b-button>
           </div>
         </b-col>
-        <b-col v-for="(interviews, idx) in past_interviews" :key="idx" cols="12" class="mt-2">
+        <b-col v-if="past_interviews.length === 0" cols="12" md="12" class="pb-5 mb-5">
+          <div class="text-center">
+            <b-img
+              class="cursor-pointer mt-5"
+              src="@/static/kio.svg"
+              alt="Mock"
+              height="308"
+            />
+            <p class="font-weight-bold mt-5">
+              No past interviews found
+            </p>
+          </div>
+        </b-col>
+        <b-col v-for="(interviews, idx) in past_interviews" :key="idx" cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row>

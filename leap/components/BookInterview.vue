@@ -346,4 +346,10 @@ export default {
 </script>
 
 <style>
+.b-form-btn-label-control.form-control > .btn {
+  padding: 1.4rem;
+}
+.b-form-btn-label-control.form-control > label {
+  padding-right: 6rem;
+}
 </style>

@@ -60,7 +60,7 @@ export default {
             route: '/book-interview'
           }, {
             title: 'Past Interviews',
-            route: 'past-interview'
+            route: '/past-interview'
           }, {
             title: 'Profile',
             route: '/profile'

@@ -4,7 +4,7 @@
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -72,7 +72,7 @@
                       placeholder="Core Skills"
                       list="skill-options"
                       :disabled="skills_filled"
-                      @change="fetchSkills"
+                      @keypress="fetchSkills"
                     />
                     <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">

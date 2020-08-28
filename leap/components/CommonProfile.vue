@@ -335,13 +335,37 @@
                     </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12">
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.industry_candidate.$model"
+                        class="bg-white"
+                        required
+                        :state="validateState('industry_candidate')"
+                        aria-describedby="input-1-live-feedback"
+                        list="industry-options"
+                        placeholder="Industry"
+                        autocomplete="off"
+                      />
+                      <datalist id="industry-options">
+                        <option v-for="(industry, idx) in industry_choices" :key="idx">
+                          {{ industry }}
+                        </option>
+                      </datalist>
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
+                      </b-form-invalid-feedback>
+                    </b-form-group>
+                  </b-col>
+                  <b-col class="mt-4" cols="12">
                     <b-input-group>
                       <b-form-input
                         v-model="skill_search_query"
                         placeholder="Core Skills"
                         list="skill-options"
                         :disabled="skills_filled"
-                        @change="fetchSkills"
+                        @keypress="fetchSkills"
                       />
                       <datalist id="skill-options">
                         <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -499,6 +523,7 @@ export default {
         mobile_number: null,
         education: null,
         year_of_passing: null,
+        industry_candidate: null,
         job_title: null,
         company: null,
         account_info: {
@@ -543,6 +568,7 @@ export default {
       college: { required },
       exp_years: { required },
       industry: { required },
+      industry_candidate: { required },
       designation: { required },
       mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
       education: { required },

@@ -1,8 +1,9 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView, get_object_or_404, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -499,3 +500,92 @@ class InterviewListView(ListAPIView):
 
         response = {"mocks": mock_list, "upcoming_interviews": booking_list, "search_list": search_list}
         return Response(response, status=status.HTTP_200_OK)
+
+
+class PastInterviewListView(ListAPIView):
+    queryset = InterviewSlots.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        past_interview = []
+        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user)
+        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user)
+        report_data = {"strength": "", "limitations": "", "technical_skill": [],
+                       "consider_for_job": "", "presentation_skill": [],
+                       "communicational_skill": [], "understanding_of_role": []
+                        }
+        for each_row in custom_interview_obj:
+            if each_row.interview_start_time is not None:
+                start_time = each_row.interview_start_time.time().strftime("%I %p")
+                end_time = each_row.interview_end_time.time().strftime("%I %p")
+                time_slot = start_time + " - " + end_time
+            else:
+                time_slot = ''
+            past_interview.append({"date": each_row.date,
+                                   "time_slot": time_slot,
+                                   "company": each_row.interviewer.company if each_row.interviewer else '',
+                                   "interview_type": "Direct Booked Interview",
+                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "pk": each_row.id,
+                                   "slug": each_row.slug
+                                   })
+        for each_row in mock_interview_obj:
+            if each_row.interview_start_time is not None:
+                start_time = each_row.interview_start_time.time().strftime("%I %p")
+                end_time = each_row.interview_end_time.time().strftime("%I %p")
+                time_slot = start_time +" - " + end_time
+            else:
+                time_slot = ''
+            profile_obj = InterviewerProfile.objects.filter(user=each_row.interview.interviewer).first()
+            past_interview.append({"date": each_row.interview_start_time.date(),
+                                   "time_slot": time_slot,
+                                   "company": profile_obj.company if profile_obj else '',
+                                   "interview_type": "Open Mock Interview",
+                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "pk": each_row.id,
+                                   "slug": each_row.interview.slug
+                                   })
+        return Response({"past_interviews": past_interview}, status=status.HTTP_200_OK)
+
+
+class ReportDetailView(APIView):
+
+    def get_object(self, **kwargs):
+        try:
+            mock_interview_obj = InterviewSlots.objects.get(id=self.kwargs['pk'], interview__slug=self.kwargs['slug'])
+            profile_obj = InterviewerProfile.objects.filter(user=mock_interview_obj.interview.interviewer).first()
+            if profile_obj:
+                company = profile_obj.company
+            else:
+                company = ''
+            interview_type = "Open Mock Interview"
+            return mock_interview_obj, interview_type, company , mock_interview_obj.interview_start_time.date()
+        except ObjectDoesNotExist:
+            custom_interview_obj = BookInterview.objects.get(id=self.kwargs['pk'], slug=self.kwargs['slug'])
+            interview_type = "Direct Booked Interview",
+            company = custom_interview_obj.interviewer.company if custom_interview_obj else ''
+            date = custom_interview_obj.date if custom_interview_obj else ''
+            return custom_interview_obj, interview_type, company, date
+
+    def get(self, request, *args, **kwargs):
+        interview_obj, interview_type, company, date = self.get_object()
+        start_time = interview_obj.interview_start_time.time().strftime("%I %p")
+        end_time = interview_obj.interview_end_time.time().strftime("%I %p")
+        time_slot = start_time + " - " + end_time
+        report_data = {"strength": "", "limitations": "", "technical_skill": [],
+                       "consider_for_job": "", "presentation_skill": [],
+                       "communicational_skill": [], "understanding_of_role": []
+                       }
+        context = {
+            "date": date,
+            "interview_type": interview_type,
+            "time_slot": time_slot,
+            "company": company,
+            "feedback": interview_obj.feedback if interview_obj.feedback else report_data
+        }
+        template_path = 'emailer/report.html'
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="Report.pdf"'
+        html = render_to_string(template_path, {'report_data': context})
+        pisaStatus = pisa.CreatePDF(html, dest=response)
+
+        return response

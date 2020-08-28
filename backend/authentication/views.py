@@ -839,7 +839,7 @@ def basic_profile_details(request):
         payload = {'profile': {'first_name': request.user.first_name, 'last_name': request.user.last_name,
                                'role': request.user.role}}
         if request.user.profile_picture:
-            payload['profile_picture'] = request.user.profile_picture.url
+            payload['profile']['profile_picture'] = request.user.profile_picture.url
         return JsonResponse(payload, status=200)
     else:
         return JsonResponse({'profile': None, 'message': 'Login to continue'}, status=401)

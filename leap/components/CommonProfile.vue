@@ -171,6 +171,7 @@
                       <b-form-input
                         v-model="$v.profile.exp_years.$model"
                         class="bg-white"
+                        min="0"
                         required
                         type="number"
                         placeholder="Total Experience"
@@ -350,7 +351,7 @@
                       </b-form-invalid-feedback>
                     </b-form-group>
                   </b-col>
-                  <b-col class="mt-4" cols="12">
+                  <b-col v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate" class="mt-4" cols="12">
                     <b-form-group>
                       <b-form-input
                         v-model="$v.profile.industry_candidate.$model"
@@ -621,6 +622,10 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
+      this.$v.profile.$touch()
+      if (this.$v.profile.$anyError) {
+        return
+      }
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       if (payload.company == null && payload.college !== null) {

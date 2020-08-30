@@ -23,7 +23,7 @@
             Interview for right match and  complete evaluation !
           </div>
         </b-col>
-        <b-col cols="12" class="mt-2">
+        <b-col cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row>
@@ -64,19 +64,10 @@
             </b-container>
           </b-card>
         </b-col>
-        <b-col cols="12" md="8" class="mt-5">
+        <b-col cols="12" md="12" class="mt-5">
           <h4 class="font-weight-bold">
             Select time Slot :
           </h4>
-        </b-col>
-        <b-col cols="12" md="4" class="mt-5">
-          <span>
-            <b-img
-              src="@/static/question.svg"
-              alt="Question"
-            />
-          </span>
-          <span>Select 3 suitable time slots for interview.</span>
         </b-col>
         <b-col
           v-for="(timeslot, idy) in time_slots"

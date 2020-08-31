@@ -4,7 +4,7 @@
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item to="/dashboard">
+            <b-breadcrumb-item>
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -27,7 +27,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.user_info.job_title.$model"
+                      v-model="$v.userInfo.job_title.$model"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       name="example-input-1"
                       placeholder="Job Title"
@@ -44,7 +44,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.interviewInfo.exp_years.$model"
+                      v-model="$v.userInfo.exp_years.$model"
                       min="0"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       placeholder="Experience Required (Optional)"
@@ -71,11 +71,11 @@
                     <b-form-input
                       v-model="skill_search_query"
                       placeholder="Core Skills"
-                      list="skill-options"
+                      list="Skill-options"
                       :disabled="skills_filled"
-                      @keypress="fetchSkills"
+                      @change="skillApi"
                     />
-                    <datalist id="skill-options">
+                    <datalist id="Skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                         {{ Skill }}
                       </option>
@@ -85,11 +85,11 @@
                     </b-button>
                   </b-input-group>
                   <p class="mt-2 text-muted font-weight-normal">
-                    {{ interviewInfo.skills.length }}/5 skills selected
+                    {{ userInfo.skills.length }}/5 skills selected
                   </p>
                   <h4>
                     <b-badge
-                      v-for="(skill, id_s) in interviewInfo.skills"
+                      v-for="(skill, id_s) in userInfo.skills"
                       :key="id_s"
                       size="lg"
                       variant="light"
@@ -117,7 +117,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5 pl-4">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.interviewInfo.description.$model"
+                      v-model="$v.userInfo.description.$model"
                       class="bg-white"
                       required
                       placeholder="Brief description"
@@ -135,7 +135,7 @@
                   <b-form-group>
                     <b-input
                       id="timeZones"
-                      v-model="$v.interviewInfo.timezone.$model"
+                      v-model="$v.userInfo.timezone.$model"
                       required
                       list="timeZones-options"
                       class="mb-2 mb-sm-0 ml-md-4 mr-md-3"
@@ -180,8 +180,8 @@
             pill
             :class="{
               'bg-primary': date === selected_date,
-              'text-dark': date === selected_date ? false : true,
-              'bg-white': date === selected_date ? false : true
+              'text-dark': date !== selected_date,
+              'bg-white': date !== selected_date
             }"
             class="p-4 cursor-pointer"
             @click="select_date(date)"
@@ -191,8 +191,8 @@
           <h4
             class="p-4"
             :class="{
-              'text-dark': date === selected_date ? false : true,
-              'text-primary': date === selected_date ? true : false
+              'text-dark': date !== selected_date,
+              'text-primary': date == selected_date
             }"
           >
             {{ currentDate(idx) }}
@@ -244,13 +244,13 @@ export default {
       selected_date: null,
       date_row: {},
       job_exp: '',
-      interviewInfo: {
+      userInfo: {
         skills: [],
         job_title: null,
         exp_years: null,
         description: null,
         timezone: null,
-        slug: null
+        slug: 'sasade'
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       fetchedSkill: [],
@@ -259,7 +259,7 @@ export default {
   },
   computed: {
     skills_filled () {
-      return this.interviewInfo.skills.length >= 5
+      return this.userInfo.skills.length >= 5
     }
   },
   mounted () {
@@ -269,7 +269,7 @@ export default {
     // this.fetch_timeSlots()
   },
   validations: {
-    interviewInfo: {
+    userInfo: {
       job_title: { required },
       exp_years: { required },
       description: { required },
@@ -278,7 +278,7 @@ export default {
   },
   methods: {
     validateState (name) {
-      const { $dirty, $error } = this.$v.interviewInfo[name]
+      const { $dirty, $error } = this.$v.userInfo[name]
       return $dirty ? !$error : null
     },
     // fetch_timeSlots () {
@@ -291,7 +291,7 @@ export default {
     //   this.$axios.get('/auth/create-interview/')
     //     .then((response) => {
     //       if (response.data.includes('pk')) {
-    //         this.interviewInfo = this.response.data
+    //         this.userInfo = this.response.data
     //       }
     //     })
     //     .catch((errorResponse) => {
@@ -365,7 +365,7 @@ export default {
     },
     submit () {
       let payload = {}
-      payload = { ...this.interviewInfo }
+      payload = { ...this.userInfo }
       payload.skills = payload.skills.toString()
       payload.interview_time = { ...this.date_row }
       Object.keys(payload.interview_time).map((key) => {
@@ -375,7 +375,7 @@ export default {
       })
       this.$axios.post('/auth/create-interview/', payload)
         .then((response) => {
-          this.$toast.success('Interview created!', {
+          this.$toast.success('Your profile changes were saved', {
             action: {
               text: 'Close',
               onClick: (e, toastObject) => {
@@ -386,22 +386,22 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Error creating the Interview. Please try again later'
+            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
           )
         })
     },
     removeTag (skillIndex) {
-      this.interviewInfo.skills.splice(skillIndex, 1)
+      this.userInfo.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.interviewInfo.skills.includes(this.skill_search_query)) {
-        this.interviewInfo.skills.push(this.skill_search_query)
+      if (!this.userInfo.skills.includes(this.skill_search_query)) {
+        this.userInfo.skills.push(this.skill_search_query)
       } else if (this.skill_search_query.length === 0) {
         return
       }
       this.skill_search_query = ''
     },
-    fetchSkills () {
+    skillApi () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {
@@ -449,6 +449,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

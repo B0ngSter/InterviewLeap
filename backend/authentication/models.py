@@ -3,6 +3,7 @@ from django.contrib.auth.models import BaseUserManager, PermissionsMixin, Abstra
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import ArrayField, JSONField
 
@@ -126,7 +127,7 @@ class InterviewerProfile(models.Model):
     resume = models.FileField(upload_to=settings.RESUME_STORE, null=False, blank=False, storage=PrivateMediaStorage())
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     skills = models.ManyToManyField(to=Skill)
-    account_info = JSONField()
+    account_info = JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -135,6 +136,7 @@ class InterviewerProfile(models.Model):
 
 
 class Interview(models.Model):
+    slug = models.SlugField(max_length=250, null=True, blank=True)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=256, null=True, blank=True)
     description = models.TextField()
@@ -149,12 +151,20 @@ class Interview(models.Model):
     def __str__(self):
         return self.job_title
 
+    def save(self, *args, **kwargs):
+        super(Interview, self).save(*args, **kwargs)
+        if not self.slug:
+            slug_value = "{} {}".format(self.job_title, self.id)
+            self.slug = slugify(slug_value)
+            self.save()
+
 
 class InterviewSlots(models.Model):
     interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
     interview_start_time = models.DateTimeField()
     interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
+    feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

@@ -208,15 +208,15 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interview
-        fields = ['pk', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'quoted_price', 'skills']
+        fields = ['slug', 'interviewer', 'job_title', 'description', 'exp_years', 'timezone', 'quoted_price', 'skills']
 
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        if 'pk' in validated_data:
+        try:
             interview_obj, created = Interview.objects.get(interviewer=self.context['request'].user,
-                                                           pk=validated_data['pk'])
-        else:
+                                                           slug=validated_data['slug'])
+        except ObjectDoesNotExist:
             interview_obj = Interview.objects.create(interviewer=self.context['request'].user)
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)
@@ -243,7 +243,86 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
 
 
 class InterviewerRequestsListSerializer(serializers.ModelSerializer):
+    is_feedback = serializers.SerializerMethodField()
+    candidate_email = serializers.SerializerMethodField()
+
+    def get_is_feedback(self, obj):
+        if obj.feedback:
+            return True
+        return False
+
+    def get_candidate_email(self, obj):
+        return obj.candidate.email
 
     class Meta:
         model = BookInterview
-        fields = '__all__'
+        fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate_email', 'is_feedback']
+
+
+class CustomInterviewSerializer(serializers.ModelSerializer):
+    candidate_email = serializers.SerializerMethodField()
+    mock_interview = serializers.SerializerMethodField()
+
+    def get_candidate_email(self, obj):
+        return obj.candidate.email
+
+    def get_mock_interview(self, obj):
+        return True
+
+    class Meta:
+        model = BookInterview
+        fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
+                  'candidate_email', 'mock_interview', 'meet_link']
+
+
+class MockInterviewSerializer(serializers.ModelSerializer):
+    slug = serializers.SerializerMethodField()
+    applied_designation = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+    interview_start_time = serializers.SerializerMethodField()
+    interview_end_time = serializers.SerializerMethodField()
+    candidate_email = serializers.SerializerMethodField()
+    custom_interview = serializers.SerializerMethodField()
+
+    def get_slug(self, obj):
+        return obj.interview.slug
+
+    def get_applied_designation(self, obj):
+        return obj.interview.job_title
+
+    def get_date(self, obj):
+        return obj.interview_start_time.date()
+
+    def get_interview_start_time(self, obj):
+        return obj.interview_start_time.time()
+
+    def get_interview_end_time(self, obj):
+        return obj.interview_end_time.time()
+
+    def get_candidate_email(self, obj):
+        if obj.candidate:
+            return obj.candidate.user.email
+
+    def get_custom_interview(self, obj):
+        return True
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
+                  'candidate_email', 'custom_interview']
+
+
+class PastInterviewSerializer(serializers.ModelSerializer):
+    candidate_email = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    def get_candidate_email(self, obj):
+        if obj.candidate:
+            return obj.candidate.user.email
+
+    def get_role(self, obj):
+        return obj.interview.job_title
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role']

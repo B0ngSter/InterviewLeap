@@ -45,6 +45,7 @@
                   <b-form-group>
                     <b-form-input
                       v-model="$v.userInfo.exp_years.$model"
+                      min="0"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       placeholder="Experience Required (Optional)"
                       :state="validateState('exp_years')"
@@ -249,7 +250,7 @@ export default {
         exp_years: null,
         description: null,
         timezone: null,
-        pk: null
+        slug: 'sasade'
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       fetchedSkill: [],
@@ -264,7 +265,7 @@ export default {
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
-    this.updateInterview()
+    // this.updateInterview()
     // this.fetch_timeSlots()
   },
   validations: {
@@ -286,19 +287,19 @@ export default {
     //       this.time_slots = response.data.time_slot
     //     })
     // },
-    updateInterview () {
-      this.$axios.get('/auth/create-interview/')
-        .then((response) => {
-          if (response.data.includes('pk')) {
-            this.userInfo = this.response.data
-          }
-        })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Something went wrong'
-          )
-        })
-    },
+    // updateInterview () {
+    //   this.$axios.get('/auth/create-interview/')
+    //     .then((response) => {
+    //       if (response.data.includes('pk')) {
+    //         this.userInfo = this.response.data
+    //       }
+    //     })
+    //     .catch((errorResponse) => {
+    //       this.$toast.error(
+    //         errorResponse.response.data.message || 'Something went wrong'
+    //       )
+    //     })
+    // },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {

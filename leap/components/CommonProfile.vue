@@ -2,7 +2,14 @@
   <b-container class="py-5">
     <b-row align-v="start" align-content="start" class="flex-grow-1">
       <p class="ml-3 mb-5">
-        <span class="font-weight-bold">Dashboard</span> / <span class="text-secondary">Profile</span>
+        <b-breadcrumb class="bg-light pl-0">
+          <b-breadcrumb-item to="/dashboard">
+            Dashboard
+          </b-breadcrumb-item>
+          <b-breadcrumb-item active>
+            Profile
+          </b-breadcrumb-item>
+        </b-breadcrumb>
       </p>
       <b-col cols="12">
         <p v-if="!$store.getters.is_profile_completed && $store.getters.is_interviewer" class="float-right text-danger-dark">
@@ -89,12 +96,12 @@
                   >
                     <b-form-group>
                       <b-form-input
-                        v-model="$v.profile.phone_number.$model"
+                        v-model="$v.profile.mobile_number.$model"
                         class="bg-white"
                         required
                         type="number"
                         placeholder="Mobile Number"
-                        :state="validateState('phone_number')"
+                        :state="validateState('mobile_number')"
                         aria-describedby="input-1-live-feedback"
                       />
                       <b-form-invalid-feedback
@@ -106,7 +113,7 @@
                   </b-col>
                   <b-col cols="12" class="mt-4">
                     <div class="text-center">
-                      <b-button variant="primary" @click="current_tab=1">
+                      <b-button variant="primary" :disabled="!profile.mobile_number" @click="current_tab=1">
                         Next
                       </b-button>
                     </div>
@@ -164,6 +171,7 @@
                       <b-form-input
                         v-model="$v.profile.exp_years.$model"
                         class="bg-white"
+                        min="0"
                         required
                         type="number"
                         placeholder="Total Experience"
@@ -273,12 +281,12 @@
                   >
                     <b-form-group>
                       <b-form-input
-                        v-model="$v.profile.years_of_passing.$model"
+                        v-model="$v.profile.year_of_passing.$model"
                         class="bg-white"
                         required
                         type="number"
                         placeholder="Year of passing"
-                        :state="validateState('years_of_passing')"
+                        :state="validateState('year_of_passing')"
                         aria-describedby="input-1-live-feedback"
                       />
                       <b-form-invalid-feedback
@@ -311,8 +319,16 @@
                     </b-form-group>
                   </b-col>
                   <b-col class="mt-4" cols="12" md="6">
+                    <div v-if="existing_resume && !re_upload_resume">
+                      <a :href="existing_resume" target="_blank">Current Resume</a>
+                      <b-button class="ml-5" variant="primary" @click="re_upload_resume = true">
+                        Click to change
+                      </b-button>
+                    </div>
                     <b-form-file
+                      v-else
                       id="resume"
+                      style="width: 100%;"
                       placeholder="Your latest resume"
                       drop-placeholder="Drop resume here..."
                     />
@@ -334,16 +350,40 @@
                       </b-form-invalid-feedback>
                     </b-form-group>
                   </b-col>
+                  <b-col v-if="profile.professional_status === 'Fresher' && $store.getters.is_candidate" class="mt-4" cols="12">
+                    <b-form-group>
+                      <b-form-input
+                        v-model="$v.profile.industry.$model"
+                        class="bg-white"
+                        required
+                        :state="validateState('industry')"
+                        aria-describedby="input-1-live-feedback"
+                        list="industry-options"
+                        placeholder="Industry"
+                        autocomplete="off"
+                      />
+                      <datalist id="industry-options">
+                        <option v-for="(industry, idx) in industry_choices" :key="idx">
+                          {{ industry }}
+                        </option>
+                      </datalist>
+                      <b-form-invalid-feedback
+                        id="input-1-live-feedback"
+                      >
+                        This is a required field.
+                      </b-form-invalid-feedback>
+                    </b-form-group>
+                  </b-col>
                   <b-col class="mt-4" cols="12">
                     <b-input-group>
                       <b-form-input
                         v-model="skill_search_query"
                         placeholder="Core Skills"
-                        list="Skill-options"
+                        list="skill-options"
                         :disabled="skills_filled"
-                        @change="skillApi"
+                        @keypress="fetchSkills"
                       />
-                      <datalist id="Skill-options">
+                      <datalist id="skill-options">
                         <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                           {{ Skill }}
                         </option>
@@ -491,14 +531,16 @@ export default {
       profile: {
         skills: [],
         first_name: null,
+        existing_resume: false,
+        re_upload_resume: false,
         last_name: null,
         email: '',
         exp_years: null,
         industry: null,
         designation: null,
-        phone_number: null,
+        mobile_number: null,
         education: null,
-        years_of_passing: null,
+        year_of_passing: null,
         job_title: null,
         company: null,
         account_info: {
@@ -544,10 +586,10 @@ export default {
       exp_years: { required },
       industry: { required },
       designation: { required },
-      phone_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
+      mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
       education: { required },
       company: { required },
-      years_of_passing: { required },
+      year_of_passing: { required },
       job_title: { required },
       linkedin: { required, url },
       account_info: {
@@ -577,32 +619,36 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
+      // this.$v.profile.$touch()
+      // if (this.$v.profile.$anyError) {
+      //   return
+      // }
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
-      if (payload.company == null && payload.college !== null) {
-        delete payload.company
-        delete payload.designation
-        delete payload.exp_years
-        delete payload.industry
-        delete payload.account_info
-      }
-      if (payload.college == null && payload.company !== null) {
-        delete payload.college
-        delete payload.years_of_passing
-        delete payload.education
-        delete payload.job_title
-        delete payload.account_info
-      }
-      if (payload.college == null && payload.company == null) {
-        delete payload.college
-        delete payload.years_of_passing
-        delete payload.education
-        delete payload.job_title
-        delete payload.company
-        delete payload.designation
-        delete payload.exp_years
-        delete payload.industry
-      }
+      // if (payload.company == null && payload.college !== null) {
+      //   delete payload.company
+      //   delete payload.designation
+      //   delete payload.exp_years
+      //   delete payload.industry
+      //   delete payload.account_info
+      // }
+      // if (payload.college == null && payload.company !== null) {
+      //   delete payload.college
+      //   delete payload.year_of_passing
+      //   delete payload.education
+      //   delete payload.job_title
+      //   delete payload.account_info
+      // }
+      // if (payload.college == null && payload.company == null) {
+      //   delete payload.college
+      //   delete payload.year_of_passing
+      //   delete payload.education
+      //   delete payload.job_title
+      //   delete payload.company
+      //   delete payload.designation
+      //   delete payload.exp_years
+      //   delete payload.industry
+      // }
       const formData = new FormData()
       formData.append('resume', document.getElementById('resume').files[0])
       Object.keys(payload).map((key) => {
@@ -621,7 +667,6 @@ export default {
       this.$axios.post(profileApiURL, formData
       ).then((response) => {
         if (response.status === 200) {
-          this.$store.getters.is_profile_completed = true
           this.$toast.success('Your profile changes were saved', {
             action: {
               text: 'Close',
@@ -657,6 +702,7 @@ export default {
         profileApiURL = '/auth/interviewer-profile/'
       }
       this.$axios.get(profileApiURL).then((response) => {
+        this.existing_resume = response.data.resume
         if (response.data.skills) {
           response.data.skills = response.data.skills.map((key) => {
             return key.title
@@ -672,22 +718,22 @@ export default {
             bank: null
           }
         }
-        if (response.data.phone_number == null) {
-          response.data.college = null
-          response.data.exp_years = null
-          response.data.industry = null
-          response.data.designation = null
-          response.data.phone_number = null
-          response.data.education = null
-          response.data.company = null
-          response.data.years_of_passing = null
-          response.data.job_title = null
-          response.data.linkedin = null
-        }
+        // if (response.data.mobile_number == null) {
+        //   response.data.college = null
+        //   response.data.exp_years = null
+        //   response.data.industry = null
+        //   response.data.designation = null
+        //   response.data.mobile_number = null
+        //   response.data.education = null
+        //   response.data.company = null
+        //   response.data.year_of_passing = null
+        //   response.data.job_title = null
+        //   response.data.linkedin = null
+        // }
         this.profile = response.data
       })
     },
-    skillApi () {
+    fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {

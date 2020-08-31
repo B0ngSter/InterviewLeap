@@ -17,9 +17,9 @@ urlpatterns = [
     path('password-reset/confirm/', ResetPasswordConfirm.as_view(), name='reset-password-confirm'),
     path('candidate-profile/', CandidateProfileCreateListView.as_view()),
     path('interviewer-profile/', InterviewerProfileCreateListView.as_view()),
-    path('interview-requests/', InterviewerRequestsListView.as_view()),
     path('create-interview/', InterviewCreateView.as_view()),
-    path('interviewer/<int:pk>/<str:action>/', InterviewAcceptDeclineView.as_view()),
+    path('interview-requests/', InterviewerRequestsListView.as_view()),
+    path('interview/<str:slug>/<str:action>/', InterviewAcceptDeclineView.as_view()),
     path('verify-user/<str:token>', VerifyUserView.as_view()),
     # path('candidate-profile/<int:pk>/', CandidateProfileDetailView.as_view()),
     # path('interviewer-profile/<int:pk>/', InterviewerProfileDetailView.as_view())

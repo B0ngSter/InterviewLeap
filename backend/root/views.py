@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView
@@ -6,14 +7,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pytz
-from authentication.models import Skill
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer
+from authentication.models import Skill, InterviewSlots
+from authentication.serializers import InterviewerRequestsListSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer,\
+    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer, BookInterviewCreateSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from root.serializers import BookInterviewCreateSerializer, PaymentSerializer
 import requests
 from instamojo_wrapper import Instamojo
 from .models import PaymentDetails, BookInterview
@@ -22,9 +24,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 import hmac
 from hashlib import sha1
+from django.utils import timezone
+from datetime import datetime
+
 # import xhtml2pdf.pisa as pisa
 
-api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN, endpoint='https://test.instamojo.com/api/1.1/')
+api = Instamojo(api_key=settings.PAYMENT_API_KEY, auth_token=settings.PAYMENT_AUTH_TOKEN,
+                endpoint='https://test.instamojo.com/api/1.1/')
 
 
 class BookInterviewView(CreateAPIView):
@@ -52,18 +58,18 @@ class BookInterviewView(CreateAPIView):
     def get(self, request, *args, **kwargs):
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
-        total_amount = payment_amount + (payment_amount*tax)/100
+        total_amount = payment_amount + (payment_amount * tax) / 100
         response = {
-                    "timezone_list": pytz.all_timezones,
-                    "amount": settings.CUSTOM_PAYMENT_AMOUNT,
-                    "tax": int(round(payment_amount*tax)/100),
-                    "total_amount": round(total_amount)
-                    }
+            "timezone_list": pytz.all_timezones,
+            "amount": settings.CUSTOM_PAYMENT_AMOUNT,
+            "tax": int(round(payment_amount * tax) / 100),
+            "total_amount": round(total_amount)
+        }
 
         return Response(response, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        interview_dict = request.data.dict()
+        interview_dict = request.data
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         tax_amount = (payment_amount * tax) / 100
@@ -89,7 +95,8 @@ class BookInterviewView(CreateAPIView):
         if 'skills' in interview_dict:
             interview_dict['skills'] = [{'title': skill} for skill in interview_dict['skills'].split(",")]
         interview_dict['time_slots'] = interview_dict['time_slots'].split(',')
-        interview_dict['payment_detail'] = PaymentDetails.objects.get(payment_request_id=response['payment_request']['id']).id
+        interview_dict['payment_detail'] = PaymentDetails.objects.get(
+            payment_request_id=response['payment_request']['id']).id
         serializer = self.get_serializer(data=interview_dict)
         long_url = response['payment_request']['longurl']
 
@@ -154,7 +161,7 @@ def send_mail_on_subscription(request, email, full_name, amount, invoice_number,
         print("mail sent***")
 
     except BadHeaderError:
-        return Response({"message":'Invalid header found.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": 'Invalid header found.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @require_POST
@@ -171,7 +178,8 @@ def mojo_handler(request):
             payment_obj = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
             payment_obj.__dict__.update(**data)
             payment_obj.save()
-            book_interview = BookInterview.objects.filter(payment_detail__payment_request_id=data['payment_request_id']).first()
+            book_interview = BookInterview.objects.filter(
+                payment_detail__payment_request_id=data['payment_request_id']).first()
             book_interview.is_payment_done = True
             book_interview.save(update_fields=['is_payment_done'])
 
@@ -185,21 +193,66 @@ def mojo_handler(request):
         return HttpResponse(400)
 
 
-class CandidateDashboardView(ListAPIView):
+class CandidateInterviewerDashboardView(ListAPIView):
+    """
+               Retrieve -- Retrieve dashboard detaisl based on the role.
+               For Interviewer:
+               Actions -- GET method
+               Response Status -- 200 Ok
+               Response sample dict -- {
+                        "new_interview_requests": 1,
+                        "interview_created": 1,
+                        "interview_taken": 1,
+                        "total_earnings": 1,
+                        "interview_requests": {
+                        "applied_designation": null,
+                        "time_slots": [],
+                        "date": datetime,
+                        "candidate": FK,
+                        }
+            }
+            For Candidate:
+
+        """
     queryset = Interview.objects.all()
+    serializer_class = InterviewerRequestsListSerializer
     pagination_class = 10
 
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        mock_list = []
-        for data in queryset:
-            profile_obj = InterviewerProfile.objects.get(user=data.interviewer)
-            mock_list.append({"job_title": data.job_title,
-                              "company": profile_obj.company,
-                              "exp_years": profile_obj.exp_years,
-                              })
+        if request.user.role == 'Interviewer':
+            dashboard_details = {"new_interview_requests": 0,
+                                 "interview_requests": []}
+            interviews_created = InterviewSlots.objects.filter(interview__interviewer=request.user)
+            interviews_taken = interviews_created.filter(candidate__isnull=False,
+                                                         interview_end_time__lt=timezone.now())
+            try:
+                skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title',
+                                                                                                   flat=True)
+                if skills:
+                    for skill in skills:
+                        interview_requests = BookInterview.objects.filter(skills__title__icontains=skill,
+                                                                          date__gte=timezone.now())
+                    dashboard_details['new_interview_requests'] = interview_requests.count()
+                    interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
+                    dashboard_details['interview_requests'] = interview_requests_serialize
+            except ObjectDoesNotExist:
+                pass
+            dashboard_details['interview_created'] = interviews_created.count()
+            dashboard_details['interview_taken'] = interviews_taken.count()
+            dashboard_details['total_earnings'] = 0  # need to implement
 
-        return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
+            return Response(dashboard_details, status=status.HTTP_200_OK)
+        else:
+            queryset = self.get_queryset()
+            mock_list = []
+            for data in queryset:
+                profile_obj = InterviewerProfile.objects.get(user=data.interviewer)
+                mock_list.append({"job_title": data.job_title,
+                                  "company": profile_obj.company,
+                                  "exp_years": profile_obj.exp_years,
+                                  })
+
+            return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
 
 
 class SkillSearchView(ListAPIView):
@@ -218,3 +271,75 @@ class SkillSearchView(ListAPIView):
                 return Response({"message": "No skill with this key found!"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MockInterviewFeedbackView(CreateAPIView):
+    serializer_class = MockFeedbackCreateViewSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        """
+                   Detail -- Interviewer can provide feedback for interview which he/she participated.
+                   Actions -- Post method
+                   Response Status -- 200 Ok
+                   Request dict --
+                                    {"date":"2020-08-10",
+                                    "start_time":"13:00",
+                                    "end_time":"14:00",
+                                    "feedback":{"technical_skill":"Exceptional","communication_skill":"Exceptional",
+                                    "presentation_skill":"Exceptional","understanding_of_role":"Exceptional",
+                                    "text":"nice interview", "strength":"coding skills",
+                                    "limitations":"understanding the problem","consider_for_job":"yes"}}
+        """
+
+        interview_info = request.data
+        interview_info['start_time'] = date_time_naive_format(request.data['date'],
+                                                              request.data['start_time'])
+        interview_info['end_time'] = date_time_naive_format(request.data['date'], request.data['end_time'])
+        interview_slot = InterviewSlots.objects.get(interview__slug=kwargs['slug'],
+                                                    interview__interviewer=self.request.user,
+                                                    interview_start_time=interview_info['start_time'],
+                                                    interview_end_time=interview_info['end_time'])
+        serializer = self.get_serializer(interview_slot, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': "Thank you for your Feedback"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': "Some issue occurred while providing Feedback"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomInterviewFeedbackView(CreateAPIView):
+
+    serializer_class = CustomFeedbackCreateViewSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        """
+                   Detail -- Interviewer can provide feedback for interview which he/she taken.
+                   Actions -- Post method
+                   Response Status -- 200 Ok
+                   Request dict --{
+                                    "feedback":{"technical_skill":["Exceptional","good skill"],
+                                    "communication_skill":["Exceptional","good skill"],
+                                    "presentation_skill":["Exceptional","good skill"],
+                                    "understanding_of_role":["Exceptional","good skill"],
+                                    "text":"nice interview", "strength":"coding skills",
+                                    "limitations":"understanding the problem","consider_for_job":"yes"}}
+        """
+
+        interviewer = InterviewerProfile.objects.get(user=self.request.user)
+        interview_obj = BookInterview.objects.get(slug=kwargs['slug'], interviewer=interviewer)
+        serializer = self.get_serializer(interview_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': "Thank you for your Feedback"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': "Some issue occurred while providing Feedback"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+def date_time_naive_format(date, time):
+    date_time = date + ' ' + time
+    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    return naive

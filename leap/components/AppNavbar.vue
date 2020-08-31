@@ -66,7 +66,7 @@ export default {
             route: '/profile'
           }, {
             title: 'FAQs',
-            route: 'faqs'
+            route: '/faqs'
           }
         ]
       } else if (this.$store.getters.is_interviewer) {
@@ -85,7 +85,7 @@ export default {
             route: '/interview-request'
           }, {
             title: 'FAQs',
-            route: 'faqs'
+            route: '/faqs'
           }
         ]
       }

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.052" y1="1" x2="0.953" y2="0.052" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#ff6064"/>
+      <stop offset="1" stop-color="#ffb276"/>
+    </linearGradient>
+    <filter id="Rectangle_136" x="0" y="0" width="128" height="128" filterUnits="userSpaceOnUse">
+      <feOffset dy="6" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feFlood flood-opacity="0.078"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_497" data-name="Group 497" transform="translate(-237 -374)">
+    <g transform="matrix(1, 0, 0, 1, 237, 374)" filter="url(#Rectangle_136)">
+      <rect id="Rectangle_136-2" data-name="Rectangle 136" width="92" height="92" rx="10" transform="translate(18 12)" fill="url(#linear-gradient)"/>
+    </g>
+    <g id="deal" transform="translate(277 408)">
+      <g id="Group_197" data-name="Group 197" transform="translate(15.398)">
+        <g id="Group_196" data-name="Group 196">
+          <path id="Path_204" data-name="Path 204" d="M168.822.27a.921.921,0,1,0-1.3,1.3.921.921,0,0,0,1.572-.651A.927.927,0,0,0,168.822.27Z" transform="translate(-167.25)" fill="#fff"/>
+        </g>
+      </g>
+      <g id="Group_199" data-name="Group 199">
+        <g id="Group_198" data-name="Group 198">
+          <path id="Path_205" data-name="Path 205" d="M47.137,17.171a.918.918,0,0,0-.379-.7l-4.591-3.322V2.762A2.765,2.765,0,0,0,39.4,0H19.933a.921.921,0,1,0,0,1.841H39.4a.922.922,0,0,1,.921.921V20.839L29.087,30.015l-2.819-2.04a4.6,4.6,0,0,0-5.4,0l-2.819,2.04L6.813,20.839V2.762a.922.922,0,0,1,.921-.921h5.018a.921.921,0,1,0,0-1.841H7.734A2.765,2.765,0,0,0,4.972,2.762V13.149L.381,16.471h0A.918.918,0,0,0,0,17.217V42.535a4.609,4.609,0,0,0,4.6,4.6H42.535a4.609,4.609,0,0,0,4.6-4.6V17.217C47.139,17.2,47.138,17.185,47.137,17.171Zm-4.97-1.749,2.541,1.839-2.541,2.075Zm-37.2,0v3.914L2.43,17.261Zm-3.13,3.735L16.508,31.132,1.841,41.744ZM42.535,45.3H4.6a2.764,2.764,0,0,1-2.456-1.5l19.8-14.329a2.757,2.757,0,0,1,3.238,0L40.959,40.878h-9.2a.921.921,0,0,0,0,1.841H43.5L44.992,43.8A2.764,2.764,0,0,1,42.535,45.3ZM45.3,41.744,30.631,31.132,45.3,19.157Z" fill="#fff"/>
+        </g>
+      </g>
+      <g id="Group_201" data-name="Group 201" transform="translate(18.762 10.718)">
+        <g id="Group_200" data-name="Group 200">
+          <path id="Path_206" data-name="Path 206" d="M213.131,116.679a.921.921,0,0,0-1.3,0l-4.518,4.518-1.953-1.953a.921.921,0,0,0-1.3,1.3l2.6,2.6a.921.921,0,0,0,1.3,0l5.169-5.169A.921.921,0,0,0,213.131,116.679Z" transform="translate(-203.786 -116.409)" fill="#fff"/>
+        </g>
+      </g>
+      <g id="Group_203" data-name="Group 203" transform="translate(14.318 4.972)">
+        <g id="Group_202" data-name="Group 202">
+          <path id="Path_207" data-name="Path 207" d="M164.772,54a9.251,9.251,0,1,0,9.251,9.251A9.261,9.261,0,0,0,164.772,54Zm0,16.66a7.41,7.41,0,1,1,7.41-7.41A7.418,7.418,0,0,1,164.772,70.66Z" transform="translate(-155.521 -54)" fill="#fff"/>
+        </g>
+      </g>
+      <g id="Group_205" data-name="Group 205" transform="translate(26.669 40.878)">
+        <g id="Group_204" data-name="Group 204">
+          <path id="Path_208" data-name="Path 208" d="M291.242,444.27a.92.92,0,1,0,.27.651A.928.928,0,0,0,291.242,444.27Z" transform="translate(-289.67 -444)" fill="#fff"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

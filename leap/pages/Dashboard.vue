@@ -21,7 +21,7 @@
             height="308"
           />
           <p class="font-weight-bold">
-            No interview scheduled for now
+            No upcoming interviews
           </p>
         </div>
       </b-col>
@@ -114,7 +114,7 @@
                   {{ interviewer_insights.interview_taken }}
                 </h4>
                 <p class="text-left text-secondary">
-                  Total Interviews Taken
+                  Total Interviews Conducted
                 </p>
               </b-col>
             </b-row>
@@ -175,7 +175,7 @@
             alt="InterviewLeap logo"
           />
           <p class="font-weight-bold mt-5">
-            No interview requests now.
+            No pending interview requests.
           </p>
           <p class="text-secondary">
             No worries you can Create an Interview

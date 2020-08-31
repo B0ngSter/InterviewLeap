@@ -27,7 +27,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.userInfo.job_title.$model"
+                      v-model="$v.interviewInfo.job_title.$model"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       name="example-input-1"
                       placeholder="Job Title"
@@ -44,7 +44,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.userInfo.exp_years.$model"
+                      v-model="$v.interviewInfo.exp_years.$model"
                       min="0"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       placeholder="Experience Required (Optional)"
@@ -85,11 +85,11 @@
                     </b-button>
                   </b-input-group>
                   <p class="mt-2 text-muted font-weight-normal">
-                    {{ userInfo.skills.length }}/5 skills selected
+                    {{ interviewInfo.skills.length }}/5 skills selected
                   </p>
                   <h4>
                     <b-badge
-                      v-for="(skill, id_s) in userInfo.skills"
+                      v-for="(skill, id_s) in interviewInfo.skills"
                       :key="id_s"
                       size="lg"
                       variant="light"
@@ -117,7 +117,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5 pl-4">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.userInfo.description.$model"
+                      v-model="$v.interviewInfo.description.$model"
                       class="bg-white"
                       required
                       placeholder="Brief description"
@@ -135,7 +135,7 @@
                   <b-form-group>
                     <b-input
                       id="timeZones"
-                      v-model="$v.userInfo.timezone.$model"
+                      v-model="$v.interviewInfo.timezone.$model"
                       required
                       list="timeZones-options"
                       class="mb-2 mb-sm-0 ml-md-4 mr-md-3"
@@ -244,13 +244,13 @@ export default {
       selected_date: null,
       date_row: {},
       job_exp: '',
-      userInfo: {
+      interviewInfo: {
         skills: [],
         job_title: null,
         exp_years: null,
         description: null,
         timezone: null,
-        slug: 'sasade'
+        slug: null
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       fetchedSkill: [],
@@ -259,7 +259,7 @@ export default {
   },
   computed: {
     skills_filled () {
-      return this.userInfo.skills.length >= 5
+      return this.interviewInfo.skills.length >= 5
     }
   },
   mounted () {
@@ -269,7 +269,7 @@ export default {
     // this.fetch_timeSlots()
   },
   validations: {
-    userInfo: {
+    interviewInfo: {
       job_title: { required },
       exp_years: { required },
       description: { required },
@@ -278,7 +278,7 @@ export default {
   },
   methods: {
     validateState (name) {
-      const { $dirty, $error } = this.$v.userInfo[name]
+      const { $dirty, $error } = this.$v.interviewInfo[name]
       return $dirty ? !$error : null
     },
     // fetch_timeSlots () {
@@ -291,7 +291,7 @@ export default {
     //   this.$axios.get('/auth/create-interview/')
     //     .then((response) => {
     //       if (response.data.includes('pk')) {
-    //         this.userInfo = this.response.data
+    //         this.interviewInfo = this.response.data
     //       }
     //     })
     //     .catch((errorResponse) => {
@@ -365,7 +365,7 @@ export default {
     },
     submit () {
       let payload = {}
-      payload = { ...this.userInfo }
+      payload = { ...this.interviewInfo }
       payload.skills = payload.skills.toString()
       payload.interview_time = { ...this.date_row }
       Object.keys(payload.interview_time).map((key) => {
@@ -391,11 +391,11 @@ export default {
         })
     },
     removeTag (skillIndex) {
-      this.userInfo.skills.splice(skillIndex, 1)
+      this.interviewInfo.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.userInfo.skills.includes(this.skill_search_query)) {
-        this.userInfo.skills.push(this.skill_search_query)
+      if (!this.interviewInfo.skills.includes(this.skill_search_query)) {
+        this.interviewInfo.skills.push(this.skill_search_query)
       } else if (this.skill_search_query.length === 0) {
         return
       }

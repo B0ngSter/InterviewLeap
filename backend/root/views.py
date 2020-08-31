@@ -695,5 +695,5 @@ class CustomInterviewFeedbackView(CreateAPIView):
 
 def date_time_naive_format(date, time):
     date_time = date + ' ' + time
-    naive = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    naive = datetime.datetime.strptime(date_time, "%Y-%m-%d %H:%M")
     return naive

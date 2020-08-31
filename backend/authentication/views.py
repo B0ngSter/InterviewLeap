@@ -879,6 +879,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
                                                           is_declined=False)
         for skill in skills:
             interview_requests = interview_requests.filter(skills__title__icontains=skill)
+
         serializer = {}
         serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
         serializer['custom_feedback'] = CustomInterviewSerializer(custom_interviews_feedback, many=True).data
@@ -898,12 +899,14 @@ class InterviewerRequestsListView(ListCreateAPIView):
             mock_interviews_month = list(by_month(past_mock_interviews, 'interview_start_time'))
         else:
             mock_interviews_month = []
+
         past_interviews = {}
         for months, values in mock_interviews_month:
             past_interview_serializer = PastInterviewSerializer(values, many=True).data
-            past_interviews.update({months.strftime("%B"):past_interview_serializer})
+            past_interviews.update({months.strftime("%B"): past_interview_serializer})
         if not request.data.get('sort_by') == 'oldest':
             past_interviews = OrderedDict(reversed(list(past_interviews.items())))
+
         serializer['past_interviews'] = past_interviews
         return Response(serializer, status=status.HTTP_200_OK)
 

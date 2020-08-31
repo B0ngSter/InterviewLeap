@@ -13,8 +13,7 @@ DATABASE = {
 DEBUG = False
 ALLOWED_HOSTS = []
 
-FRONTEND_URL = "http://localhost:3000"
-
+FRONTEND_URL = 'http://staging.interviewleap.com'
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
@@ -33,3 +32,5 @@ AWS_DEFAULT_ACL = None
 PAYMENT_API_KEY = ''
 PAYMENT_AUTH_TOKEN = ''
 PAYMENT_SALT = ''
+
+INSTAMOJO_URL = 'https://www.instamojo.com/api/1.1/'

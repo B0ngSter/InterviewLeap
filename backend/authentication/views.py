@@ -102,7 +102,7 @@ class SignupView(CreateAPIView):
             frontend_url = settings.FRONTEND_URL
             send_by = settings.DEFAULT_FROM_EMAIL
 
-            verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+            verification_url = "{frontend_url}/verify?token={token}".format(frontend_url=frontend_url,
                                                                                  token=str(token))
             print(verification_url)
             context = {
@@ -256,7 +256,7 @@ class ResendEmailVerificationAPIView(APIView):
             frontend_url = settings.FRONTEND_URL
             send_by = settings.DEFAULT_FROM_EMAIL
 
-            verification_url = "{frontend_url}/auth/verify?token={token}".format(frontend_url=frontend_url,
+            verification_url = "{frontend_url}/verify?token={token}".format(frontend_url=frontend_url,
                                                                                  token=str(token))
             context = {
                 'name': first_name,
@@ -355,17 +355,17 @@ class GoogleView(APIView):
             else:
                 profile_picture = None
             try:
-                candidate_profile = CandidateProfile.objects.get(user=user.id).exists()
+                candidate_profile = CandidateProfile.objects.get(user=user.id)
                 if candidate_profile:
                     is_profile_completed = True
                 else:
                     is_profile_completed = False
-
             except ObjectDoesNotExist:
-                interviewer_profile = InterviewerProfile.objects.filter(user=user.id).exists()
-                if interviewer_profile:
-                    is_profile_completed = True
-                else:
+                try:
+                    interviewer_profile = InterviewerProfile.objects.get(user=user.id)
+                    if interviewer_profile:
+                        is_profile_completed = True
+                except ObjectDoesNotExist:
                     is_profile_completed = False
         except ObjectDoesNotExist:
             if not role:
@@ -952,7 +952,7 @@ def basic_profile_details(request):
         payload = {'profile': {'first_name': request.user.first_name, 'last_name': request.user.last_name,
                                'role': request.user.role}}
         if request.user.profile_picture:
-            payload['profile_picture'] = request.user.profile_picture.url
+            payload['profile']['profile_picture'] = request.user.profile_picture.url
         return JsonResponse(payload, status=200)
     else:
         return JsonResponse({'profile': None, 'message': 'Login to continue'}, status=401)

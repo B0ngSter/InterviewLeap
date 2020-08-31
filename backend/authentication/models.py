@@ -3,11 +3,12 @@ from django.contrib.auth.models import BaseUserManager, PermissionsMixin, Abstra
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import ArrayField, JSONField
-
+from django.utils.text import slugify
 from backend.storage_backends import PrivateMediaStorage
+import random
+import string
 
 phone_regex = RegexValidator(
     regex=r'^\+?1?\d{9,15}$',
@@ -69,7 +70,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     role = models.CharField(max_length=20, choices=(['Candidate', 'Candidate'], ['Interviewer', 'Interviewer']), null=True, blank=True)
-    profile_picture = models.FileField(upload_to=settings.PROFILE_PICTURE, null=True, blank=True)
+    profile_picture = models.FileField(upload_to=settings.PROFILE_PICTURE, null=True, blank=True, storage=PrivateMediaStorage())
     email_verified = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -164,6 +165,7 @@ class InterviewSlots(models.Model):
     interview_start_time = models.DateTimeField()
     interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
+    payment_detail = models.ForeignKey('root.PaymentDetails', null=True, blank=True, on_delete=models.DO_NOTHING)
     feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

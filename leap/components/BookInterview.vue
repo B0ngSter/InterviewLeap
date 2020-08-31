@@ -1,10 +1,10 @@
 <template>
   <div>
-    <b-container v-if="!payment" class="py-5">
+    <b-container v-if="!hide_payment_details" class="py-5">
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -33,17 +33,17 @@
                   </p>
                 </b-col>
                 <b-col cols="2">
-                  <b-form-radio v-model="candidateInfo.company_type" class="font-weight-bold" value="product" size="md">
+                  <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="product" size="md">
                     Product
                   </b-form-radio>
                 </b-col>
                 <b-col cols="2">
-                  <b-form-radio v-model="candidateInfo.company_type" class="font-weight-bold" value="service" size="md">
+                  <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="service" size="md">
                     Service
                   </b-form-radio>
                 </b-col>
                 <b-col cols="2">
-                  <b-form-radio v-model="candidateInfo.company_type" class="font-weight-bold" value="captive" size="md">
+                  <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="captive" size="md">
                     Captive
                   </b-form-radio>
                 </b-col>
@@ -59,12 +59,12 @@
                   <b-input-group>
                     <b-form-input
                       v-model="skill_search_query"
-                      list="Skill-options"
+                      list="skill-options"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
-                      @change="skillApi"
+                      @keypress="fetchSkills"
                     />
-                    <datalist id="Skill-options">
+                    <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                         {{ Skill }}
                       </option>
@@ -74,11 +74,11 @@
                     </b-button>
                   </b-input-group>
                   <p class="mt-2 text-muted font-weight-normal">
-                    {{ candidateInfo.skills.length }}/5 skills selected
+                    {{ candidate_info.skills.length }}/5 skills selected
                   </p>
                   <h4>
                     <b-badge
-                      v-for="(skill, id_s) in candidateInfo.skills"
+                      v-for="(skill, id_s) in candidate_info.skills"
                       :key="id_s"
                       size="lg"
                       variant="light"
@@ -106,13 +106,13 @@
                 <b-col cols="12" md="4" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.candidateInfo.time_zone.$model"
+                      v-model="$v.candidate_info.time_zone.$model"
                       class="bg-white"
                       required
                       :state="validateState('time_zone')"
                       aria-describedby="input-1-live-feedback"
                       list="timeZones-options"
-                      placeholder="timeZones"
+                      placeholder="Time zone"
                       autocomplete="off"
                     />
                     <datalist id="timeZones-options">
@@ -129,7 +129,7 @@
                 </b-col>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
                   <b-form-datepicker
-                    v-model="candidateInfo.date"
+                    v-model="candidate_info.date"
                     :date-disabled-fn="allowedDates"
                     placeholder="Select Date"
                     menu-class="w-100"
@@ -139,7 +139,7 @@
                 <b-col cols="12" md="4" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.candidateInfo.applied_designation.$model"
+                      v-model="$v.candidate_info.applied_designation.$model"
                       class="bg-white"
                       required
                       placeholder="Role you’re interviewed for Eg: Senior Android Developer"
@@ -179,7 +179,7 @@
           <b-card
             no-body
             class="p-3 pl-5 mt-3 border-0"
-            :class="{ 'alert-primary': time_slot.includes(idy) }"
+            :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]) }"
             @click="addSlot(idy)"
           >
             {{ timeslot }}
@@ -187,7 +187,7 @@
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5">
-            <b-button variant="primary" :disabled="candidateInfo.company_type === '' || candidateInfo.skills.length === 0 || candidateInfo.time_slots.length === 0 || candidateInfo.applied_designation == null || candidateInfo.time_zone == null || candidateInfo.date == null" @click="submit">
+            <b-button variant="primary" :disabled="candidate_info.company_type === '' || candidate_info.skills.length === 0 || candidate_info.time_slots.length === 0 || candidate_info.applied_designation == null || candidate_info.time_zone == null || candidate_info.date == null" @click="submit">
               Book  Interview
             </b-button>
           </div>
@@ -200,12 +200,9 @@
       </b-row>
     </b-container>
     <Payment
-      v-if="payment"
-      :candidate-info="candidateInfo"
-      :fetchedate="candidateInfo.date"
-      :payment="payment"
-      :time-slots="candidateInfo.time_slots"
-      @reschedule="payment = $event"
+      v-if="hide_payment_details"
+      :candidate-info="candidate_info"
+      @reschedule="hide_payment_details = $event"
     />
   </div>
 </template>
@@ -215,18 +212,17 @@ import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import Payment from '~/components/payment'
 export default {
-  layout: 'app-page',
   components: {
     Payment
   },
   mixins: [validationMixin],
   data () {
     return {
-      payment: false,
+      hide_payment_details: false,
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       time_slot: [],
-      candidateInfo: {
+      candidate_info: {
         skills: [],
         company_type: '',
         time_slots: [],
@@ -239,21 +235,33 @@ export default {
   },
   computed: {
     skills_filled () {
-      return this.candidateInfo.skills.length >= 5
+      return this.candidate_info.skills.length >= 5
     }
   },
   mounted () {
     this.fetch_timeZone()
+    this.fetch_update()
   },
   validations: {
-    candidateInfo: {
+    candidate_info: {
       applied_designation: { required },
       time_zone: { required }
     }
   },
   methods: {
+    fetch_update () {
+      if (this.$route.params.slug) {
+        this.$axios.get(`book-interview/${this.$route.params.slug}/update/`)
+          .then((response) => {
+            response.data.skills = response.data.skills.map((key) => {
+              return key.title
+            })
+            this.candidate_info = response.data
+          })
+      }
+    },
     validateState (name) {
-      const { $dirty, $error } = this.$v.candidateInfo[name]
+      const { $dirty, $error } = this.$v.candidate_info[name]
       return $dirty ? !$error : null
     },
     // fetch_timeSlots () {
@@ -274,8 +282,7 @@ export default {
         })
     },
     addSlot (idy) {
-      this.time_slot.includes(idy) ? this.time_slot.splice(this.time_slot.indexOf(idy), 1) : this.time_slot.push(idy)
-      this.candidateInfo.time_slots.includes(this.time_slots[idy]) ? this.candidateInfo.time_slots.splice(this.time_slot.indexOf(this.time_slots[idy]), 1) : this.candidateInfo.time_slots.push(this.time_slots[idy])
+      this.candidate_info.time_slots.includes(this.time_slots[idy]) ? this.candidate_info.time_slots.splice(this.candidate_info.time_slots.indexOf(this.time_slots[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots[idy])
     },
     allowedDates (val) {
       const today = new Date()
@@ -293,20 +300,40 @@ export default {
       }
     },
     removeTag (skillIndex) {
-      this.candidateInfo.skills.splice(skillIndex, 1)
+      this.candidate_info.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.candidateInfo.skills.includes(this.skill_search_query)) {
-        this.candidateInfo.skills.push(this.skill_search_query)
+      if (!this.candidate_info.skills.includes(this.skill_search_query)) {
+        this.candidate_info.skills.push(this.skill_search_query)
       } else if (this.skill_search_query === '') {
         return
       }
       this.skill_search_query = ''
     },
     submit () {
-      this.payment = true
+      if (this.$route.params.slug) {
+        const payload = { ...this.candidate_info }
+        payload.skills = payload.skills.toString()
+        this.$axios.put(`book-interview/${this.$route.params.slug}/update/`, payload)
+          .then((response) => {
+            this.$toast.success('Your changes were saved', {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
+              }
+            })
+          }).catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Could not save your changes. Please try again later'
+            )
+          })
+      } else {
+        this.hide_payment_details = true
+      }
     },
-    skillApi () {
+    fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {
@@ -319,4 +346,10 @@ export default {
 </script>
 
 <style>
+.b-form-btn-label-control.form-control > .btn {
+  padding: 1.4rem;
+}
+.b-form-btn-label-control.form-control > label {
+  padding-right: 6rem;
+}
 </style>

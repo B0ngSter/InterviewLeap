@@ -4,7 +4,7 @@
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -27,7 +27,7 @@
                 <b-col cols="12" md="6" class="pt-5 pb-5">
                   <b-form-group>
                     <b-form-input
-                      v-model="$v.userInfo.job_title.$model"
+                      v-model="$v.user_info.job_title.$model"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       name="example-input-1"
                       placeholder="Job Title"
@@ -71,11 +71,11 @@
                     <b-form-input
                       v-model="skill_search_query"
                       placeholder="Core Skills"
-                      list="Skill-options"
+                      list="skill-options"
                       :disabled="skills_filled"
-                      @change="skillApi"
+                      @keypress="fetchSkills"
                     />
-                    <datalist id="Skill-options">
+                    <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                         {{ Skill }}
                       </option>
@@ -250,7 +250,7 @@ export default {
         exp_years: null,
         description: null,
         timezone: null,
-        slug: 'sasade'
+        slug: null
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       fetchedSkill: [],
@@ -375,7 +375,7 @@ export default {
       })
       this.$axios.post('/auth/create-interview/', payload)
         .then((response) => {
-          this.$toast.success('Your profile changes were saved', {
+          this.$toast.success('Interview created!', {
             action: {
               text: 'Close',
               onClick: (e, toastObject) => {
@@ -386,7 +386,7 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+            errorResponse.response.data.message || 'Error creating the Interview. Please try again later'
           )
         })
     },
@@ -401,7 +401,7 @@ export default {
       }
       this.skill_search_query = ''
     },
-    skillApi () {
+    fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {

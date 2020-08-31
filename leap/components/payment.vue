@@ -3,10 +3,10 @@
     <b-row align-v="start" align-content="start" class="flex-grow-1">
       <b-col cols="12">
         <b-breadcrumb class="bg-light pl-0">
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item>
+          <b-breadcrumb-item to="/book-interview">
             Book Interview
           </b-breadcrumb-item>
           <b-breadcrumb-item active>
@@ -23,7 +23,7 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col :cols="this.$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+              <b-col :cols="isMock ? 3 : 4" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Date
                 </p>
@@ -31,17 +31,17 @@
                   {{ date() }}
                 </p>
               </b-col>
-              <b-col v-if="this.$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="isMock" cols="3" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Interview from
                 </p>
                 <p class="text-left text-danger-dark font-weight-bold">
-                  {{ this.$store.state.mock_interview_company_name }}
+                  {{ company_name }}
                 </p>
               </b-col>
-              <b-col cols="3" :offset-md="this.$store.state.is_mock ? 0 : 2">
+              <b-col cols="3" :offset-md="isMock ? 0 : 2">
                 <div class="mt-5 mb-5">
-                  <b-button squared class="alert-danger text-danger-dark" @click="cancle">
+                  <b-button squared class="alert-danger text-danger-dark" @click="cancel">
                     Cancel
                   </b-button>
                 </div>
@@ -60,14 +60,14 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row v-if="!this.$store.state.is_mock">
+            <b-row v-if="!isMock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
                 </p>
               </b-col>
               <b-col
-                v-for="(timeslot, idy) in timeSlots"
+                v-for="(timeslot, idy) in candidateInfo.time_slots"
                 :key="idy"
                 cols="3"
                 class="mb-3 cursor-pointer"
@@ -80,7 +80,7 @@
                 </b-card>
               </b-col>
             </b-row>
-            <b-row v-if="this.$store.state.is_mock">
+            <b-row v-if="isMock">
               <b-col cols="12" class="pt-5 pl-4">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
@@ -161,25 +161,16 @@
 <script>
 export default {
   props: {
-    fetchedate: {
-      type: String,
-      required: true
-    },
-    timeSlots: {
-      type: Array,
-      required: false
-    },
     timeSlotsMock: {
       type: Array,
       required: false
     },
-    payment: {
-      type: Boolean,
-      required: true
-    },
     candidateInfo: {
       type: Object,
       required: true
+    },
+    isMock: {
+      type: Boolean
     }
   },
   data () {
@@ -194,7 +185,8 @@ export default {
       // }
       amount: null,
       tax: null,
-      total_amount: null
+      total_amount: null,
+      company_name: null
     }
   },
   mounted () {
@@ -209,15 +201,25 @@ export default {
           errorResponse.response.data.message || 'Something went wrong'
         )
       })
+    this.fetch_company_name()
   },
   methods: {
+    fetch_company_name () {
+      this.$axios.get('/interview-list/').then((response) => {
+        response.data.mocks.map((key) => {
+          if (key.slug === this.$route.params.slug) {
+            this.company_name = key.company
+          }
+        })
+      })
+    },
     date () {
       let month = ''
-      this.fetchedate.slice(5, 7).includes('0') ? month = this.fetchedate.slice(6, 7) : month = this.fetchedate.slice(5, 7)
+      this.candidateInfo.date.slice(5, 7).includes('0') ? month = this.candidateInfo.date.slice(6, 7) : month = this.candidateInfo.date.slice(5, 7)
       const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       month = monthList[parseInt(month) - 1]
-      const date = this.fetchedate.slice(8, 10)
-      const year = this.fetchedate.slice(0, 4)
+      const date = this.candidateInfo.date.slice(8, 10)
+      const year = this.candidateInfo.date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
@@ -226,14 +228,18 @@ export default {
       this.$emit('reschedule', false)
     },
     submit () {
-      const payload = { ...this.candidateInfo }
+      let payload = {}
       let endpoint
-      if (this.$store.state.is_mock) {
-        endpoint = '/mock-interview-booking/'
+      if (this.isMock) {
+        endpoint = `/book-mock/${this.$route.params.slug}/`
+        payload.start_time = this.candidateInfo.time_slots[0].slice(0, 5)
+        payload.end_time = this.candidateInfo.time_slots[0].slice(8, 13)
         payload.amount = this.amount
+        payload.date = this.candidateInfo.date
         payload.tax = this.tax
         payload.total_amount = this.total_amount
       } else {
+        payload = { ...this.candidateInfo }
         payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
         endpoint = '/book-interview/'
       }
@@ -242,15 +248,6 @@ export default {
           if (response.data.long_url) {
             window.open(response.data.long_url, '_blank')
           }
-          this.$store.commit('reset_mock_variables')
-          this.$toast.success('Booked successfully', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
-              }
-            }
-          })
         })
         .catch((errorResponse) => {
           this.$toast.error(
@@ -258,7 +255,7 @@ export default {
           )
         })
     },
-    cancle () {
+    cancel () {
       this.$router.push('/dashboard')
     }
   }

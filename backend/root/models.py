@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.db import models
-from django.utils.text import slugify
-
 from authentication.models import User, Skill, InterviewerProfile
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.utils.text import slugify
 import random
 import string
 
@@ -23,7 +22,8 @@ class PaymentDetails(models.Model):
     billing_instrument = models.CharField(max_length=200, null=True, blank=True)
     payout_id = models.CharField(max_length=120,  null=True, blank=True)
     payout_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(null=True, blank=True)
+    other_detail = JSONField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.payment_request_id+'--' + str(self.amount)
@@ -36,7 +36,7 @@ class BookInterview(models.Model):
                                            help_text='role(profile) of the candidate they want to be interviewed for e.g java developer')
     date = models.DateField(help_text='Select date for interview @candidate side')
     time_zone = models.CharField(max_length=120, null=True, blank=True)
-    time_slots = ArrayField(models.CharField(max_length=150), blank=True, null=True)
+    time_slots = ArrayField(models.CharField(max_length=150))
     candidate = models.ForeignKey(User, on_delete=models.CASCADE)
     skills = models.ManyToManyField(to=Skill)
     interview_start_time = models.DateTimeField(null=True, blank=True)
@@ -66,3 +66,18 @@ class BookInterview(models.Model):
 
     def __str__(self):
         return self.slug
+
+
+class PaymentStatusLog(models.Model):
+    payment_request_id = models.CharField(max_length=150)
+    status = models.CharField(max_length=120, null=True, blank=True)
+    amount = models.CharField(max_length=120)
+    tax_amount = models.CharField(max_length=50)
+    email = models.EmailField(max_length=40)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    interview_slug = models.CharField(max_length=120)  # This will hold the value against mock/custom booking interview
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.payment_request_id

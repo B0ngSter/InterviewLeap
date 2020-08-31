@@ -1,34 +1,6 @@
 <template>
   <b-container>
     <b-row class="mt-5">
-      <b-col cols="12" md="3" class="pb-5 mb-5">
-        <h3 class="font-weight-bold">
-          Hello, {{ this.$store.state.auth.user.first_name }}
-        </h3>
-        <p class="text-secondary">
-          Your upcoming interviews
-        </p>
-      </b-col>
-      <b-col cols="12" md="6" class="pb-5 mb-5">
-        <div class="text-center">
-          <b-img
-            class="cursor-pointer"
-            src="@/static/kio.svg"
-            alt="Mock"
-            height="308"
-          />
-          <p class="font-weight-bold">
-            No interview scheduled for now
-          </p>
-        </div>
-      </b-col>
-      <b-col cols="12" md="3" class="pb-5 mb-5">
-        <div class="text-right">
-          <b-button class="bg-primary">
-            Book interview
-          </b-button>
-        </div>
-      </b-col>
       <b-col cols="12" md="6" class="mt-5 mb-5">
         <h4 class="font-weight-bold">
           Open Mock Interviews
@@ -41,22 +13,28 @@
             type="search"
             class="bg-light"
             placeholder="Search by role"
+            @keypress="search_mock"
           />
-          <b-input-group-prepend is-text>
-            <b-icon icon="search" />
+          <!-- <datalist id="industry-options">
+            <option v-for="(searchResult, idx) in mocks" :key="idx">
+              {{ searchResult.job_title }}
+            </option>
+          </datalist> -->
+          <b-input-group-prepend is-text @click="resetMockListing">
+            <b-icon icon="search" class="cursor-pointer" />
           </b-input-group-prepend>
         </b-input-group>
       </b-col>
-      <b-col v-for="(mockInterview, idx) in filteredMocks" :key="idx" class="mt-3" cols="12">
+      <b-col v-for="(mockInterview, idx) in mocks" :key="idx" class="mt-3" cols="12">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row align-v="center" align-content="start">
               <b-col cols="4" class="pt-5 pb-5">
                 <p class="text-left font-weight-bold">
-                  {{ mockInterview.jobTitle }}
+                  {{ mockInterview.job_title }}
                 </p>
                 <p class="text-left text-secondary">
-                  {{ mockInterview.Exp }}
+                  {{ mockInterview.exp_years }}
                 </p>
               </b-col>
               <b-col cols="4">
@@ -69,7 +47,10 @@
               </b-col>
               <b-col cols="4">
                 <div class="text-right">
-                  <b-button class="bg-primary" @click="BookMockInterview(idx)">
+                  <b-button
+                    class="bg-primary"
+                    :to="`/book-mock/${mockInterview.slug}`"
+                  >
                     Book
                   </b-button>
                 </div>
@@ -94,48 +75,64 @@ export default {
       searchString: '',
       mocks: [
         // {
-        //   jobTitle: 'Senior Android Developer',
+        //   slug: 'ufsadsa2',
+        //   job_title: 'Senior Android Developer',
         //   company: 'Amazon',
-        //   Exp: '5-8 Years'
+        //   exp_years: '5-8 Years'
         // },
         // {
-        //   jobTitle: 'Hadoop Developer',
+        //   slug: 'ufsadsa3',
+        //   job_title: 'Hadoop Developer',
         //   company: 'E & Y',
-        //   Exp: '5-8 Years'
+        //   exp_years: '5-8 Years'
         // },
         // {
-        //   jobTitle: '.NET Developer',
+        //   slug: 'ufsadsa4',
+        //   job_title: '.NET Developer',
         //   company: 'JP Morgan',
-        //   Exp: '5-8 Years'
+        //   exp_years: '5-8 Years'
         // },
         // {
-        //   jobTitle: 'UX Desiger',
+        //   slug: 'ufsadsa5',
+        //   job_title: 'UX Desiger',
         //   company: 'Deloitte',
-        //   Exp: '5-8 Years'
+        //   exp_years: '5-8 Years'
+        // }
+      ],
+      upcoming_interviews: [
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'rvfw5lvb'
+        // },
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'ip3fjjmo'
         // }
       ],
       companyName: ''
     }
   },
-  computed: {
-    filteredMocks () {
-      let searchStr = this.searchString
-      let mocks = this.mocks
-      if (!searchStr) {
-        return mocks
-      }
-      searchStr = searchStr.trim().toLowerCase()
-      mocks = mocks.filter((item) => {
-        if (item.jobTitle.toLowerCase().includes(searchStr)) {
-          return item
-        }
-      })
-      return mocks
-    }
-  },
+  // computed: {
+  //   filteredMocks () {
+  //     let searchStr = this.searchString
+  //     let mocks = this.mocks
+  //     if (!searchStr) {
+  //       return mocks
+  //     }
+  //     searchStr = searchStr.trim().toLowerCase()
+  //     mocks = mocks.filter((item) => {
+  //       if (item.job_title.toLowerCase().includes(searchStr)) {
+  //         return item
+  //       }
+  //     })
+  //     return mocks
+  //   }
+  // },
   mounted () {
-    this.$axios.get('/dashboard/').then((response) => {
-      this.mock = response.data.mocks
+    this.$axios.get('/interview-list/').then((response) => {
+      this.mocks = response.data.mocks
     })
       .catch((errorResponse) => {
         this.$toast.error(
@@ -144,9 +141,20 @@ export default {
       })
   },
   methods: {
-    BookMockInterview (idx) {
-      this.$store.commit('mock_interview_company_name', this.mocks[idx].company)
-      this.$router.push('/book-mock')
+    search_mock () {
+      this.$axios.get(`/interview-list?keyword=${this.searchString}`).then((response) => {
+        this.mocks = response.data.search_list
+      })
+    },
+    resetMockListing () {
+      this.$axios.get('/interview-list/').then((response) => {
+        this.mocks = response.data.mocks
+      })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
+        })
     }
   }
 }

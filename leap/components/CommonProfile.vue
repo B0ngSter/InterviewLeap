@@ -418,7 +418,7 @@
                   </b-col>
                   <b-col class="mt-4" cols="12">
                     <div v-if="$store.getters.is_candidate" class="text-center">
-                      <b-button variant="primary" :disabled="profile.professional_status === ''" @click="save_profile">
+                      <b-button variant="primary" :disabled="profile.industry_candidate === '' && profile.professional_status === ''" @click="save_profile">
                         Save
                       </b-button>
                     </div>
@@ -541,6 +541,7 @@ export default {
         mobile_number: null,
         education: null,
         year_of_passing: null,
+        industry_candidate: null,
         job_title: null,
         company: null,
         account_info: {
@@ -585,6 +586,7 @@ export default {
       college: { required },
       exp_years: { required },
       industry: { required },
+      industry_candidate: { required },
       designation: { required },
       mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
       education: { required },
@@ -619,10 +621,10 @@ export default {
       this.skill_search_query = ''
     },
     save_profile () {
-      // this.$v.profile.$touch()
-      // if (this.$v.profile.$anyError) {
-      //   return
-      // }
+      this.$v.profile.$touch()
+      if (this.$v.profile.$anyError) {
+        return
+      }
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       // if (payload.company == null && payload.college !== null) {

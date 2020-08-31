@@ -46,6 +46,7 @@ class BookInterview(models.Model):
     is_declined = models.BooleanField(default=False)
     interviewer = models.ForeignKey(InterviewerProfile, null=True, blank=True, on_delete=models.CASCADE)
     payment_detail = models.ForeignKey(PaymentDetails, null=True, blank=True, on_delete=models.DO_NOTHING)
+    meet_link = models.CharField(max_length=368, null=True, blank=True)
     feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

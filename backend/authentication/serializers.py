@@ -272,7 +272,7 @@ class CustomInterviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookInterview
         fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
-                  'candidate_email', 'mock_interview']
+                  'candidate_email', 'mock_interview', 'meet_link']
 
 
 class MockInterviewSerializer(serializers.ModelSerializer):

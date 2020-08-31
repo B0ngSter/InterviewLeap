@@ -45,6 +45,7 @@
                   <b-form-group>
                     <b-form-input
                       v-model="$v.userInfo.exp_years.$model"
+                      min="0"
                       class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       placeholder="Experience Required (Optional)"
                       :state="validateState('exp_years')"

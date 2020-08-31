@@ -931,6 +931,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
             interview_link = response['htmlLink']
             interviewer = InterviewerProfile.objects.get(user=self.request.user)
             interview_obj.interviewer = interviewer
+            interview_obj.meet_link = interview_link
             interview_obj.save()
             success_message = "Interview Invite has been sent to Candidate Successfully"
             return Response({"message": success_message,

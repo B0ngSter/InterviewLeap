@@ -328,7 +328,7 @@ export default {
       type: Number,
       required: true
     },
-    interviewRequests: {
+    feedbacks: {
       type: Array,
       required: true
     }
@@ -355,14 +355,19 @@ export default {
       understanding_of_role_progress_value: 0
     }
   },
+  mounted () {
+    this.$axios.get('endpoint')
+      .then((response) => {
+      })
+  },
   methods: {
     date () {
       let month = ''
-      this.interviewRequests[this.id].date.slice(5, 7).includes('0') ? month = this.interviewRequests[this.id].date.slice(6, 7) : month = this.interviewRequests[this.id].date.slice(5, 7)
+      this.feedbacks[this.id].date.slice(5, 7).includes('0') ? month = this.feedbacks[this.id].date.slice(6, 7) : month = this.feedbacks[this.id].date.slice(5, 7)
       const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       month = monthList[parseInt(month) - 1]
-      const date = this.interviewRequests[this.id].date.slice(8, 10)
-      const year = this.interviewRequests[this.id].date.slice(0, 4)
+      const date = this.feedbacks[this.id].date.slice(8, 10)
+      const year = this.feedbacks[this.id].date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
@@ -417,7 +422,13 @@ export default {
       payload.communicational_skill = [this.communicational_skill, this.communicational_skill_text]
       payload.presentation_skill = [this.presentation_skill, this.presentation_skill_text]
       payload.understanding_of_role = [this.understanding_of_role, this.understanding_of_role_text]
-      this.$axios.post('/feedback/', payload)
+      let endpoint
+      if (this.feedback.custom_interview === true) {
+        endpoint = `custom-interview/${this.feedback[this.id].slug}/feedback/`
+      } else if (this.feedback.mock_interview === true) {
+        endpoint = `mock-interview/${this.feedback[this.id].slug}/feedback/`
+      }
+      this.$axios.post(endpoint, payload)
         .then((response) => {
           this.$toast.success('Your feedback has been saved', {
             action: {

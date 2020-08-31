@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import BookInterviewView, TimeSlotListView, SkillSearchView, mojo_handler, \
-    InterviewListView, CustomBookInterviewUpdateView, PastInterviewListView, ReportDetailView, MockBookingView \
+    InterviewListView, CustomBookInterviewUpdateView, PastInterviewListView, ReportDetailView, MockBookingView, \
     CandidateInterviewerDashboardView, MockInterviewFeedbackView, CustomInterviewFeedbackView, \
     mock_booking_webhook_handler
 

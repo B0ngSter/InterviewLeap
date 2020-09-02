@@ -282,7 +282,7 @@ class CandidateInterviewerDashboardView(ListAPIView):
 
             return Response(dashboard_details, status=status.HTTP_200_OK)
         else:
-            pass
+            return Response(status=status.HTTP_200_OK)
 
 
 class SkillSearchView(ListAPIView):

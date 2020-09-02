@@ -107,6 +107,7 @@ class CandidateProfile(models.Model):
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     industry = models.CharField(max_length=256, null=True, blank=True)
     designation = models.CharField(max_length=256, null=True, blank=True)
+    job_title = models.CharField(max_length=256, null=True, blank=True)
     company = models.CharField(max_length=256, null=True, blank=True)
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])

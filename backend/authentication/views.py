@@ -533,6 +533,9 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
+        candidate_obj = InterviewerProfile.objects.get(user=self.request.user.id)
+        if not request.data.get('resume', None) and candidate_obj.resume:
+            profile_data['resume'] = candidate_obj.resume
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
@@ -587,6 +590,9 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         profile_data['account_info'] = json.loads(profile_data['account_info'])
+        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user.id)
+        if not request.data.get('resume', None) and interviewer_obj.resume:
+            profile_data['resume'] = interviewer_obj.resume
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
@@ -859,7 +865,6 @@ class InterviewerRequestsListView(ListCreateAPIView):
         return utc_dt
 
     def get(self, request, *args, **kwargs):
-        skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
         mock_interviews = InterviewSlots.objects.filter(interview__interviewer=self.request.user)
         custom_interviews = BookInterview.objects.filter(interviewer__user=self.request.user)
         mock_interviews_feedback = mock_interviews.filter(interview_start_time__lt=timezone.now(),
@@ -873,15 +878,20 @@ class InterviewerRequestsListView(ListCreateAPIView):
                                                           candidate__isnull=False)
         allotted_custom_interviews = custom_interviews.filter(interview_start_time__gte=timezone.now(),
                                                               interview_end_time__gte=timezone.now())
-        interview_requests = BookInterview.objects.filter(interview_start_time__gt=timezone.now(),
-                                                          interview_end_time__gt=timezone.now(),
-                                                          is_interview_scheduled=False, interviewer__isnull=True,
-                                                          is_declined=False)
-        for skill in skills:
-            interview_requests = interview_requests.filter(skills__title__icontains=skill)
-
         serializer = {}
-        serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
+        try:
+            skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
+
+            interview_requests = BookInterview.objects.filter(interview_start_time__gt=timezone.now(),
+                                                              interview_end_time__gt=timezone.now(),
+                                                              is_interview_scheduled=False, interviewer__isnull=True,
+                                                              is_declined=False)
+            for skill in skills:
+                interview_requests = interview_requests.filter(skills__title__icontains=skill)
+            serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
+        except ObjectDoesNotExist:
+            serializer['interview_requests'] = []
+
         serializer['custom_feedback'] = CustomInterviewSerializer(custom_interviews_feedback, many=True).data
         serializer['mock_feedback'] = MockInterviewSerializer(mock_interviews_feedback, many=True).data
         serializer['feedback'] = serializer.pop('custom_feedback') + serializer.pop('mock_feedback')

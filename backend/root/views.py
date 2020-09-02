@@ -66,11 +66,19 @@ class BookInterviewView(CreateAPIView):
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         total_amount = payment_amount + (payment_amount * tax) / 100
+        is_profile_completed = False
+        try:
+            profile_obj = CandidateProfile.objects.get(user=self.request.user)
+            if profile_obj:
+                is_profile_completed = True
+        except ObjectDoesNotExist:
+            pass
         response = {
             "timezone_list": pytz.all_timezones,
             "amount": settings.CUSTOM_PAYMENT_AMOUNT,
             "tax": int(round(payment_amount * tax) / 100),
-            "total_amount": round(total_amount)
+            "total_amount": round(total_amount),
+            "is_profile_completed": is_profile_completed
         }
 
         return Response(response, status=status.HTTP_200_OK)

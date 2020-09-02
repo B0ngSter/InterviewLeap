@@ -559,8 +559,9 @@ class PastInterviewListView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         past_interview = []
-        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user)
-        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user)
+        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user, candidate__isnull=False)
+        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user,
+                                                            is_payment_done=True, is_interview_scheduled=True)
         report_data = {"strength": "", "limitations": "", "technical_skill": [],
                        "consider_for_job": "", "presentation_skill": [],
                        "communicational_skill": [], "understanding_of_role": []

@@ -147,7 +147,7 @@ class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterviewerProfile
         fields = ['user', 'industry', 'designation', 'company', 'exp_years', 'linkedin', 'skills',
-                  'account_info']
+                  'account_info', 'resume']
 
     def validate(self, data):
         account_info = data['account_info']

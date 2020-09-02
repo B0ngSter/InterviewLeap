@@ -39,7 +39,7 @@ api = Instamojo(api_key=settings.PAYMENT_API_KEY,
                 endpoint=settings.INSTAMOJO_URL)
 
 
-@method_decorator(profile_complete, name='dispatch')
+# @method_decorator(profile_complete, name='dispatch')
 class BookInterviewView(CreateAPIView):
     """
         Book Interview   -- Authenticated Candidate can create/book interview  they are willing to interviewed!
@@ -303,7 +303,7 @@ class SkillSearchView(ListAPIView):
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(profile_complete, name='dispatch')
+# @method_decorator(profile_complete, name='dispatch')
 class MockBookingView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -536,13 +536,15 @@ class InterviewListView(ListAPIView):
                                   "slug": data.slug
                                   })
         for data in queryset:
-            profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
-            mock_list.append({"job_title": data.job_title,
-                              "company": profile_obj.company if profile_obj else '',
-                              "exp_years": profile_obj.exp_years if profile_obj else '',
-                              "slug": data.slug
-                              })
-        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, date__gte=datetime.datetime.today())
+            check = data.interviewslots_set.filter(interview_start_time__date__gte=timezone.now())
+            if check:
+                profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
+                mock_list.append({"job_title": data.job_title,
+                                  "company": profile_obj.company if profile_obj else '',
+                                  "exp_years": profile_obj.exp_years if profile_obj else '',
+                                  "slug": data.slug
+                                  })
+        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, is_interview_scheduled=False, date__gte=timezone.now())
         booking_list = []
         for each_row in custom_booking_obj:
             booking_list.append(

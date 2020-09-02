@@ -89,7 +89,7 @@ class BookInterviewView(CreateAPIView):
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         tax_amount = (payment_amount * tax) / 100
         total_amount = payment_amount + (payment_amount * tax) / 100
-        link = "{frontend_url}/book-interview".format(frontend_url=settings.FRONTEND_URL)
+        link = "{frontend_url}/dashboard".format(frontend_url=settings.FRONTEND_URL)
         webhook_url = "{domain}/webhook/payment-response/".format(domain=settings.WEBHOOK_STAGING_URL)
         response = api.payment_request_create(
             amount=total_amount,

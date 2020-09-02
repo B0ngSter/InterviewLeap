@@ -1,4 +1,4 @@
-from django.conf import settings
+from backend import settings
 from django.db import models
 from authentication.models import User, Skill, InterviewerProfile
 from django.contrib.postgres.fields import ArrayField, JSONField

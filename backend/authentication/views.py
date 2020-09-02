@@ -533,6 +533,9 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
+        candidate_obj = InterviewerProfile.objects.get(user=self.request.user.id)
+        if not request.data.get('resume', None) and candidate_obj.resume:
+            profile_data['resume'] = candidate_obj.resume
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
@@ -587,6 +590,9 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         profile_data['account_info'] = json.loads(profile_data['account_info'])
+        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user.id)
+        if not request.data.get('resume', None) and interviewer_obj.resume:
+            profile_data['resume'] = interviewer_obj.resume
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():

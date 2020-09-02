@@ -1,4 +1,4 @@
-from django.conf import settings
+from backend import settings
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin, AbstractBaseUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator

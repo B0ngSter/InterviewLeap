@@ -284,8 +284,6 @@ class CandidateInterviewerDashboardView(ListAPIView):
         else:
             pass
 
-        return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
-
 
 class SkillSearchView(ListAPIView):
     pagination_class = None
@@ -314,11 +312,19 @@ class MockBookingView(APIView):
         payment_amount = Interview.objects.get(slug=mock_slug).quoted_price
         payment_amount = int(payment_amount)
         total_amount = payment_amount + (payment_amount * tax) / 100
+        is_profile_completed = False
+        try:
+            profile_obj = CandidateProfile.objects.get(user=self.request.user)
+            if profile_obj:
+                is_profile_completed = True
+        except ObjectDoesNotExist:
+            pass
         response = {
             "timezone_list": pytz.all_timezones,
             "amount": settings.CUSTOM_PAYMENT_AMOUNT,
             "tax": int(round(payment_amount * tax) / 100),
-            "total_amount": round(total_amount)
+            "total_amount": round(total_amount),
+            "is_profile_completed": is_profile_completed
         }
         return Response(response, status=status.HTTP_200_OK)
 
@@ -536,7 +542,7 @@ class InterviewListView(ListAPIView):
                               "exp_years": profile_obj.exp_years if profile_obj else '',
                               "slug": data.slug
                               })
-        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True)
+        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, date__gte=datetime.datetime.today())
         booking_list = []
         for each_row in custom_booking_obj:
             booking_list.append(

@@ -1,4 +1,4 @@
-from django.conf import settings
+from backend import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render

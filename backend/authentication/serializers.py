@@ -141,6 +141,23 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
         return candidate
 
 
+class CandidateFresherSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CandidateProfile
+        fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title',  'company', 'exp_years']
+
+
+class CandidateExperienceSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
+
+    class Meta:
+        model = CandidateProfile
+        fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title']
+
+
 class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True)
 

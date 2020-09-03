@@ -40,7 +40,7 @@ from authentication.dates import by_month
 from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
     ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
-    CustomInterviewSerializer, MockInterviewSerializer
+    CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -520,6 +520,19 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     serializer_class = CandidateProfileCreateListSerializer
 
     def get(self, request, *args, **kwargs):
+        user_serializer = UserDetailSerializer(self.request.user).data
+
+        if request.data.get('email'):
+            candidate = CandidateProfile.objects.get(user__email=request.data.get('email'))
+            if candidate.professional_status == 'Fresher':
+                serialize = CandidateFresherSerializer(candidate).data
+                serialize.update(user_serializer)
+                return Response(serialize, status=status.HTTP_200_OK)
+            else:
+                serialize = CandidateExperienceSerializer(candidate).data
+                serialize.update(user_serializer)
+                return Response(serialize, status=status.HTTP_200_OK)
+
         candidate_serializer = {}
         user_serializer = UserDetailSerializer(self.request.user).data
         try:

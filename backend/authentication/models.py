@@ -167,6 +167,7 @@ class InterviewSlots(models.Model):
     interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
     payment_detail = models.ForeignKey('root.PaymentDetails', null=True, blank=True, on_delete=models.DO_NOTHING)
+    meet_link = models.CharField(max_length=368, null=True, blank=True)
     feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

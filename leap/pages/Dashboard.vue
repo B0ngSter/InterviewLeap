@@ -64,7 +64,7 @@
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row>
-                <b-col :cols="$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-4">
+                <b-col :cols="$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-5">
                   <p class="text-left text-secondary">
                     Date
                   </p>
@@ -255,39 +255,39 @@ export default {
         interview_taken: 1,
         total_earnings: 1,
         interview_requests: [
-          {
-            applied_designation: null,
-            time_slots: [],
-            date: '2020-08-21',
-            candidate: 'FK'
-          },
-          {
-            applied_designation: null,
-            time_slots: [],
-            date: '2020-08-21',
-            candidate: 'FK'
-          }
+          // {
+          //   applied_designation: null,
+          //   time_slots: [],
+          //   date: '2020-08-21',
+          //   candidate: 'FK'
+          // },
+          // {
+          //   applied_designation: null,
+          //   time_slots: [],
+          //   date: '2020-08-21',
+          //   candidate: 'FK'
+          // }
         ]
       },
       upcoming_interviews: [
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'rvfw5lvb'
-        },
-        {
-          date: '2020-08-21',
-          job_title: 'Byjus',
-          slug: 'ip3fjjmo'
-        }
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'rvfw5lvb'
+        // },
+        // {
+        //   date: '2020-08-21',
+        //   job_title: 'Byjus',
+        //   slug: 'ip3fjjmo'
+        // }
       ]
     }
   },
   mounted () {
-    this.$axios.get('/dashboard/')
-      .then((response) => {
-        this.interviewer_insights = response.data
-      })
+    // this.$axios.get('/dashboard/')
+    //   .then((response) => {
+    //     this.interviewer_insights = response.data
+    //   })
     this.fetch_interview()
   },
   methods: {

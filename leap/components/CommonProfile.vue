@@ -113,7 +113,7 @@
                   </b-col>
                   <b-col cols="12" class="mt-4">
                     <div class="text-center">
-                      <b-button variant="primary" :disabled="!profile.mobile_number" @click="current_tab=1">
+                      <b-button variant="primary" :disabled="!profile.mobile_number || profile.mobile_number.length > 10 || profile.mobile_number.length < 10" @click="current_tab=1">
                         Next
                       </b-button>
                     </div>
@@ -340,7 +340,7 @@
                         class="bg-white"
                         required
                         placeholder="Linkedin URL"
-                        :state="validateState('linkedin')"
+                        :state="validateState('linkedin') && profile.linkedin.includes('linkedin')"
                         aria-describedby="input-1-live-feedback"
                       />
                       <b-form-invalid-feedback
@@ -529,10 +529,10 @@ export default {
   data () {
     return {
       re_upload_resume: false,
+      existing_resume: false,
       profile: {
         skills: [],
         first_name: null,
-        existing_resume: false,
         last_name: null,
         email: '',
         exp_years: null,
@@ -621,8 +621,7 @@ export default {
     save_profile () {
       // this.$v.profile.$touch()
       // if (this.$v.profile.$anyError) {
-      //   return
-      // }
+      // } else {
       const payload = { ...this.profile }
       payload.skills = payload.skills.toString() // to make skills in "python,java,vue.js" in this form
       // if (payload.company == null && payload.college !== null) {
@@ -733,6 +732,7 @@ export default {
         //   response.data.linkedin = null
         // }
         this.profile = response.data
+        delete this.profile.resume
       })
     },
     fetchSkills () {

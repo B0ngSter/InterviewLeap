@@ -73,7 +73,7 @@
                       placeholder="Core Skills"
                       list="Skill-options"
                       :disabled="skills_filled"
-                      @change="skillApi"
+                      @keypress="fetchSkills"
                     />
                     <datalist id="Skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -220,7 +220,11 @@
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5 mb-5">
-            <b-button variant="primary" @click="submit">
+            <b-button
+              variant="primary"
+              :disabled="interviewInfo.job_title === null || interviewInfo.skills.length === 0 || interviewInfo.exp_years == null || interviewInfo.timezone == null || interviewInfo.description == null"
+              @click="submit"
+            >
               Create Interview
             </b-button>
           </div>
@@ -373,7 +377,7 @@ export default {
           delete payload.interview_time[key] // remove date keys which are empty
         }
       })
-      this.$axios.post('/auth/create-interview/', payload)
+      this.$axios.post('/interview/create-interview/', payload)
         .then((response) => {
           this.$toast.success('Your profile changes were saved', {
             action: {
@@ -386,7 +390,7 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Could not save your profile. Please try again later'
+            errorResponse.response.data.message || 'Interview has been created. Please try again later'
           )
         })
     },
@@ -401,7 +405,7 @@ export default {
       }
       this.skill_search_query = ''
     },
-    skillApi () {
+    fetchSkills () {
       this.$axios.get(`/skill-search?search=${this.skill_search_query}`)
         .then((response) => {
           if (response.status === 200) {

@@ -337,9 +337,13 @@ class PastInterviewSerializer(serializers.ModelSerializer):
         if obj.candidate:
             return obj.candidate.user.email
 
+    def get_candidate_resume(self, obj):
+        if obj.candidate:
+            return obj.candidate.resume
+
     def get_role(self, obj):
         return obj.interview.job_title
 
     class Meta:
         model = InterviewSlots
-        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role']
+        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role', 'resume']

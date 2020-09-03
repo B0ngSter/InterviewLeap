@@ -609,7 +609,7 @@ class PastInterviewListView(ListAPIView):
                                    "time_slot": time_slot,
                                    "company": each_row.interviewer.company if each_row.interviewer else '',
                                    "interview_type": "Direct Booked Interview",
-                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "feedback": each_row.feedback if each_row.feedback else report_data,
                                    "pk": each_row.id,
                                    "slug": each_row.slug
                                    })
@@ -625,7 +625,7 @@ class PastInterviewListView(ListAPIView):
                                    "time_slot": time_slot,
                                    "company": profile_obj.company if profile_obj else '',
                                    "interview_type": "Open Mock Interview",
-                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "feedback": each_row.feedback if each_row.feedback else report_data,
                                    "pk": each_row.id,
                                    "slug": each_row.interview.slug
                                    })

@@ -888,8 +888,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
         try:
             skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
 
-            interview_requests = BookInterview.objects.filter(interview_start_time__gt=timezone.now(),
-                                                              interview_end_time__gt=timezone.now(),
+            interview_requests = BookInterview.objects.filter(
                                                               is_interview_scheduled=False, interviewer__isnull=True,
                                                               is_declined=False)
             for skill in skills:

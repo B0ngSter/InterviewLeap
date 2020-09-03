@@ -45,7 +45,7 @@ urlpatterns += [
     path('admin/', admin.site.urls),
     path('auth/', include(auth_urls)),
     path('', include(root_urls)),
-    path('', include(interview_urls)),
+    path('interview/', include(interview_urls)),
     path('industries/', IndustryListView.as_view()),
 
 ]

@@ -271,9 +271,12 @@ class InterviewerRequestsListSerializer(serializers.ModelSerializer):
     def get_candidate_email(self, obj):
         return obj.candidate.email
 
+    def get_candidate_resume(self, obj):
+        return obj.candidate.resume
+
     class Meta:
         model = BookInterview
-        fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate_email', 'is_feedback']
+        fields = ['slug', 'applied_designation', 'date', 'time_slots', 'candidate_email', 'is_feedback', 'resume']
 
 
 class CustomInterviewSerializer(serializers.ModelSerializer):
@@ -283,13 +286,16 @@ class CustomInterviewSerializer(serializers.ModelSerializer):
     def get_candidate_email(self, obj):
         return obj.candidate.email
 
+    def get_candidate_resume(self, obj):
+        return obj.candidate.resume
+
     def get_mock_interview(self, obj):
         return True
 
     class Meta:
         model = BookInterview
         fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
-                  'candidate_email', 'mock_interview', 'meet_link']
+                  'candidate_email', 'mock_interview', 'meet_link', 'resume']
 
 
 class MockInterviewSerializer(serializers.ModelSerializer):
@@ -320,13 +326,17 @@ class MockInterviewSerializer(serializers.ModelSerializer):
         if obj.candidate:
             return obj.candidate.user.email
 
+    def get_candidate_resume(self, obj):
+        if obj.candidate:
+            return obj.candidate.resume
+
     def get_custom_interview(self, obj):
         return True
 
     class Meta:
         model = InterviewSlots
         fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
-                  'candidate_email', 'custom_interview']
+                  'candidate_email', 'custom_interview', 'resume']
 
 
 class PastInterviewSerializer(serializers.ModelSerializer):

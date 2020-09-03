@@ -247,6 +247,15 @@ export default {
         .then((response) => {
           if (response.data.long_url) {
             window.open(response.data.long_url, '_blank')
+          } else if (response.data.message) {
+            this.$toast.success(response.data.message, {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
+              }
+            })
           }
         })
         .catch((errorResponse) => {

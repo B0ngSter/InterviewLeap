@@ -75,7 +75,7 @@
                 </b-col>
                 <b-col cols="4">
                   <div class="pt-5 mb-5">
-                    <p class="text-right font-weight-bold" @click="candidate_profile(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
                       View Candidate Profile >
                     </p>
                   </div>
@@ -115,7 +115,7 @@
                 </b-col>
                 <b-col cols="4">
                   <div class="pt-5 mb-5">
-                    <p class="text-right font-weight-bold">
+                    <p class="text-right font-weight-bold cursor-pointer">
                       View Candidate Profile >
                     </p>
                   </div>
@@ -155,7 +155,7 @@
                 </b-col>
                 <b-col cols="4">
                   <div class="pt-5 mb-5">
-                    <p class="text-right font-weight-bold">
+                    <p class="text-right font-weight-bold cursor-pointer">
                       View Candidate Profile >
                     </p>
                   </div>
@@ -199,7 +199,7 @@
                 </b-col>
                 <b-col cols="4">
                   <div class="pt-5 mb-5">
-                    <p class="text-right font-weight-bold">
+                    <p class="text-right font-weight-bold cursor-pointer">
                       View Candidate Profile >
                     </p>
                   </div>
@@ -409,6 +409,23 @@ export default {
         this.selected_slot.splice(0, 1)
       }
     },
+    decline_interview_slot (idx) {
+      const payload = {}
+      payload.action = 'decline'
+      payload.candidate_email = this.interview_requests[idx].candidate_email
+      payload.slug = this.interview_requests[idx].slug
+      this.$axios.post('/interview/interview-requests/', payload).then((response) => {
+        this.interview_requests.splice(idx, 1)
+        this.$toast.success('Interview declined', {
+          action: {
+            text: 'Close',
+            onClick: (e, toastObject) => {
+              toastObject.goAway(0)
+            }
+          }
+        })
+      })
+    },
     accpet_interview_slot (idx) {
       const ClassicalTimeSlots = ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00']
       const nomSlots = ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM']
@@ -419,10 +436,17 @@ export default {
       payload.date = this.interview_requests[idx].date
       payload.candidate_email = this.interview_requests[idx].candidate_email
       payload.slug = this.interview_requests[idx].slug
-      this.$axios.post('/interview/interview-requests/', payload).then((response) => {})
-    },
-    decline_interview_slot (idx) {
-      this.interview_requests.splice(idx, 1)
+      this.$axios.post('/interview/interview-requests/', payload).then((response) => {
+        this.interview_requests.splice(idx, 1)
+        this.$toast.success('Interview scheduled', {
+          action: {
+            text: 'Close',
+            onClick: (e, toastObject) => {
+              toastObject.goAway(0)
+            }
+          }
+        })
+      })
     },
     feedbacks (idx) {
       this.id = idx

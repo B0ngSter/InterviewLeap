@@ -269,8 +269,9 @@ class CandidateInterviewerDashboardView(ListAPIView):
                                                                                                    flat=True)
                 if skills:
                     for skill in skills:
-                        interview_requests = BookInterview.objects.filter(skills__title__icontains=skill,
-                                                                          date__gte=timezone.now())
+                        interview_requests = BookInterview.objects.filter(
+                                                              is_interview_scheduled=False, interviewer__isnull=True,
+                                                              is_declined=False)
                     dashboard_details['new_interview_requests'] = interview_requests.count()
                     interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
                     dashboard_details['interview_requests'] = interview_requests_serialize

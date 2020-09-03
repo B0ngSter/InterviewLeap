@@ -522,8 +522,8 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         user_serializer = UserDetailSerializer(self.request.user).data
 
-        if request.data.get('email'):
-            candidate = CandidateProfile.objects.get(user__email=request.data.get('email'))
+        if request.GET.get('email'):
+            candidate = CandidateProfile.objects.get(user__email=request.GET.get('email'))
             if candidate.professional_status == 'Fresher':
                 serialize = CandidateFresherSerializer(candidate).data
                 serialize.update(user_serializer)

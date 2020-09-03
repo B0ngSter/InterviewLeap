@@ -965,7 +965,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
             success_message = "Interview Invite has been sent to Candidate Successfully"
             return Response({"message": success_message,
                              "interview_link": interview_link}, status=status.HTTP_200_OK)
-        elif self.kwargs['action'] == 'decline':
+        elif interview_info['action'] == 'decline':
             interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
                                                       slug=interview_info['slug'])
             interview_obj.is_declined = True

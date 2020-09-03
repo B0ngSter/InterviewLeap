@@ -362,4 +362,4 @@ class PastInterviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterviewSlots
-        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role', 'resume']
+        fields = ['interview_start_time', 'interview_end_time', 'candidate_email', 'role', 'resume', 'feedback']

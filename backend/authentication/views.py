@@ -961,6 +961,9 @@ class InterviewerRequestsListView(ListCreateAPIView):
             interviewer = InterviewerProfile.objects.get(user=self.request.user)
             interview_obj.interviewer = interviewer
             interview_obj.meet_link = interview_link
+            interview_obj.is_interview_scheduled = True
+            interview_obj.interview_start_time = interview_info['start_time']
+            interview_obj.interview_end_time = interview_info['end_time']
             interview_obj.save()
             success_message = "Interview Invite has been sent to Candidate Successfully"
             return Response({"message": success_message,
@@ -969,7 +972,6 @@ class InterviewerRequestsListView(ListCreateAPIView):
             interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
                                                       slug=interview_info['slug'])
             interview_obj.is_declined = True
-            interview_obj.is_interview_scheduled = True
             interview_obj.save()
             return Response({"message": "Interview Declined"})
         else:

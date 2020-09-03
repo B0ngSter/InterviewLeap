@@ -40,7 +40,7 @@ from authentication.dates import by_month
 from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
     ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
-    CustomInterviewSerializer, MockInterviewSerializer
+    CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -520,6 +520,20 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     serializer_class = CandidateProfileCreateListSerializer
 
     def get(self, request, *args, **kwargs):
+
+        if request.GET.get('email'):
+            user = User.objects.get(email=request.GET.get('email'))
+            candidate_user_info = UserDetailSerializer(user).data
+            candidate = CandidateProfile.objects.get(user__email=request.GET.get('email'))
+            if candidate.professional_status == 'Fresher':
+                serialize = CandidateFresherSerializer(candidate).data
+                serialize.update(candidate_user_info)
+                return Response(serialize, status=status.HTTP_200_OK)
+            else:
+                serialize = CandidateExperienceSerializer(candidate).data
+                serialize.update(candidate_user_info)
+                return Response(serialize, status=status.HTTP_200_OK)
+
         candidate_serializer = {}
         user_serializer = UserDetailSerializer(self.request.user).data
         try:
@@ -533,9 +547,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
-        candidate_obj = InterviewerProfile.objects.get(user=self.request.user.id)
-        if not request.data.get('resume', None) and candidate_obj.resume:
-            profile_data['resume'] = candidate_obj.resume
+        try:
+            candidate_obj = CandidateProfile.objects.get(user=self.request.user.id)
+            if not request.data.get('resume', None) and candidate_obj.resume:
+                profile_data['resume'] = candidate_obj.resume
+        except ObjectDoesNotExist:
+            pass
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
@@ -590,9 +607,12 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
         profile_data['account_info'] = json.loads(profile_data['account_info'])
-        interviewer_obj = InterviewerProfile.objects.get(user=self.request.user.id)
-        if not request.data.get('resume', None) and interviewer_obj.resume:
-            profile_data['resume'] = interviewer_obj.resume
+        try:
+            interviewer_obj = InterviewerProfile.objects.get(user=self.request.user.id)
+            if not request.data.get('resume', None) and interviewer_obj.resume:
+                profile_data['resume'] = interviewer_obj.resume
+        except ObjectDoesNotExist:
+            pass
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
@@ -882,8 +902,7 @@ class InterviewerRequestsListView(ListCreateAPIView):
         try:
             skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
 
-            interview_requests = BookInterview.objects.filter(interview_start_time__gt=timezone.now(),
-                                                              interview_end_time__gt=timezone.now(),
+            interview_requests = BookInterview.objects.filter(
                                                               is_interview_scheduled=False, interviewer__isnull=True,
                                                               is_declined=False)
             for skill in skills:
@@ -942,15 +961,17 @@ class InterviewerRequestsListView(ListCreateAPIView):
             interviewer = InterviewerProfile.objects.get(user=self.request.user)
             interview_obj.interviewer = interviewer
             interview_obj.meet_link = interview_link
+            interview_obj.is_interview_scheduled = True
+            interview_obj.interview_start_time = interview_info['start_time']
+            interview_obj.interview_end_time = interview_info['end_time']
             interview_obj.save()
             success_message = "Interview Invite has been sent to Candidate Successfully"
             return Response({"message": success_message,
                              "interview_link": interview_link}, status=status.HTTP_200_OK)
-        elif self.kwargs['action'] == 'decline':
+        elif interview_info['action'] == 'decline':
             interview_obj = BookInterview.objects.get(candidate__email=request.data["candidate_email"],
                                                       slug=interview_info['slug'])
             interview_obj.is_declined = True
-            interview_obj.is_interview_scheduled = True
             interview_obj.save()
             return Response({"message": "Interview Declined"})
         else:

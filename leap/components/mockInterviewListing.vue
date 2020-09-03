@@ -9,17 +9,19 @@
       <b-col cols="12" md="6" class="mt-5 mb-5">
         <b-input-group size="md" class="mb-2">
           <b-form-input
-            v-model="searchString"
-            type="search"
+            v-model="keyword_search"
             class="bg-light"
+            list="search-options"
+            debounce="500"
             placeholder="Search by role"
-            @keypress="search_mock"
           />
-          <!-- <datalist id="industry-options">
-            <option v-for="(searchResult, idx) in mocks" :key="idx">
-              {{ searchResult.job_title }}
+          <datalist id="search-options">
+            <option v-for="(searchResult, idx) in tempmocks" :key="idx">
+              <p @click="action(idx)">
+                {{ searchResult.job_title }}
+              </p>
             </option>
-          </datalist> -->
+          </datalist>
           <b-input-group-prepend is-text @click="resetMockListing">
             <b-icon icon="search" class="cursor-pointer" />
           </b-input-group-prepend>
@@ -29,12 +31,12 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row align-v="center" align-content="start">
-              <b-col cols="4" class="pt-5 pb-5">
+              <b-col cols="4" class="pt-5 pl-5 pb-5">
                 <p class="text-left font-weight-bold">
                   {{ mockInterview.job_title }}
                 </p>
                 <p class="text-left text-secondary">
-                  {{ mockInterview.exp_years }}
+                  {{ mockInterview.exp_years }} year
                 </p>
               </b-col>
               <b-col cols="4">
@@ -48,7 +50,7 @@
               <b-col cols="4">
                 <div class="text-right">
                   <b-button
-                    class="bg-primary"
+                    variant="primary"
                     :to="`/book-mock/${mockInterview.slug}`"
                   >
                     Book
@@ -72,7 +74,7 @@
 export default {
   data: () => {
     return {
-      searchString: '',
+      keyword_search: null,
       mocks: [
         // {
         //   slug: 'ufsadsa2',
@@ -111,6 +113,7 @@ export default {
         //   slug: 'ip3fjjmo'
         // }
       ],
+      tempmocks: [],
       companyName: ''
     }
   },
@@ -130,6 +133,11 @@ export default {
   //     return mocks
   //   }
   // },
+  watch: {
+    keyword_search (searchQuery) {
+      this._perform_keyword_search(searchQuery)
+    }
+  },
   mounted () {
     this.$axios.get('/interview-list/').then((response) => {
       this.mocks = response.data.mocks
@@ -141,10 +149,15 @@ export default {
       })
   },
   methods: {
-    search_mock () {
-      this.$axios.get(`/interview-list?keyword=${this.searchString}`).then((response) => {
-        this.mocks = response.data.search_list
-      })
+    _perform_keyword_search (searchQuery) {
+      this.$axios.get(`/interview-list?keyword=${searchQuery}`)
+        .then((response) => {
+          this.tempmocks = response.data.search_list
+        })
+    },
+    action (idx) {
+      debugger
+      this.mocks = this.tempmocks[idx]
     },
     resetMockListing () {
       this.$axios.get('/interview-list/').then((response) => {

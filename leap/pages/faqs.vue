@@ -56,12 +56,6 @@ export default {
       ]
     }
   },
-  mounted () {
-    this.$axios.get('endpoint')
-      .then((response) => {
-        this.faq = response.data
-      })
-  },
   methods: {
     openTheQuestion () {
       this.expand = true

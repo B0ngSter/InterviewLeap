@@ -428,7 +428,6 @@ export default {
       } else if (this.feedback.mock_interview === true) {
         endpoint = `mock-interview/${this.feedback[this.id].slug}/feedback/`
       }
-      debugger
       this.$axios.post(endpoint, payload)
         .then((response) => {
           this.$toast.success('Your feedback has been saved', {

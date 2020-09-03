@@ -275,6 +275,7 @@ export default {
       this.$axios.get('/book-interview/')
         .then((response) => {
           this.timeZone = response.data.timezone_list
+          this.is_profile_completed = response.data.is_profile_completed
           if (!response.data.is_profile_completed) {
             this.$router.push('/profile')
           }

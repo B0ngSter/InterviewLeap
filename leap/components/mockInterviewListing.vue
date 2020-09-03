@@ -22,6 +22,13 @@
               </p>
             </option>
           </datalist>
+          <!-- <b-form-datalist id="search-options">
+            <option v-for="(searchResult, idx) in tempmocks" :key="idx">
+              <p @click="action(idx)">
+                {{ searchResult.job_title }}
+              </p>
+            </option>
+          </b-form-datalist> -->
           <b-input-group-prepend is-text @click="resetMockListing">
             <b-icon icon="search" class="cursor-pointer" />
           </b-input-group-prepend>
@@ -156,7 +163,6 @@ export default {
         })
     },
     action (idx) {
-      debugger
       this.mocks = this.tempmocks[idx]
     },
     resetMockListing () {

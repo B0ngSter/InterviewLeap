@@ -719,18 +719,18 @@ export default {
             bank: null
           }
         }
-        // if (response.data.mobile_number == null) {
-        //   response.data.college = null
-        //   response.data.exp_years = null
-        //   response.data.industry = null
-        //   response.data.designation = null
-        //   response.data.mobile_number = null
-        //   response.data.education = null
-        //   response.data.company = null
-        //   response.data.year_of_passing = null
-        //   response.data.job_title = null
-        //   response.data.linkedin = null
-        // }
+        if (!response.data.linkedin) {
+          response.data.college = null
+          response.data.exp_years = null
+          response.data.industry = null
+          response.data.designation = null
+          response.data.mobile_number = null
+          response.data.education = null
+          response.data.company = null
+          response.data.year_of_passing = null
+          response.data.job_title = null
+          response.data.linkedin = null
+        }
         this.profile = response.data
         delete this.profile.resume
       })

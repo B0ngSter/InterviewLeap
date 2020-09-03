@@ -38,7 +38,7 @@
             Create an Interview
           </b-button>
         </b-col>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
+        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4 cursor-pointer">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row>
@@ -337,7 +337,7 @@ export default {
       const year = object[idx].date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
-      return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
+      return day.slice(0, 3) + ',' + day.slice(3, 10)
     },
     decline_interview_request () {},
     select_slot (idx, idy) {

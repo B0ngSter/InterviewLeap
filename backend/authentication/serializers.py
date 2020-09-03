@@ -74,12 +74,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class ResendVerificationTokenSerializer(serializers.Serializer):
-
     email = serializers.EmailField(required=True)
 
 
 class VerifyUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['email_verified']
@@ -88,6 +86,7 @@ class VerifyUserSerializer(serializers.ModelSerializer):
         instance.email_verified = True
         instance.save()
         return instance
+
 
 # class SkillReadSerializer(serializers.ModelSerializer):
 #     title = serializers.SerializerMethodField()
@@ -142,11 +141,10 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
 
 
 class CandidateFresherSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CandidateProfile
         fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
-                  'linkedin', 'industry', 'designation', 'skills', 'job_title',  'company', 'exp_years']
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title', 'company', 'exp_years']
 
 
 class CandidateExperienceSerializer(serializers.ModelSerializer):
@@ -230,10 +228,10 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         skills = validated_data.pop('skills')
         skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
-        try:
-            interview_obj, created = Interview.objects.get(interviewer=self.context['request'].user,
-                                                           slug=validated_data['slug'])
-        except ObjectDoesNotExist:
+        if validated_data.get('slug', None):
+            interview_obj = Interview.objects.get(interviewer=self.context['request'].user,
+                                                  slug=validated_data['slug'])
+        else:
             interview_obj = Interview.objects.create(interviewer=self.context['request'].user)
         interview_obj.skills.set(skill_obj)
         interview_obj.__dict__.update(**validated_data)

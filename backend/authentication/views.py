@@ -420,7 +420,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     try:
         frontend_url = settings.FRONTEND_URL
         send_by = settings.DEFAULT_FROM_EMAIL
-        host_link = "{frontend_url}/auth/password-reset/".format(frontend_url=frontend_url)
+        host_link = "{frontend_url}/password-reset/".format(frontend_url=frontend_url)
 
         context = {
             'current_user': reset_password_token.user,

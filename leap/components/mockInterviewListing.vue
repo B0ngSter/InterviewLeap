@@ -9,21 +9,21 @@
       <b-col cols="12" md="6" class="mt-5 mb-5">
         <b-input-group size="md" class="mb-2">
           <b-form-input
-            v-model="keyword_search"
+            v-model="keyword_search.query"
             class="bg-light"
             list="search-options"
             debounce="500"
             placeholder="Search by role"
           />
           <datalist id="search-options">
-            <option v-for="(searchResult, idx) in tempmocks" :key="idx">
-              <p @click="action(idx)">
+            <option v-for="(searchResult, idx) in searchResultMocks" :key="idx" :value="idx" @click.stop="action(idx)">
+              <p>
                 {{ searchResult.job_title }}
               </p>
             </option>
           </datalist>
           <!-- <b-form-datalist id="search-options">
-            <option v-for="(searchResult, idx) in tempmocks" :key="idx">
+            <option v-for="(searchResult, idx) in searchResultMocks" :key="idx">
               <p @click="action(idx)">
                 {{ searchResult.job_title }}
               </p>
@@ -81,7 +81,10 @@
 export default {
   data: () => {
     return {
-      keyword_search: null,
+      keyword_search: {
+        query: '',
+        value: null
+      },
       mocks: [
         // {
         //   slug: 'ufsadsa2',
@@ -120,7 +123,7 @@ export default {
         //   slug: 'ip3fjjmo'
         // }
       ],
-      tempmocks: [],
+      searchResultMocks: [],
       companyName: ''
     }
   },
@@ -141,7 +144,7 @@ export default {
   //   }
   // },
   watch: {
-    keyword_search (searchQuery) {
+    'keyword_search.query' (searchQuery) {
       this._perform_keyword_search(searchQuery)
     }
   },
@@ -159,11 +162,12 @@ export default {
     _perform_keyword_search (searchQuery) {
       this.$axios.get(`/interview-list?keyword=${searchQuery}`)
         .then((response) => {
-          this.tempmocks = response.data.search_list
+          this.searchResultMocks = response.data.search_list
         })
     },
     action (idx) {
-      this.mocks = this.tempmocks[idx]
+      // this.router.push(`/book-mock/${mockInterview.slug}`)
+      this.mocks = this.searchResultMocks[idx]
     },
     resetMockListing () {
       this.$axios.get('/interview-list/').then((response) => {

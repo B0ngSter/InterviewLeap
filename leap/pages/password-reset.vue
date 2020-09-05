@@ -82,7 +82,7 @@ export default {
     send_instructions () {
       this.$axios.post('/auth/password-reset/', { email: this.email })
         .then((response) => {
-          this.$router.push('/email-sent')
+          this.$router.push(`/email-sent?email=${this.email}&context=Password-reset`)
         })
         .catch((errorResponse) => {
           this.$toast.error(

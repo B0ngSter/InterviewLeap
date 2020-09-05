@@ -41,7 +41,7 @@ export default {
       } else if (this.$route.query.context === 'Password-reset') {
         endpoint = 'auth/password-reset/validate_token/'
       }
-      this.$axios.post(endpoint, this.$route.query.email).then((res) => {
+      this.$axios.post(endpoint, { email: this.$route.query.email }).then((res) => {
         this.$toast.info('Email sent successfully!', {
           action: {
             text: 'Close',

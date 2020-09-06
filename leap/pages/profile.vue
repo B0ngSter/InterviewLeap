@@ -1,25 +1,27 @@
 <template>
   <b-container class="py-5 bg-light">
     <b-row align-v="start" align-content="start" class="flex-grow-1">
-      <p class="ml-3 mb-5">
-        <b-breadcrumb class="bg-light pl-0">
-          <b-breadcrumb-item to="/dashboard">
-            Dashboard
-          </b-breadcrumb-item>
-          <b-breadcrumb-item active>
-            Profile
-          </b-breadcrumb-item>
-        </b-breadcrumb>
-      </p>
       <b-col cols="12">
-        <p v-if="!$store.getters.is_profile_completed && $store.getters.is_interviewer" class="float-right text-danger-dark">
+        <div class="ml-3 mb-5">
+          <b-breadcrumb class="bg-light pl-0">
+            <b-breadcrumb-item to="/dashboard">
+              Dashboard
+            </b-breadcrumb-item>
+            <b-breadcrumb-item active>
+              Profile
+            </b-breadcrumb-item>
+          </b-breadcrumb>
+        </div>
+      </b-col>
+      <b-col cols="12">
+        <span v-if="!$store.getters.is_profile_completed && $store.getters.is_interviewer" class="float-right text-danger-dark">
           *Please update your profile which’ll help us
           schedule right interview for you.
-        </p>
-        <p v-if="!$store.getters.is_profile_completed && $store.getters.is_candidate" class="float-right text-danger-dark">
+        </span>
+        <span v-if="!$store.getters.is_profile_completed && $store.getters.is_candidate" class="float-right text-danger-dark">
           *Update your ‘Profile’ before booking
           Interview for right match and complete evaluation !
-        </p>
+        </span>
         <h3>Profile</h3>
       </b-col>
       <b-col cols="12" class="bg-light py-3">
@@ -145,11 +147,11 @@
                         required
                         :state="validateState('industry')"
                         aria-describedby="input-1-live-feedback"
-                        list="industry-options"
+                        list="industry-options1"
                         placeholder="Industry"
                         autocomplete="off"
                       />
-                      <datalist id="industry-options">
+                      <datalist id="industry-options1">
                         <option v-for="(industry, idx) in industry_choices" :key="idx">
                           {{ industry }}
                         </option>

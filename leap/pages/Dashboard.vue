@@ -241,7 +241,7 @@
                 <b-col cols="3">
                   <div class="pt-5 mb-5">
                     <p class="text-right font-weight-bold" @click="resume(request)">
-                      Downloud Resume
+                      Download Resume
                     </p>
                   </div>
                 </b-col>

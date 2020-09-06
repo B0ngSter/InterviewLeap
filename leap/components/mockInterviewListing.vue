@@ -7,32 +7,13 @@
         </h4>
       </b-col>
       <b-col cols="12" md="6" class="mt-5 mb-5">
-        <b-input-group size="md" class="mb-2">
-          <b-form-input
-            v-model="keyword_search.query"
-            class="bg-light"
-            list="search-options"
-            debounce="500"
-            placeholder="Search by role"
-          />
-          <datalist id="search-options">
-            <option v-for="(searchResult, idx) in searchResultMocks" :key="idx" :value="idx" @click.stop="action(idx)">
-              <p>
-                {{ searchResult.job_title }}
-              </p>
-            </option>
-          </datalist>
-          <!-- <b-form-datalist id="search-options">
-            <option v-for="(searchResult, idx) in searchResultMocks" :key="idx">
-              <p @click="action(idx)">
-                {{ searchResult.job_title }}
-              </p>
-            </option>
-          </b-form-datalist> -->
-          <b-input-group-prepend is-text @click="resetMockListing">
-            <b-icon icon="search" class="cursor-pointer" />
-          </b-input-group-prepend>
-        </b-input-group>
+        <autocomplete
+          @select="selectSearchResult"
+          search-endpoint="/interview-list"
+          search-param-name="keyword"
+          result-key="search_list"
+          item-title-key="job_title"
+        />
       </b-col>
       <b-col v-for="(mockInterview, idx) in mocks" :key="idx" class="mt-3" cols="12">
         <b-card no-body class="text-center border-0">
@@ -78,13 +59,14 @@
 </template>
 
 <script>
+import Autocomplete from './Autocomplete.vue'
+
 export default {
+  components: {
+    Autocomplete
+  },
   data: () => {
     return {
-      keyword_search: {
-        query: '',
-        value: null
-      },
       mocks: [
         // {
         //   slug: 'ufsadsa2',
@@ -159,15 +141,14 @@ export default {
       })
   },
   methods: {
+    selectSearchResult (selectedResult) {
+      this.$router.push(`/book-mock/${selectedResult.slug}`)
+    },
     _perform_keyword_search (searchQuery) {
       this.$axios.get(`/interview-list?keyword=${searchQuery}`)
         .then((response) => {
           this.searchResultMocks = response.data.search_list
         })
-    },
-    action (idx) {
-      // this.router.push(`/book-mock/${mockInterview.slug}`)
-      this.mocks = this.searchResultMocks[idx]
     },
     resetMockListing () {
       this.$axios.get('/interview-list/').then((response) => {
@@ -182,6 +163,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

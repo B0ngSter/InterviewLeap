@@ -34,13 +34,13 @@
             </p>
           </b-col>
         </b-row>
-        <b-row class="justify-content-center mt-n12">
+        <b-row class="justify-content-center mt-n12 d-none d-md-block">
           <b-col cols="9">
             <b-img src="~/static/img/4A69859D-B62F-4888-9D68-C6418DDA8FD6.png" fluid />
           </b-col>
         </b-row>
         <b-row class="justify-content-center mt-n12">
-          <b-col cols="9">
+          <b-col cols="12" md="9">
             <div class="mw-660 bg-white p-6 text-joyful-dark font-weight-normal h5">
               <p>
                 Interview Leap is built on the premise that practice & preparation are crucial to get over your
@@ -241,8 +241,10 @@
       <b-container fluid>
         <b-row class="justify-content-center bg-dark text-white py-5">
           <b-col cols="11" md="7">
-            <Logo dark_long />
-            <b-button variant="outline-light" class="float-right">Get Started</b-button>
+            <div class="d-flex flex-column flex-md-row">
+              <Logo dark_long class="mx-0" />
+              <b-button variant="outline-light" class="ml-auto mr-auto mr-md-0 mt-5 mt-md-0">Get Started</b-button>
+            </div>
           </b-col>
           <b-col cols="11" md="7">
             <div class="pt-5 font-weight-bold d-flex flex-column flex-md-row">
@@ -305,6 +307,21 @@ export default {
         loop: true,
         pagination: {
           el: '.interviewer-pagination'
+        },
+        // Responsive breakpoints
+        breakpoints: {
+          // when window width is >= 320px
+          320: {
+            slidesPerView: 2
+          },
+          // when window width is >= 640px
+          640: {
+            slidesPerView: 3
+          },
+          // when window width is >= 640px
+          1000: {
+            slidesPerView: 4
+          }
         }
       },
       interviewers: [
@@ -336,13 +353,6 @@ export default {
 .min-h-100 {
   min-height: 100vh;
 }
-/*.banner-block {
-  background-size: contain;
-  background-image: url(http://localhost:3000/_nuxt/static/banners/landing.png);
-  //min-height: 100vh;
-  background-position: right bottom;
-  background-repeat: no-repeat;
-}*/
 
 .banner-img {
   width: 100%;
@@ -351,37 +361,4 @@ export default {
 .mw-660 {
   max-width: 660px;
 }
-
-/*.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}*/
-
-/*.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-}*/
-
-/*.title {
-  display: block;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}*/
 </style>

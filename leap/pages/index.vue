@@ -255,8 +255,12 @@
                 <nuxt-link to="/about" class="text-white">About</nuxt-link>
               </div>
               <div class="mr-auto mr-md-0 ml-auto">
-                <a href="#" class="text-white mr-3">Linkedin</a>
-                <a href="#" class="text-white">Instagram</a>
+                <a href="#" class="text-white mr-3">
+                  <b-img height="25" width="25" contain src="~/static/icons/linkedin.svg" />
+                </a>
+                <a href="#" class="text-white">
+                  <b-img height="25" width="25" contain src="~/static/icons/instagram.svg" />
+                </a>
               </div>
             </div>
           </b-col>

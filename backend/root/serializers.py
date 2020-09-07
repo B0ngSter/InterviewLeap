@@ -87,3 +87,9 @@ class CustomFeedbackCreateViewSerializer(serializers.ModelSerializer):
         model = BookInterview
         fields = ['feedback']
 
+
+class CustomBookingCancelViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BookInterview
+        fields = ['state']

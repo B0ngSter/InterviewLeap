@@ -13,7 +13,8 @@ import pytz
 from authentication.models import Skill, InterviewSlots, CandidateProfile, Interview, InterviewerProfile
 from authentication.serializers import InterviewerRequestsListSerializer
 from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer, \
-    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer, BookInterviewCreateSerializer
+    MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer, BookInterviewCreateSerializer, \
+    CustomBookingCancelViewSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
@@ -549,6 +550,7 @@ class InterviewListView(ListAPIView):
         }
     """
     queryset = Interview.objects.all()
+    serializer_class = CustomBookingCancelViewSerializer
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -576,7 +578,7 @@ class InterviewListView(ListAPIView):
                                   "slug": data.slug
                                   })
         custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, is_interview_scheduled=False,
-                                                          date__gte=timezone.now())
+                                                          date__gte=timezone.now()).exclude(state='Cancelled')
         booking_list = []
         for each_row in custom_booking_obj:
             booking_list.append(
@@ -584,6 +586,15 @@ class InterviewListView(ListAPIView):
 
         response = {"mocks": mock_list, "upcoming_interviews": booking_list, "search_list": search_list}
         return Response(response, status=status.HTTP_200_OK)
+
+    def post(self, request, **kwargs):
+        interview_obj = BookInterview.objects.get(slug=request.data['slug'])
+        serializer = CustomBookingCancelViewSerializer(interview_obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Your booked interview has been cancelled."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "Some issue occurred while cancelling the booking."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PastInterviewListView(ListAPIView):

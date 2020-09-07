@@ -6,20 +6,26 @@
           <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item to="/past-interview">
+          <b-breadcrumb-item v-if="!reporTypeInterviewer" to="/past-interview">
             Past Interviews
           </b-breadcrumb-item>
-          <b-breadcrumb-item active>
+          <b-breadcrumb-item v-if="!reporTypeInterviewer" active>
             Report
+          </b-breadcrumb-item>
+          <b-breadcrumb-item v-if="reporTypeInterviewer" active>
+            Feedback
           </b-breadcrumb-item>
         </b-breadcrumb>
       </b-col>
       <b-col cols="12" md="3" class="mt-2 pt-2">
-        <h3 class="font-weight-bold">
+        <h3 v-if="!reporTypeInterviewer" class="font-weight-bold">
           Report
         </h3>
+        <h3 v-if="reporTypeInterviewer" class="font-weight-bold">
+          Feedback
+        </h3>
       </b-col>
-      <b-col offset-md="2" cols="12" md="3" class="mt-2 pt-2">
+      <b-col v-if="!reporTypeInterviewer" offset-md="2" cols="12" md="3" class="mt-2 pt-2">
         <div class="text-left">
           <b-img
             class="cursor-pointer"
@@ -29,7 +35,7 @@
           <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span>
         </div>
       </b-col>
-      <b-col cols="12" md="4" class="mt-2 pt-2">
+      <b-col v-if="!reporTypeInterviewer" cols="12" md="4" class="mt-2 pt-2">
         <div class="text-left">
           <b-img
             class="cursor-pointer"
@@ -39,24 +45,24 @@
           <span class="text-secondary pl-4 cursor-pointer">Play Interview Recording</span>
         </div>
       </b-col>
-      <b-col cols="12" class="mt-2">
+      <b-col v-if="!reporTypeInterviewer" cols="12" class="mt-2">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
               <b-col class="pt-5 ml-5 pb-5 pl-2">
                 <p class="text-left text-secondary">
-                  Date. &amp; Time ({{ pastInterviews[id].interview_type }})
+                  Date. &amp; Time ({{ report.interview_type }})
                 </p>
                 <p class="text-left text-dark font-weight-bold">
-                  {{ date() }}, {{ pastInterviews[id].time_slots }}
+                  {{ date() }}, {{ report.time_slot }}
                 </p>
               </b-col>
-              <b-col v-if="pastInterviews[id].interview_type === 'Open Mock Interview'" class="pt-5 pb-5 pl-4">
+              <b-col v-if="report.interview_type === 'Open Mock Interview'" class="pt-5 pb-5 pl-4">
                 <p class="text-left text-secondary">
                   Interview from
                 </p>
                 <p class="text-left text-danger-dark font-weight-bold">
-                  {{ pastInterviews[id].company }}
+                  {{ report.company }}
                 </p>
               </b-col>
               <b-col cols="3" offset-md="2" class="pr-5 mr-5 pt-5">
@@ -72,7 +78,7 @@
           </b-container>
         </b-card>
       </b-col>
-      <h4 class="ml-3 mt-4">
+      <h4 v-if="!reporTypeInterviewer" class="ml-3 mt-4">
         Interviewer's evaluation on your performance
       </h4>
       <b-col cols="12" class="mt-3">
@@ -81,13 +87,13 @@
             <b-row>
               <b-col cols="12" class="pt-5 pb-2 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary ml-2">
-                  Technical Skill: {{ pastInterviews[id].report_data.technical_skill[0] }}
+                  Technical Skill: {{ report.feedback.technical_skill[0] }}
                 </p>
               </b-col>
               <b-col cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <b-progress :value="technical_skill_progress_value" :max="max" show-progress animated />
               </b-col>
-              <b-col v-if="pastInterviews[id].report_data.technical_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
+              <b-col v-if="report.feedback.technical_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <p class="font-weight-bold text-right">
                   View details >
                 </p>
@@ -102,13 +108,13 @@
             <b-row>
               <b-col cols="12" class="pt-5 pb-2 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary ml-2">
-                  Communication skills: {{ pastInterviews[id].report_data.communicational_skill[0] }}
+                  Communication skills: {{ report.feedback.communicational_skill[0] }}
                 </p>
               </b-col>
               <b-col cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <b-progress :value="understanding_of_role_progress_value" :max="max" show-progress animated />
               </b-col>
-              <b-col v-if="pastInterviews[id].report_data.communicational_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
+              <b-col v-if="report.feedback.communicational_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <p class="font-weight-bold text-right">
                   View details >
                 </p>
@@ -123,13 +129,13 @@
             <b-row>
               <b-col cols="12" class="pt-5 pb-2 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary ml-2">
-                  Presentation skills: {{ pastInterviews[id].report_data.presentation_skill[0] }}
+                  Presentation skills: {{ report.feedback.presentation_skill[0] }}
                 </p>
               </b-col>
               <b-col cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <b-progress :value="presentation_skill_progress_value" :max="max" show-progress animated />
               </b-col>
-              <b-col v-if="pastInterviews[id].report_data.presentation_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
+              <b-col v-if="report.feedback.presentation_skill.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <p class="font-weight-bold text-right">
                   View details >
                 </p>
@@ -144,13 +150,13 @@
             <b-row>
               <b-col cols="12" class="pt-5 pb-2 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary ml-2">
-                  Understanding of Role: {{ pastInterviews[id].report_data.understanding_of_role[0] }}
+                  Understanding of Role: {{ report.feedback.understanding_of_role[0] }}
                 </p>
               </b-col>
               <b-col cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <b-progress :value="understanding_of_role_progress_value" :max="max" show-progress animated />
               </b-col>
-              <b-col v-if="pastInterviews[id].report_data.understanding_of_role.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
+              <b-col v-if="report.feedback.understanding_of_role.length > 1" cols="6" class="pb-2 pl-4 border-bottom border-light">
                 <p class="font-weight-bold text-right">
                   View details >
                 </p>
@@ -163,7 +169,7 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="12" class="pt-5 pb-2 pl-4">
+              <b-col v-if="!reporTypeInterviewer" cols="12" class="pt-5 pb-2 pl-4">
                 <h3 class="text-left ml-2">
                   Your Overall Strengths and Limitations related to this position
                 </h3>
@@ -177,7 +183,7 @@
                   Strengths
                 </p>
                 <p class="text-left text-secondary ml-2">
-                  {{ pastInterviews[id].report_data.strength }}
+                  {{ report.feedback.strength }}
                 </p>
               </b-col>
               <b-col cols="12" class="pl-4 pt-3">
@@ -185,7 +191,7 @@
                   Limitations
                 </p>
                 <p class="text-left text-secondary ml-2">
-                  {{ pastInterviews[id].report_data.limitations }}
+                  {{ report.feedback.limitations }}
                 </p>
               </b-col>
             </b-row>
@@ -197,8 +203,11 @@
           <b-container class="bg-white">
             <b-row>
               <b-col cols="12" class="pt-5 pb-5 pl-4">
-                <h3 class="text-left ml-2 text-primary">
+                <h3 v-if="!reporTypeInterviewer" class="text-left ml-2 text-primary">
                   Interviewer {{ job_offer() }} you suitable for this job.
+                </h3>
+                <h3 v-if="reporTypeInterviewer" class="text-left ml-2 text-primary">
+                  Candidate {{ job_result() }} suitable for this job.
                 </h3>
               </b-col>
             </b-row>
@@ -213,13 +222,13 @@
 export default {
   layout: 'app-page',
   props: {
-    id: {
-      type: Number,
+    report: {
+      type: Object,
       required: true
     },
-    pastInterviews: {
-      type: Array,
-      required: true
+    reporTypeInterviewer: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -235,7 +244,7 @@ export default {
           time_slots: ['12PM - 3PM'],
           company: 'dedes',
           date: '2020-08-28',
-          report_data: {
+          feedback: {
             technical_skill: ['Exceptional', 'good knowledge'],
             communicational_skill: ['Meets Requirenment', 'good knowledge'],
             presentation_skill: ['Need Training', 'good knowledge'],
@@ -248,7 +257,7 @@ export default {
         {
           time_slots: ['9PM - 12AM'],
           date: '2020-08-28',
-          report_data: {
+          feedback: {
             technical_skill: ['Exceptional', 'good knowledge'],
             communicational_skill: ['Exceptional', 'good knowledge'],
             presentation_skill: ['Exceptional', 'good knowledge'],
@@ -262,68 +271,74 @@ export default {
     }
   },
   mounted () {
-    if (this.pastInterviews[this.id].report_data.technical_skill[0] === 'Exceptional') {
+    if (this.report.feedback.technical_skill[0] === 'Exceptional') {
       this.technical_skill_progress_value = 100
-    } else if (this.pastInterviews[this.id].report_data.technical_skill[0] === 'Meets Requirenment') {
+    } else if (this.report.feedback.technical_skill[0] === 'Meets Requirenment') {
       this.technical_skill_progress_value = 75
-    } else if (this.pastInterviews[this.id].report_data.technical_skill[0] === 'Need Training') {
+    } else if (this.report.feedback.technical_skill[0] === 'Need Training') {
       this.technical_skill_progress_value = 50
-    } else if (this.pastInterviews[this.id].report_data.technical_skill[0] === 'Doesn\'t meet requirenment') {
+    } else if (this.report.feedback.technical_skill[0] === 'Doesn\'t meet requirenment') {
       this.technical_skill_progress_value = 25
     }
-    if (this.pastInterviews[this.id].report_data.communicational_skill[0] === 'Exceptional') {
+    if (this.report.feedback.communicational_skill[0] === 'Exceptional') {
       this.communicational_skill_progress_value = 100
-    } else if (this.pastInterviews[this.id].report_data.communicational_skill[0] === 'Meets Requirenment') {
+    } else if (this.report.feedback.communicational_skill[0] === 'Meets Requirenment') {
       this.communicational_skill_progress_value = 75
-    } else if (this.pastInterviews[this.id].report_data.communicational_skill[0] === 'Need Training') {
+    } else if (this.report.feedback.communicational_skill[0] === 'Need Training') {
       this.communicational_skill_progress_value = 50
-    } else if (this.pastInterviews[this.id].report_data.communicational_skill[0] === 'Doesn\'t meet requirenment') {
+    } else if (this.report.feedback.communicational_skill[0] === 'Doesn\'t meet requirenment') {
       this.communicational_skill_progress_value = 25
     }
-    if (this.pastInterviews[this.id].report_data.presentation_skill[0] === 'Exceptional') {
+    if (this.report.feedback.presentation_skill[0] === 'Exceptional') {
       this.presentation_skill_progress_value = 100
-    } else if (this.pastInterviews[this.id].report_data.presentation_skill[0] === 'Meets Requirenment') {
+    } else if (this.report.feedback.presentation_skill[0] === 'Meets Requirenment') {
       this.presentation_skill_progress_value = 75
-    } else if (this.pastInterviews[this.id].report_data.presentation_skill[0] === 'Need Training') {
+    } else if (this.report.feedback.presentation_skill[0] === 'Need Training') {
       this.presentation_skill_progress_value = 50
-    } else if (this.pastInterviews[this.id].report_data.presentation_skill[0] === 'Doesn\'t meet requirenment') {
+    } else if (this.report.feedback.presentation_skill[0] === 'Doesn\'t meet requirenment') {
       this.presentation_skill_progress_value = 25
     }
-    if (this.pastInterviews[this.id].report_data.understanding_of_role[0] === 'Exceptional') {
+    if (this.report.feedback.understanding_of_role[0] === 'Exceptional') {
       this.understanding_of_role_progress_value = 100
-    } else if (this.pastInterviews[this.id].report_data.understanding_of_role[0] === 'Meets Requirenment') {
+    } else if (this.report.feedback.understanding_of_role[0] === 'Meets Requirenment') {
       this.understanding_of_role_progress_value = 75
-    } else if (this.pastInterviews[this.id].report_data.understanding_of_role[0] === 'Need Training') {
+    } else if (this.report.feedback.understanding_of_role[0] === 'Need Training') {
       this.understanding_of_role_progress_value = 50
-    } else if (this.pastInterviews[this.id].report_data.understanding_of_role[0] === 'Doesn\'t meet requirenment') {
+    } else if (this.report.feedback.understanding_of_role[0] === 'Doesn\'t meet requirenment') {
       this.understanding_of_role_progress_value = 25
     }
   },
   methods: {
     date () {
       let month = ''
-      this.pastInterviews[this.id].date.slice(5, 7).includes('0') ? month = this.pastInterviews[this.id].date.slice(6, 7) : month = this.pastInterviews[this.id].date.slice(5, 7)
+      this.report.date.slice(5, 7).includes('0') ? month = this.report.date.slice(6, 7) : month = this.report.date.slice(5, 7)
       const monthList = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       month = monthList[parseInt(month) - 1]
-      const date = this.pastInterviews[this.id].date.slice(8, 10)
-      const year = this.pastInterviews[this.id].date.slice(0, 4)
+      const date = this.report.date.slice(8, 10)
+      const year = this.report.date.slice(0, 4)
       const amplifiedDate = month + ' ' + date + ',' + year
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10) + ', ' + day.slice(11, 16)
     },
     job_offer () {
-      if (this.pastInterviews[this.id].report_data.consider_for_job === 'yes') {
+      if (this.report.feedback.consider_for_job === 'yes') {
         return 'considers'
-      } else if (this.pastInterviews[this.id].report_data.consider_for_job === 'no') {
+      } else if (this.report.feedback.consider_for_job === 'no') {
         return 'does not consider'
+      }
+    },
+    job_result () {
+      if (this.report.feedback.consider_for_job === 'yes') {
+        return 'was'
+      } else if (this.report.feedback.consider_for_job === 'no') {
+        return 'was not'
       }
     },
     downloud_report () {
       const payload = {}
-      payload.slug = this.pastInterviews[this.id].slug
-      payload.pk = this.pastInterviews[this.id].pk
-      this.$axios.get(`/report-details/${this.pastInterviews[this.id].pk}/${this.pastInterviews[this.id].slug}/`).then((response) => {
-        // debugger
+      payload.slug = this.report.slug
+      payload.pk = this.report.pk
+      this.$axios.get(`/report-details/${this.report.pk}/${this.report.slug}/`).then((response) => {
         // this.report_pdf = response.data
       }).catch((errorResponse) => {
         this.$toast.error(

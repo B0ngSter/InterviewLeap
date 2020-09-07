@@ -1,23 +1,26 @@
-from django.conf import settings
+from authentication.interview_schedule import interview_schedule
+from backend import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView, get_object_or_404, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView, get_object_or_404, \
+    RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import pytz
 from authentication.models import Skill, InterviewSlots, CandidateProfile, Interview, InterviewerProfile
 from authentication.serializers import InterviewerRequestsListSerializer
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer,\
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer, \
     MockFeedbackCreateViewSerializer, CustomFeedbackCreateViewSerializer, BookInterviewCreateSerializer
 from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.http import BadHeaderError, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer, BookInterviewUpdateSerializer
+from root.serializers import BookInterviewCreateSerializer, SKillSearchSerializer, PaymentSerializer, \
+    BookInterviewUpdateSerializer
 import requests
 from instamojo_wrapper import Instamojo
 from .models import PaymentDetails, BookInterview, PaymentStatusLog
@@ -39,7 +42,7 @@ api = Instamojo(api_key=settings.PAYMENT_API_KEY,
                 endpoint=settings.INSTAMOJO_URL)
 
 
-@method_decorator(profile_complete, name='dispatch')
+# @method_decorator(profile_complete, name='dispatch')
 class BookInterviewView(CreateAPIView):
     """
         Book Interview   -- Authenticated Candidate can create/book interview  they are willing to interviewed!
@@ -66,11 +69,19 @@ class BookInterviewView(CreateAPIView):
         tax = settings.TAX_PERCENTAGE
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         total_amount = payment_amount + (payment_amount * tax) / 100
+        is_profile_completed = False
+        try:
+            profile_obj = CandidateProfile.objects.get(user=self.request.user)
+            if profile_obj:
+                is_profile_completed = True
+        except ObjectDoesNotExist:
+            pass
         response = {
             "timezone_list": pytz.all_timezones,
             "amount": settings.CUSTOM_PAYMENT_AMOUNT,
             "tax": int(round(payment_amount * tax) / 100),
-            "total_amount": round(total_amount)
+            "total_amount": round(total_amount),
+            "is_profile_completed": is_profile_completed
         }
 
         return Response(response, status=status.HTTP_200_OK)
@@ -81,7 +92,7 @@ class BookInterviewView(CreateAPIView):
         payment_amount = settings.CUSTOM_PAYMENT_AMOUNT
         tax_amount = (payment_amount * tax) / 100
         total_amount = payment_amount + (payment_amount * tax) / 100
-        link = "{frontend_url}/book-interview".format(frontend_url=settings.FRONTEND_URL)
+        link = "{frontend_url}/dashboard".format(frontend_url=settings.FRONTEND_URL)
         webhook_url = "{domain}/webhook/payment-response/".format(domain=settings.WEBHOOK_STAGING_URL)
         response = api.payment_request_create(
             amount=total_amount,
@@ -203,7 +214,8 @@ def mojo_handler(request):
                     payment_obj.save()
                     book_interview = BookInterview.objects.filter(slug=check_payment.interview_slug).first()
                     book_interview.is_payment_done = True
-                    book_interview.payment_detail = PaymentDetails.objects.filter(payment_request_id=data['payment_request_id']).first()
+                    book_interview.payment_detail = PaymentDetails.objects.filter(
+                        payment_request_id=data['payment_request_id']).first()
                     book_interview.save()
                     check_payment.delete()
                     send_mail_on_subscription(request, payment_obj.buyer, payment_obj.buyer_name, payment_obj.amount,
@@ -220,7 +232,7 @@ def mojo_handler(request):
         payment_log_obj = PaymentStatusLog.objects.filter(payment_request_id=data['payment_request_id']).first()
         payment_log_obj.status = "Failed-400"
         payment_log_obj.save(update_fields=['status'])
-        #check for HTTPResponseRedirect
+        # check for HTTPResponseRedirect
         return HttpResponse(400)
 
 
@@ -261,8 +273,9 @@ class CandidateInterviewerDashboardView(ListAPIView):
                                                                                                    flat=True)
                 if skills:
                     for skill in skills:
-                        interview_requests = BookInterview.objects.filter(skills__title__icontains=skill,
-                                                                          date__gte=timezone.now())
+                        interview_requests = BookInterview.objects.filter(
+                            is_interview_scheduled=False, interviewer__isnull=True,
+                            is_declined=False)
                     dashboard_details['new_interview_requests'] = interview_requests.count()
                     interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
                     dashboard_details['interview_requests'] = interview_requests_serialize
@@ -274,9 +287,7 @@ class CandidateInterviewerDashboardView(ListAPIView):
 
             return Response(dashboard_details, status=status.HTTP_200_OK)
         else:
-            pass
-
-        return Response({"mocks": mock_list}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
 
 
 class SkillSearchView(ListAPIView):
@@ -297,7 +308,7 @@ class SkillSearchView(ListAPIView):
             return Response({"message": "Missing parameter."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@method_decorator(profile_complete, name='dispatch')
+# @method_decorator(profile_complete, name='dispatch')
 class MockBookingView(APIView):
 
     def get(self, request, *args, **kwargs):
@@ -306,11 +317,19 @@ class MockBookingView(APIView):
         payment_amount = Interview.objects.get(slug=mock_slug).quoted_price
         payment_amount = int(payment_amount)
         total_amount = payment_amount + (payment_amount * tax) / 100
+        is_profile_completed = False
+        try:
+            profile_obj = CandidateProfile.objects.get(user=self.request.user)
+            if profile_obj:
+                is_profile_completed = True
+        except ObjectDoesNotExist:
+            pass
         response = {
             "timezone_list": pytz.all_timezones,
             "amount": settings.CUSTOM_PAYMENT_AMOUNT,
             "tax": int(round(payment_amount * tax) / 100),
-            "total_amount": round(total_amount)
+            "total_amount": round(total_amount),
+            "is_profile_completed": is_profile_completed
         }
         return Response(response, status=status.HTTP_200_OK)
 
@@ -364,8 +383,18 @@ class MockBookingView(APIView):
             else:
                 return Response({"message": "Some server error happen."}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"message": "The slot you are trying to book is already booked by someone else, Please try another slot"},
+            return Response({
+                                "message": "The slot you are trying to book is already booked by someone else, Please try another slot"},
                             status=status.HTTP_200_OK)
+
+
+def _date_time_format(date, time, timezone):
+    date_time = date + ' ' + time
+    local = pytz.timezone(timezone)
+    naive = datetime.datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+    local_dt = local.localize(naive, is_dst=None)
+    utc_dt = local_dt.astimezone(pytz.utc).isoformat()
+    return utc_dt
 
 
 @require_POST
@@ -402,13 +431,29 @@ def mock_booking_webhook_handler(request):
                     mock_interview = InterviewSlots.objects.get(interview__slug=payment_log.interview_slug,
                                                                 interview_start_time=payment_log.start_time,
                                                                 interview_end_time=payment_log.end_time)
+
+                    interview_info = {}
+                    interview_info["recipients"] = [payment_log.email, mock_interview.interview.interviewer.email]
+                    timezone = mock_interview.interview.timezone
+                    interview_info['start_time'] = _date_time_format(request.data['date'],
+                                                                     request.data['start_time']
+                                                                     , timezone)
+                    interview_info['end_time'] = _date_time_format(request.data['date'], request.data['end_time']
+                                                                   , timezone)
+                    interview_info['timezone'] = timezone
+                    interview_info['title'] = mock_interview.interview.job_title
+                    interview_info['description'] = mock_interview.interview.description
+                    response = interview_schedule(interview_info)
+                    mock_interview.meet_link = response['htmlLink']
                     mock_interview.is_payment_done = True
                     mock_interview.candidate = CandidateProfile.objects.get(user__email=payment_log.email)
-                    mock_interview.payment_detail = PaymentDetails.objects.get(payment_request_id=data['payment_request_id'])
+                    mock_interview.payment_detail = PaymentDetails.objects.get(
+                        payment_request_id=data['payment_request_id'])
                     mock_interview.save()
                     payment_log.delete()
                     send_mail_on_subscription(request, payment_obj.buyer, payment_obj.buyer_name, payment_obj.amount,
-                                              mock_interview.interview.slug, payment_obj.created_at, payment_obj.tax_amount,
+                                              mock_interview.interview.slug, payment_obj.created_at,
+                                              payment_obj.tax_amount,
                                               payment_obj.amount)
             except IntegrityError:
                 transaction.rollback()
@@ -517,18 +562,21 @@ class InterviewListView(ListAPIView):
             for data in open_mocks:
                 profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
                 search_list.append({"job_title": data.job_title,
+                                    "company": profile_obj.company if profile_obj else '',
+                                    "exp_years": profile_obj.exp_years if profile_obj else '',
+                                    "slug": data.slug
+                                    })
+        for data in queryset:
+            check = data.interviewslots_set.filter(interview_start_time__date__gte=timezone.now())
+            if check:
+                profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
+                mock_list.append({"job_title": data.job_title,
                                   "company": profile_obj.company if profile_obj else '',
                                   "exp_years": profile_obj.exp_years if profile_obj else '',
                                   "slug": data.slug
                                   })
-        for data in queryset:
-            profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
-            mock_list.append({"job_title": data.job_title,
-                              "company": profile_obj.company if profile_obj else '',
-                              "exp_years": profile_obj.exp_years if profile_obj else '',
-                              "slug": data.slug
-                              })
-        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True)
+        custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, is_interview_scheduled=False,
+                                                          date__gte=timezone.now())
         booking_list = []
         for each_row in custom_booking_obj:
             booking_list.append(
@@ -543,12 +591,13 @@ class PastInterviewListView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         past_interview = []
-        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user)
-        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user)
+        mock_interview_obj = self.queryset.filter(candidate__user=self.request.user, candidate__isnull=False)
+        custom_interview_obj = BookInterview.objects.filter(candidate=self.request.user,
+                                                            is_payment_done=True, is_interview_scheduled=True)
         report_data = {"strength": "", "limitations": "", "technical_skill": [],
                        "consider_for_job": "", "presentation_skill": [],
                        "communicational_skill": [], "understanding_of_role": []
-                        }
+                       }
         for each_row in custom_interview_obj:
             if each_row.interview_start_time is not None:
                 start_time = each_row.interview_start_time.time().strftime("%I %p")
@@ -560,7 +609,7 @@ class PastInterviewListView(ListAPIView):
                                    "time_slot": time_slot,
                                    "company": each_row.interviewer.company if each_row.interviewer else '',
                                    "interview_type": "Direct Booked Interview",
-                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "feedback": each_row.feedback if each_row.feedback else report_data,
                                    "pk": each_row.id,
                                    "slug": each_row.slug
                                    })
@@ -568,7 +617,7 @@ class PastInterviewListView(ListAPIView):
             if each_row.interview_start_time is not None:
                 start_time = each_row.interview_start_time.time().strftime("%I %p")
                 end_time = each_row.interview_end_time.time().strftime("%I %p")
-                time_slot = start_time +" - " + end_time
+                time_slot = start_time + " - " + end_time
             else:
                 time_slot = ''
             profile_obj = InterviewerProfile.objects.filter(user=each_row.interview.interviewer).first()
@@ -576,7 +625,7 @@ class PastInterviewListView(ListAPIView):
                                    "time_slot": time_slot,
                                    "company": profile_obj.company if profile_obj else '',
                                    "interview_type": "Open Mock Interview",
-                                   "report_data": each_row.feedback if each_row.feedback else report_data,
+                                   "feedback": each_row.feedback if each_row.feedback else report_data,
                                    "pk": each_row.id,
                                    "slug": each_row.interview.slug
                                    })
@@ -594,7 +643,7 @@ class ReportDetailView(APIView):
             else:
                 company = ''
             interview_type = "Open Mock Interview"
-            return mock_interview_obj, interview_type, company , mock_interview_obj.interview_start_time.date()
+            return mock_interview_obj, interview_type, company, mock_interview_obj.interview_start_time.date()
         except ObjectDoesNotExist:
             custom_interview_obj = BookInterview.objects.get(id=self.kwargs['pk'], slug=self.kwargs['slug'])
             interview_type = "Direct Booked Interview",
@@ -664,7 +713,6 @@ class MockInterviewFeedbackView(CreateAPIView):
 
 
 class CustomInterviewFeedbackView(CreateAPIView):
-
     serializer_class = CustomFeedbackCreateViewSerializer
 
     def create(self, request, *args, **kwargs):

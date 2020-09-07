@@ -1,4 +1,4 @@
-from django.conf import settings
+from backend import settings
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin, AbstractBaseUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
@@ -107,6 +107,7 @@ class CandidateProfile(models.Model):
     linkedin = models.URLField(max_length=256, null=True, blank=True)
     industry = models.CharField(max_length=256, null=True, blank=True)
     designation = models.CharField(max_length=256, null=True, blank=True)
+    job_title = models.CharField(max_length=256, null=True, blank=True)
     company = models.CharField(max_length=256, null=True, blank=True)
     exp_years = models.IntegerField(null=True, blank=True, validators=[
         MinValueValidator(0, message='Enter a whole number')])
@@ -166,6 +167,7 @@ class InterviewSlots(models.Model):
     interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)
     payment_detail = models.ForeignKey('root.PaymentDetails', null=True, blank=True, on_delete=models.DO_NOTHING)
+    meet_link = models.CharField(max_length=368, null=True, blank=True)
     feedback = JSONField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

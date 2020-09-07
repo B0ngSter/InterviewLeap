@@ -23,11 +23,11 @@
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
-              <b-col cols="12" class="pt-5 pb-5 pl-4">
+              <b-col cols="12" class="pt-5 pb-5 pl-4 border-bottom border-light">
                 <p class="text-left text-secondary">
                   Date &amp; time
                 </p>
-                <h4 class="text-left text-dark font-weight-bold border-bottom border-light">
+                <h4 class="text-left text-dark font-weight-bold">
                   {{ date() }}
                 </h4>
               </b-col>

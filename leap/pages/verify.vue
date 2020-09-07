@@ -12,6 +12,7 @@
 
 <script>
 export default {
+  auth: false,
   mounted () {
     const errorCallback = (response) => {
       this.$toast.error((response.data && response.data.message) ? response.data.message : "We could'nt verify your account.", {
@@ -33,7 +34,7 @@ export default {
           }
         }
       })
-      this.$router.push('/auth/login')
+      this.$router.push('/login')
     }
     if (this.$route.query.token) {
       this.$store.dispatch('verify_verification_token', {

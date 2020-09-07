@@ -3,7 +3,9 @@
     <b-container>
       <b-row align-h="center" align-v="center">
         <b-col cols="11" md="8" lg="6" class="text-center text-joyful-dark">
-          <h3 class="mb-5 text-dark">Reset your password</h3>
+          <h3 class="mb-5 text-dark">
+            Reset your password
+          </h3>
           <div v-if="$route.query.token">
             <b-form-input
               v-model="password"
@@ -80,7 +82,7 @@ export default {
     send_instructions () {
       this.$axios.post('/auth/password-reset/', { email: this.email })
         .then((response) => {
-          this.$router.push('/auth/email-sent')
+          this.$router.push(`/email-sent?email=${this.email}&context=Password-reset`)
         })
         .catch((errorResponse) => {
           this.$toast.error(

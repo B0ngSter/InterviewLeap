@@ -18,7 +18,7 @@
           </h2>
         </b-col>
         <b-col cols="5" offset-md="1">
-          <div class="text-left text-danger-dark mt-3 mb-2">
+          <div v-if="!is_profile_completed" class="text-left text-danger-dark mt-3 mb-2">
             *Update your ‘Profile’ before booking
             Interview for right match and  complete evaluation !
           </div>
@@ -129,6 +129,7 @@ export default {
       time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
       time_slot: [],
+      is_profile_completed: null,
       time_slots_mock: [],
       candidate_info: {
         time_zone: null,
@@ -164,6 +165,10 @@ export default {
       this.$axios.get('/book-interview')
         .then((response) => {
           this.timeZone = response.data.timezone_list
+          this.is_profile_completed = response.data.is_profile_completed
+          if (!response.data.is_profile_completed) {
+            this.$router.push('/profile')
+          }
         })
     },
     addSlot (idy) {

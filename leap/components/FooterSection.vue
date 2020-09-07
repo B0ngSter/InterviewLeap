@@ -1,7 +1,7 @@
 <template>
-  <section>
+  <section class="bg-dark text-white py-5">
     <b-container fluid>
-      <b-row class="justify-content-center bg-dark text-white py-5">
+      <b-row class="justify-content-center py-5">
         <b-col cols="11" md="7">
           <div class="d-flex flex-column flex-md-row">
             <Logo dark_long class="mx-0" />

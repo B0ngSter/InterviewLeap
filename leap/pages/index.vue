@@ -132,9 +132,9 @@
     </section>
     <TestimonialSection :testimonials="testimonials" />
     <InterviewerPedigreeShowcase />
-    <section>
+    <section class="bg-success-dark text-white py-5">
       <b-container fluid>
-        <b-row class="justify-content-center bg-success-dark text-white py-11">
+        <b-row class="justify-content-center py-11">
           <b-col cols="11" md="7">
             <p class="h1 font-weight-bold">
               Are you interested in becoming

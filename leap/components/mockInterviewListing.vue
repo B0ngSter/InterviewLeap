@@ -8,12 +8,32 @@
       </b-col>
       <b-col cols="12" md="6" class="mt-5 mb-5">
         <autocomplete
-          @select="selectSearchResult"
           search-endpoint="/interview-list"
           search-param-name="keyword"
           result-key="search_list"
           item-title-key="job_title"
+          @select="selectSearchResult"
         />
+      </b-col>
+      <b-col v-if="mocks.length === 0" cols="12" class="mt-5">
+        <div class="text-center pt-4">
+          <b-img
+            src="@/static/kio.svg"
+            alt="InterviewLeap logo"
+          />
+          <p class="font-weight-bold mt-5">
+            Didn’t find any suitable interviewer.
+          </p>
+          <p class="text-secondary">
+            No worries you can book directly and we’ll find right
+            Interviewer for you
+          </p>
+        </div>
+        <div class="text-center mt-4">
+          <b-button variant="primary" class="text-white" to="/book-interview">
+            Book interview >
+          </b-button>
+        </div>
       </b-col>
       <b-col v-for="(mockInterview, idx) in mocks" :key="idx" class="mt-3" cols="12">
         <b-card no-body class="text-center border-0">

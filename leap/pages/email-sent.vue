@@ -19,7 +19,7 @@
           Verify your email address to get started in Interview Leap
         </p>
         <div class="text-center mt-5">
-          <p>Dodn’t receive verification mail ?</p>
+          <p>Didn’t receive verification mail ?</p>
           <p class="text-danger-dark text-weight-bold cursor-pointer" @click="resend">
             Resend
           </p>

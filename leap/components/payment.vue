@@ -145,7 +145,7 @@
       <b-col cols="12">
         <div class="text-center mt-5">
           <b-button variant="primary" @click="submit">
-            proceed to pay
+            Proceed to pay
           </b-button>
         </div>
       </b-col>

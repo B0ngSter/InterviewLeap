@@ -83,7 +83,7 @@
                   </b-col>
                   <b-col cols="3" offset-md="2">
                     <div class="mt-5 mb-5">
-                      <b-button squared class="alert-danger text-danger-dark" @click="cancel">
+                      <b-button squared class="alert-danger text-danger-dark" @click="model=true">
                         Cancel
                       </b-button>
                     </div>
@@ -98,6 +98,30 @@
                 </b-row>
               </b-container>
             </b-card>
+            <b-modal
+              id="modal-center"
+              v-model="model"
+              centered
+              hide-footer
+              hide-header
+            >
+              <h4 class="pa-5 mt-5 text-secondary text-center">
+                Cancellation of scheduled interview is non refundable
+              </h4>
+              <div class="text-center mt-5 mb-5">
+                <b-button
+                  squared
+                  variant="outline-primary"
+                  class="btn-padding text-primary ml-3"
+                  @click="model=false"
+                >
+                  Close
+                </b-button>
+                <b-button squared variant="danger" class="text-white" @click="cancel (idx)">
+                  Cancel Anyway
+                </b-button>
+              </div>
+            </b-modal>
           </b-col>
         </div>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
@@ -269,6 +293,7 @@ export default {
   data () {
     return {
       selected_slot: [],
+      model: false,
       showProfile: false,
       profileResponse: {},
       interviewer_insights: {
@@ -339,7 +364,6 @@ export default {
       const day = String(new Date(amplifiedDate))
       return day.slice(0, 3) + ',' + day.slice(3, 10)
     },
-    decline_interview_request () {},
     select_slot (idx, idy) {
       this.selected_slot.includes(this.interview_requests[idx].time_slots[idy]) ? this.selected_slot.splice(this.selected_slot.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : this.selected_slot.push(this.interview_requests[idx].time_slots[idy])
       if (this.selected_slot.length === 2) {
@@ -391,7 +415,28 @@ export default {
     interview_join_link (idx) {
       window.open(this.upcoming_interviews[idx].meet_link, '_blank')
     },
-    cancel (idx) {},
+    cancel (idx) {
+      const payload = {}
+      payload.state = 'Cancelled'
+      payload.slug = this.upcoming_interviews[idx].slug
+      this.$axios.post('/interview-list/', payload).then((response) => {
+        this.upcoming_interviews.splice(idx, 1)
+        this.model = false
+        this.$toast.success('Interview cancelled', {
+          action: {
+            text: 'Close',
+            onClick: (e, toastObject) => {
+              toastObject.goAway(0)
+            }
+          }
+        })
+      })
+        .catch((errorResponse) => {
+          this.$toast.error(
+            errorResponse.response.data.message || 'Something went wrong'
+          )
+        })
+    },
     fetch_interview () {
       this.$axios.get('/interview-list/').then((response) => {
         this.upcoming_interviews = response.data.upcoming_interviews
@@ -405,3 +450,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.btn-padding {
+  padding: 1.34rem 5rem 1.34rem 5rem;
+}
+</style>

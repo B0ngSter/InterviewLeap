@@ -384,6 +384,7 @@
                         list="skill-options"
                         :disabled="skills_filled"
                         @keypress="fetchSkills"
+                        @keydown.enter="addSkill"
                       />
                       <datalist id="skill-options">
                         <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -420,12 +421,12 @@
                   </b-col>
                   <b-col class="mt-4" cols="12">
                     <div v-if="$store.getters.is_candidate" class="text-center">
-                      <b-button variant="primary" :disabled="profile.linkedin === null || profile.professional_status === ''" @click="save_profile">
+                      <b-button variant="primary" :disabled="profile.linkedin === null || profile.skills.length === 0 || profile.professional_status === ''" @click="save_profile">
                         Save
                       </b-button>
                     </div>
                     <div v-if="$store.getters.is_interviewer" class="text-center">
-                      <b-button variant="primary" @click="current_tab=2">
+                      <b-button :disabled="profile.linkedin === null || profile.skills.length === 0" variant="primary" @click="current_tab=2">
                         Next
                       </b-button>
                     </div>
@@ -616,7 +617,8 @@ export default {
       this.profile.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.profile.skills.includes(this.skill_search_query)) {
+      if (this.skill_search_query.length === 0) {
+      } else if (!this.profile.skills.includes(this.skill_search_query)) {
         this.profile.skills.push(this.skill_search_query)
       }
       this.skill_search_query = ''
@@ -671,6 +673,7 @@ export default {
       this.$axios.post(profileApiURL, formData
       ).then((response) => {
         if (response.status === 200) {
+          this.$router.push('/dashboard')
           this.$toast.success('Your profile changes were saved', {
             action: {
               text: 'Close',

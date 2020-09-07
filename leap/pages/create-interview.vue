@@ -74,6 +74,7 @@
                       list="Skill-options"
                       :disabled="skills_filled"
                       @keypress="fetchSkills"
+                      @keydown.enter="addSkill"
                     />
                     <datalist id="Skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -398,10 +399,9 @@ export default {
       this.interviewInfo.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.interviewInfo.skills.includes(this.skill_search_query)) {
+      if (this.skill_search_query.length === 0) {
+      } else if (!this.interviewInfo.skills.includes(this.skill_search_query)) {
         this.interviewInfo.skills.push(this.skill_search_query)
-      } else if (this.skill_search_query.length === 0) {
-        return
       }
       this.skill_search_query = ''
     },

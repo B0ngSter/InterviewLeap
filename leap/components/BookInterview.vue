@@ -60,9 +60,11 @@
                     <b-form-input
                       v-model="skill_search_query"
                       list="skill-options"
+                      debounce="300"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
                       @keypress="fetchSkills"
+                      @keydown.enter="addSkill"
                     />
                     <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
@@ -100,7 +102,7 @@
           </b-card>
         </b-col>
         <b-col cols="12" class="mt-2">
-          <b-card no-body class="text-center border-0">
+          <b-card no-body class="border-0">
             <b-container class="bg-white">
               <b-row>
                 <b-col cols="12" md="4" class="pt-5 pb-5">
@@ -308,10 +310,9 @@ export default {
       this.candidate_info.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.candidate_info.skills.includes(this.skill_search_query)) {
+      if (this.skill_search_query.length === 0) {
+      } else if (!this.candidate_info.skills.includes(this.skill_search_query)) {
         this.candidate_info.skills.push(this.skill_search_query)
-      } else if (this.skill_search_query === '') {
-        return
       }
       this.skill_search_query = ''
     },
@@ -355,6 +356,9 @@ export default {
   padding: 1.4rem;
 }
 .b-form-btn-label-control.form-control > label {
-  padding-right: 6rem;
+  padding-right: 0rem;
+}
+.btn {
+  color: rgb(0, 0, 0);
 }
 </style>

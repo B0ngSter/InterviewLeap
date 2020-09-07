@@ -130,71 +130,7 @@
         </b-row>
       </b-container>
     </section>
-    <section>
-      <b-container fluid>
-        <b-row class="justify-content-center bg-light text-dark py-11">
-          <b-col cols="11" md="7" class="mb-5">
-            <p class="h1 text-dark mw-660 font-weight-bold">
-              Hear from others on how we
-              are <span class="text-success-dark">making a difference.</span>
-            </p>
-          </b-col>
-          <b-col cols="11" md="7">
-            <div v-swiper:mySwiper="swiperOptions">
-              <div class="swiper-wrapper">
-                <div
-                  class="text-center swiper-slide"
-                  v-for="(testimonial, idx) in testimonials"
-                  :key="idx"
-                >
-                  <b-card border-variant="light" class="text-left bg-transparent">
-                    <b-card-body>{{ testimonial.text }}</b-card-body>
-                    <b-dropdown-divider />
-                    <b-card-body>
-                      <b-media class="align-items-center">
-                        <template v-slot:aside>
-                          <b-img :src="testimonial.user_dp" width="70" height="70" contain />
-                        </template>
-                        <h5 class="mt-0">{{ testimonial.user }}</h5>
-                        {{ testimonial.credibility }}
-                      </b-media>
-                    </b-card-body>
-                  </b-card>
-                </div>
-              </div>
-              <div class="swiper-pagination"></div>
-            </div>
-            <!-- Alternative implementation: works only on client-side(SSR Disabled) -->
-            <!--<client-only>
-              <swiper class="swiper" :options="swiperOptions">
-                <b-icon icon="arrow-right" class="swiper-button-next"></b-icon>
-                <swiper-slide
-                  class="text-center"
-                  v-for="(testimonial, idx) in testimonials"
-                  :key="idx"
-                >
-                  <b-card border-variant="light" class="text-left bg-transparent">
-                    <b-card-body>{{ testimonial.text }}</b-card-body>
-                    <b-dropdown-divider />
-                    <b-card-body>
-                      <b-media class="align-items-center">
-                        <template v-slot:aside>
-                          <b-img :src="testimonial.user_dp" width="70" height="70" contain />
-                        </template>
-                        <h5 class="mt-0">{{ testimonial.user }}</h5>
-                        {{ testimonial.credibility }}
-                      </b-media>
-                    </b-card-body>
-                  </b-card>
-                </swiper-slide>
-                <b-icon icon="arrow-left" class="swiper-button-prev"></b-icon>
-                <div class="swiper-pagination" slot="pagination"></div>
-              </swiper>
-            </client-only>-->
-          </b-col>
-        </b-row>
-      </b-container>
-    </section>
+    <TestimonialSection :testimonials="testimonials" />
     <section>
       <b-container fluid>
         <b-row class="justify-content-center bg-white text-dark py-11">
@@ -271,18 +207,16 @@
 </template>
 
 <script>
-// import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
-// import 'swiper/css/swiper.css'
 import { directive } from 'vue-awesome-swiper'
 import Logo from '~/components/Logo'
+import TestimonialSection from '~/components/TestimonialSection'
 
 export default {
   auth: false,
   layout: 'landing-page',
   components: {
-    Logo
-    // Swiper,
-    // SwiperSlide
+    Logo,
+    TestimonialSection
   },
   directives: {
     swiper: directive
@@ -297,14 +231,6 @@ export default {
   },
   data () {
     return {
-      swiperOptions: {
-        slidesPerView: 2,
-        spaceBetween: 30,
-        loop: true,
-        pagination: {
-          el: '.swiper-pagination'
-        }
-      },
       interviewerSwiperOptions: {
         slidesPerView: 4,
         // spaceBetween: 30,

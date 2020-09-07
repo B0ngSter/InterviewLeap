@@ -34,7 +34,7 @@
             </p>
           </b-col>
         </b-row>
-        <b-row class="justify-content-center mt-n12 d-none d-md-block">
+        <b-row class="justify-content-center mt-n12 d-none d-md-flex">
           <b-col cols="9">
             <b-img src="~/static/img/4A69859D-B62F-4888-9D68-C6418DDA8FD6.png" fluid />
           </b-col>

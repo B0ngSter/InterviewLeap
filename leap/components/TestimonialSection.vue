@@ -96,6 +96,17 @@ export default {
         loop: true,
         pagination: {
           el: '.swiper-pagination'
+        },
+        // Responsive breakpoints
+        breakpoints: {
+          // when window width is >= 320px
+          320: {
+            slidesPerView: 1
+          },
+          // when window width is >= 800px
+          800: {
+            slidesPerView: 2
+          }
         }
       }
     }

@@ -54,13 +54,13 @@ export default {
         breakpoints: {
           // when window width is >= 320px
           320: {
-            slidesPerView: 2
+            slidesPerView: 1
           },
           // when window width is >= 640px
           640: {
             slidesPerView: 3
           },
-          // when window width is >= 640px
+          // when window width is >= 1000px
           1000: {
             slidesPerView: 4
           }

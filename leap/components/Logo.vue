@@ -1,7 +1,7 @@
 <template>
   <b-img
     class="InterviewLeapLogo"
-    src="@/static/logos/icon.svg"
+    :src="dark_long ? require('@/static/logos/dark.svg') : require('@/static/logos/icon.svg')"
     alt="InterviewLeap logo"
     height="58"
   />
@@ -19,3 +19,14 @@
   }
 }
 </style>
+
+<script>
+export default {
+  props: {
+    dark_long: {
+      type: Boolean,
+      default: false
+    }
+  }
+}
+</script>

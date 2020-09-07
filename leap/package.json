@@ -21,6 +21,8 @@
     "cookieparser": "^0.1.0",
     "js-cookie": "^2.2.0",
     "nuxt": "^2.13.0",
+    "swiper": "^6.1.2",
+    "vue-awesome-swiper": "^4.1.1",
     "vue-google-signin-button": "^1.0.4",
     "vuelidate": "^0.7.5"
   },

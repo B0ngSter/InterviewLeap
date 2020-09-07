@@ -54,6 +54,44 @@ $input-padding-x:             1.25rem;  // 20px with the base 16px
   color: $happy-orange
 }
 
+.bg-success-dark {
+  background-color: #00755f;
+}
+
+.text-success-dark {
+  color: #00755f;
+}
+.text-smiley-green {
+  color: $smiley-green;
+}
+
 .text-joyful-dark {
   color: $joyful-dark
+}
+
+.p-6 {
+  padding: 4rem !important;
+}
+
+.pb-11,
+.py-11 {
+  padding-bottom: 7rem !important;
+}
+.pt-11,
+.py-11 {
+  padding-top: 7rem !important;
+}
+
+.mb-11,
+.my-11 {
+  margin-bottom: 7rem !important;
+}
+
+.mt-11,
+.my-11 {
+  margin-top: 7rem !important;
+}
+
+.mt-n12 {
+  margin-top: -9rem !important;
 }

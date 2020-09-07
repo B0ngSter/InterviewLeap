@@ -43,7 +43,7 @@
           <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
             <b-container class="bg-white">
               <b-row>
-                <b-col cols="12" md="" class="pt-5 pb-5 pl-4 border-bottom border-light">
+                <b-col cols="12" md="2" class="pt-5 pb-5 pl-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -69,12 +69,12 @@
                     {{ badge }}
                   </b-button>
                 </b-col>
-                <b-col cols="2" class="border-bottom border-light">
+                <b-col cols="2" md="2">
                   <b-button squared class="alert-danger text-danger-dark mt-5 mb-5" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
                 </b-col>
-                <b-col cols="2" class="border-bottom border-light">
+                <b-col cols="2" md="2">
                   <b-button squared :disabled="selected_slot.length === 0" class="alert-primary text-primary mt-5 mb-5" @click="accpet_interview_slot(idx)">
                     Accept
                   </b-button>
@@ -108,11 +108,11 @@
             </b-container>
           </b-card>
         </b-col>
-        <b-col v-if="feedback.length > 0" cols="12" class="mt-2">
-          <b-card v-for="(request, idx) in feedback" :key="idx" no-body class="text-center border-0">
+        <b-col v-if="feedback.length > 0" cols="12">
+          <b-card v-for="(request, idx) in feedback" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
               <b-row>
-                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4 border-bottom border-light">
+                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -120,7 +120,7 @@
                     {{ date_feedback(idx) }}
                   </h4>
                 </b-col>
-                <b-col cols="3" md="3" offset-md="5" class="border-bottom border-light">
+                <b-col cols="3" md="3" offset-md="5">
                   <b-button class="alert-primary text-primary mt-5 mb-5" @click="feedbacks(idx)">
                     Feedback
                   </b-button>
@@ -154,11 +154,11 @@
             </b-container>
           </b-card>
         </b-col>
-        <b-col v-if="upcoming_interviews.length > 0" cols="12" class="mt-2">
-          <b-card v-for="(request, idx) in upcoming_interviews" :key="idx" no-body class="text-center border-0">
+        <b-col v-if="upcoming_interviews.length > 0" cols="12">
+          <b-card v-for="(request, idx) in upcoming_interviews" :key="idx" no-body class="text-center border-0 mt-2">
             <b-container class="bg-white">
               <b-row>
-                <b-col cols="12" md="" class="pt-5 pb-5 pl-4">
+                <b-col cols="4" md="4" class="pt-5 pb-5 pl-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -166,7 +166,7 @@
                     {{ date_upcomming(idx) }}
                   </h4>
                 </b-col>
-                <b-col :disabled="interview_duration(idx)" cols="3" offset-md="5" class="">
+                <b-col :disabled="interview_duration(idx)" cols="3" md="3" offset-md="5">
                   <b-button squared class="alert-primary text-primary mt-5 mb-5" @click="interview_join_link(idx)">
                     Join
                   </b-button>
@@ -216,10 +216,10 @@
         </b-col>
         <b-col v-for="(months, idx) in Object.keys(past_interviews)" :key="idx" cols="12" class="mt-5">
           <h4>{{ months }} ({{ past_interviews[months].length }})</h4>
-          <b-card v-for="(interview, idy) in past_interviews[Object.keys(past_interviews)[idx]]" :key="idy" no-body class="text-center border-0 mt-5">
+          <b-card v-for="(interview, idy) in past_interviews[Object.keys(past_interviews)[idx]]" :key="idy" no-body class="text-center border-0 mt-2">
             <b-container class="bg-white">
               <b-row>
-                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4 border-bottom border-light">
+                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4">
                   <p class="text-left text-secondary">
                     Date &amp; times
                   </p>
@@ -227,7 +227,7 @@
                     {{ date_past(idx, idy) }}
                   </h4>
                 </b-col>
-                <b-col cols="3" offset-md="5" class="">
+                <b-col cols="3" offset-md="5">
                   <b-button squared class="alert-primary text-primary mt-5 mb-5" @click="viewReport(interview)">
                     View Feedback
                   </b-button>
@@ -302,6 +302,22 @@ export default {
       showFeedbackPage: false,
       past_interviews: {
         // August: [
+        //   {
+        //     interview_start_time: '2020-08-10T13:00:00Z',
+        //     interview_end_time: '2020-08-10T14:00:00Z',
+        //     candidate_email: 'madhu@candidate.com',
+        //     role: 'Django Developer',
+        //     resume: 'https://www.youtube.com/',
+        //     feedback: {
+        //       technical_skill: ['Exceptional', 'good knowledge'],
+        //       communicational_skill: ['Meets Requirenment', 'good knowledge'],
+        //       presentation_skill: ['Need Training', 'good knowledge'],
+        //       understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
+        //       strength: 'coding skills',
+        //       limitations: 'understanding the problem',
+        //       consider_for_job: 'no'
+        //     }
+        //   },
         //   {
         //     interview_start_time: '2020-08-10T13:00:00Z',
         //     interview_end_time: '2020-08-10T14:00:00Z',

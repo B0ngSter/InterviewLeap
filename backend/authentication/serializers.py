@@ -293,6 +293,13 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
         return naive
 
 
+class InterviewListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Interview
+        fields = ['slug', 'job_title', 'exp_years']
+
+
 class InterviewerRequestsListSerializer(serializers.ModelSerializer):
     is_feedback = serializers.SerializerMethodField()
     candidate_email = serializers.SerializerMethodField()

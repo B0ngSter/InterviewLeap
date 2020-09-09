@@ -147,6 +147,7 @@ class Interview(models.Model):
     timezone = models.CharField(max_length=256)
     quoted_price = models.CharField(max_length=24, default=600)
     skills = models.ManyToManyField(to=Skill)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

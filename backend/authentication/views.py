@@ -41,7 +41,7 @@ from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
     ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
     CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer, \
-    CandidateFresherCreateSerializer, CandidateExperiencedCreateSerializer
+    CandidateFresherCreateSerializer, CandidateExperiencedCreateSerializer, InterviewListSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -754,7 +754,7 @@ class IndustryListView(APIView):
         return Response({"industries": industries})
 
 
-class InterviewCreateView(CreateAPIView):
+class InterviewCreateView(ListCreateAPIView):
     """
         InterviewCreationDetails   -- Authenticated Interviewer can Post Interveiw details!
         actions -- Post -- Interview Details(Interviewer)
@@ -780,6 +780,11 @@ class InterviewCreateView(CreateAPIView):
 
     serializer_class = InterviewCreateSerializer
 
+    def get(self, request, *args, **kwargs):
+        interviews = Interview.objects.filter(interviewer=self.request.user, is_active=True)
+        serialize = InterviewListSerializer(interviews, many=True).data
+        return Response(serialize, status=status.HTTP_200_OK)
+
     def create(self, request, *args, **kwargs):
         interview_dict = request.data
         interview_dict['interviewer'] = request.user.id
@@ -793,6 +798,12 @@ class InterviewCreateView(CreateAPIView):
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        interview_obj = Interview.objects.get(interviewer=self.request.user, slug=request.data['slug'])
+        interview_obj.is_active = False
+        interview_obj.save()
+        return Response({"message": "Interview Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
 class InterviewAcceptDeclineView(CreateAPIView):

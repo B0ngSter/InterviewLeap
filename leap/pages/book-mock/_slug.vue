@@ -26,8 +26,8 @@
         <b-col cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="6" class="pt-5 pb-5">
+              <b-row class="p-4">
+                <b-col cols="12" md="6" class="mt-3">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.candidate_info.time_zone.$model"
@@ -51,7 +51,7 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </b-col>
-                <b-col cols="12" md="6" class="pt-5 pb-5">
+                <b-col cols="12" md="6" class="mt-3">
                   <b-form-datepicker
                     v-model="candidate_info.date"
                     :date-disabled-fn="allowedDates"
@@ -87,6 +87,7 @@
           <div class="text-center mt-5">
             <b-button
               variant="primary"
+              class="text-white"
               :disabled="candidate_info.time_slots.length === 0 || candidate_info.time_zone == null || candidate_info.date == null"
               @click="submit"
             >

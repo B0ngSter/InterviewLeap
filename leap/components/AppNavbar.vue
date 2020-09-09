@@ -11,7 +11,7 @@
           :key="idx"
           :to="item.route"
           class="font-weight-bold"
-          active-class="active"
+          active-class="text-primary"
         >
           {{ item.title }}
         </b-nav-item>
@@ -29,7 +29,7 @@
               class="ml-3"
             />
           </template>
-          <b-dropdown-item to="/profile" active-class="active">
+          <b-dropdown-item to="/profile" active-class="text-primary">
             Profile
           </b-dropdown-item>
           <b-dropdown-item @click="logout">

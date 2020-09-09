@@ -71,7 +71,7 @@
                         {{ Skill }}
                       </option>
                     </datalist>
-                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                    <b-button class="text-white" variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
                   </b-input-group>
@@ -180,8 +180,11 @@
         >
           <b-card
             no-body
-            class="p-3 pl-5 mt-3 border-0"
-            :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]) }"
+            class="p-4 pl-5 mt-3"
+            :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]),
+                      'border-primary': candidate_info.time_slots.includes(time_slots[idy]),
+                      'border-0': !candidate_info.time_slots.includes(time_slots[idy])
+            }"
             @click="addSlot(idy)"
           >
             {{ timeslot }}
@@ -189,7 +192,7 @@
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5">
-            <b-button variant="primary" :disabled="candidate_info.company_type === '' || candidate_info.skills.length === 0 || candidate_info.time_slots.length === 0 || candidate_info.applied_designation == null || candidate_info.time_zone == null || candidate_info.date == null" @click="submit">
+            <b-button class="text-white" variant="primary" :disabled="candidate_info.company_type === '' || candidate_info.skills.length === 0 || candidate_info.time_slots.length === 0 || candidate_info.applied_designation == null || candidate_info.time_zone == null || candidate_info.date == null" @click="submit">
               Book  Interview
             </b-button>
           </div>

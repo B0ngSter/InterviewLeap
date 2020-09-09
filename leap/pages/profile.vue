@@ -101,7 +101,6 @@
                         v-model="$v.profile.mobile_number.$model"
                         class="bg-white"
                         required
-                        type="number"
                         placeholder="Mobile Number"
                         :state="validateState('mobile_number')"
                         aria-describedby="input-1-live-feedback"
@@ -115,7 +114,7 @@
                   </b-col>
                   <b-col cols="12" class="mt-4">
                     <div class="text-center">
-                      <b-button variant="primary" :disabled="!profile.mobile_number || profile.mobile_number.length > 10 || profile.mobile_number.length < 10" @click="current_tab=1">
+                      <b-button class="text-white" variant="primary" :disabled="!profile.mobile_number || profile.mobile_number.length > 10 || profile.mobile_number.length < 10" @click="current_tab=1">
                         Next
                       </b-button>
                     </div>
@@ -323,7 +322,7 @@
                   <b-col class="mt-4" cols="12" md="6">
                     <div v-if="existing_resume && !re_upload_resume">
                       <a :href="existing_resume" target="_blank">Current Resume</a>
-                      <b-button class="ml-5" variant="primary" @click="re_upload_resume = true">
+                      <b-button class="text-white ml-5" variant="primary" @click="re_upload_resume = true">
                         Click to change
                       </b-button>
                     </div>
@@ -392,7 +391,7 @@
                         </option>
                       </datalist>
                       <b-input-group-append>
-                        <b-button variant="secondary" :disabled="skills_filled" @click="addSkill">
+                        <b-button class="text-white" variant="primary" :disabled="skills_filled" @click="addSkill">
                           Add
                         </b-button>
                       </b-input-group-append>
@@ -421,12 +420,12 @@
                   </b-col>
                   <b-col class="mt-4" cols="12">
                     <div v-if="$store.getters.is_candidate" class="text-center">
-                      <b-button variant="primary" :disabled="profile.linkedin === null || profile.skills.length === 0 || profile.professional_status === ''" @click="save_profile">
+                      <b-button variant="primary" class="text-white" :disabled="profile.linkedin === null || profile.skills.length === 0 || profile.professional_status === ''" @click="save_profile">
                         Save
                       </b-button>
                     </div>
                     <div v-if="$store.getters.is_interviewer" class="text-center">
-                      <b-button :disabled="profile.linkedin === null || profile.skills.length === 0" variant="primary" @click="current_tab=2">
+                      <b-button class="text-white" :disabled="profile.linkedin === null || profile.skills.length === 0" variant="primary" @click="current_tab=2">
                         Next
                       </b-button>
                     </div>
@@ -461,7 +460,6 @@
                     <b-form-group>
                       <b-form-input
                         v-model="$v.profile.account_info.account_number.$model"
-                        type="number"
                         class="bg-white"
                         required
                         placeholder="Account Number"
@@ -512,7 +510,7 @@
                 </b-row>
               </b-container>
               <div class="text-center mt-4">
-                <b-button variant="primary" @click="save_profile">
+                <b-button class="text-white" variant="primary" @click="save_profile">
                   Save
                 </b-button>
               </div>
@@ -526,7 +524,7 @@
 
 <script>
 import { validationMixin } from 'vuelidate'
-import { required, minLength, maxLength, url } from 'vuelidate/lib/validators'
+import { required, minLength, maxLength, url, numeric } from 'vuelidate/lib/validators'
 export default {
   mixins: [validationMixin],
   layout: 'app-page',
@@ -590,7 +588,7 @@ export default {
       exp_years: { required },
       industry: { required },
       designation: { required },
-      mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10) },
+      mobile_number: { required, minLength: minLength(10), maxLength: maxLength(10), numeric },
       education: { required },
       company: { required },
       year_of_passing: { required },
@@ -598,7 +596,7 @@ export default {
       linkedin: { required, url },
       account_info: {
         acc_name: { required },
-        account_number: { required },
+        account_number: { required, numeric },
         ifsc_code: { required },
         bank: { required }
       }
@@ -760,5 +758,8 @@ export default {
 }
 .custom-file {
   width: unset;
+}
+.form_container a.nav-link:hover {
+  color: #5dcc99;
 }
 </style>

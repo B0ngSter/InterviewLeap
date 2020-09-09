@@ -81,7 +81,7 @@
                         {{ Skill }}
                       </option>
                     </datalist>
-                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                    <b-button class="text-white" variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
                   </b-input-group>
@@ -223,6 +223,7 @@
           <div class="text-center mt-5 mb-5">
             <b-button
               variant="primary"
+              class="text-white"
               :disabled="interviewInfo.job_title === null || interviewInfo.skills.length === 0 || interviewInfo.exp_years == null || interviewInfo.timezone == null || interviewInfo.description == null"
               @click="submit"
             >
@@ -380,7 +381,7 @@ export default {
       })
       this.$axios.post('/interview/create-interview/', payload)
         .then((response) => {
-          this.$toast.success('Your profile changes were saved', {
+          this.$toast.success('Interview has been created', {
             action: {
               text: 'Close',
               onClick: (e, toastObject) => {
@@ -391,7 +392,7 @@ export default {
         })
         .catch((errorResponse) => {
           this.$toast.error(
-            errorResponse.response.data.message || 'Interview has been created. Please try again later'
+            errorResponse.response.data.message || 'Something went wrong. Please try again later'
           )
         })
     },

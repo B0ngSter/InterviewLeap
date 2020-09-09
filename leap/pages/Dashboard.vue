@@ -28,44 +28,22 @@
         </b-col>
         <b-col v-if="$store.getters.is_candidate" :offset-md="upcoming_interviews.length === 0 ? 0 : 6" cols="12" md="3" class="pb-5 mb-5">
           <div class="text-right">
-            <b-button variant="primary" to="/book-interview">
+            <b-button class="text-white" variant="primary" to="/book-interview">
               Book interview
             </b-button>
           </div>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="4" offset-md="5" class="text-right">
-          <b-button to="/create-interview" variant="primary">
+          <b-button class="text-white" to="/create-interview" variant="primary">
             Create an Interview
           </b-button>
-        </b-col>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4 cursor-pointer">
-          <b-card no-body class="text-center border-0">
-            <b-container class="bg-white">
-              <b-row>
-                <b-col cols="4" class="pt-4 pb-2 pl-4">
-                  <b-img
-                    src="@/static/interview_requests.svg"
-                    alt="InterviewLeap logo"
-                  />
-                </b-col>
-                <b-col cols="8" class="pt-5 pb-2 pl-4">
-                  <h4 class="text-left font-weight-bold">
-                    {{ interviewer_insights.new_interview_requests }}
-                  </h4>
-                  <p class="text-left text-secondary">
-                    New Interview Requests
-                  </p>
-                </b-col>
-              </b-row>
-            </b-container>
-          </b-card>
         </b-col>
         <div v-if="$store.getters.is_candidate" style="width: 100%;">
           <b-col v-for="(interviews, idx) in upcoming_interviews" :key="idx" cols="12" class="mt-4">
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
-                <b-row>
-                  <b-col :cols="$store.state.is_mock ? 3 : 4" class="pt-5 pb-5 pl-5">
+                <b-row class="p-4 mt-3">
+                  <b-col :cols="$store.state.is_mock ? 3 : 4">
                     <p class="text-left text-secondary">
                       Date
                     </p>
@@ -73,7 +51,7 @@
                       {{ date(idx, upcoming_interviews) }}
                     </p>
                   </b-col>
-                  <b-col v-if="$store.state.is_mock" cols="3" class="pt-5 pb-5 pl-4">
+                  <b-col v-if="$store.state.is_mock" cols="3">
                     <p class="text-left text-secondary">
                       Interview from
                     </p>
@@ -82,14 +60,14 @@
                     </p>
                   </b-col>
                   <b-col cols="3" offset-md="2">
-                    <div class="mt-5 mb-5">
+                    <div class="text-right">
                       <b-button squared class="alert-danger text-danger-dark" @click="model=true">
                         Cancel
                       </b-button>
                     </div>
                   </b-col>
                   <b-col cols="3">
-                    <div class="mt-5 mb-5">
+                    <div class="text-right">
                       <b-button squared class="alert-primary text-primary" :to="`/book-interview/${upcoming_interviews[idx].slug}`">
                         Reschedule
                       </b-button>
@@ -124,71 +102,101 @@
             </b-modal>
           </b-col>
         </div>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
-          <b-card no-body class="text-center border-0">
-            <b-container class="bg-white">
-              <b-row>
-                <b-col cols="4" class="pt-4 pb-2 pl-4">
-                  <b-img
-                    src="@/static/interview_taken.svg"
-                    alt="InterviewLeap logo"
-                  />
-                </b-col>
-                <b-col cols="8" class="pt-5 pb-2 pl-4">
-                  <h4 class="text-left font-weight-bold">
-                    {{ interviewer_insights.interview_taken }}
-                  </h4>
-                  <p class="text-left text-secondary">
-                    Total Interviews Conducted
-                  </p>
-                </b-col>
-              </b-row>
-            </b-container>
-          </b-card>
+        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4 cursor-pointer">
+          <nuxt-link to="/interview-request" style="text-decoration: none;">
+            <b-card no-body class="text-center border-0">
+              <b-container class="bg-white">
+                <b-row>
+                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                    <b-img
+                      src="@/static/interview_requests.svg"
+                      alt="InterviewLeap logo"
+                    />
+                  </b-col>
+                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                    <h4 class="text-left text-dark font-weight-bold">
+                      {{ interviewer_insights.new_interview_requests }}
+                    </h4>
+                    <p class="text-left text-secondary">
+                      New Interview Requests
+                    </p>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </b-card>
+          </nuxt-link>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
-          <b-card no-body class="text-center border-0">
-            <b-container class="bg-white">
-              <b-row>
-                <b-col cols="4" class="pt-4 pb-2 pl-4">
-                  <b-img
-                    src="@/static/interview_created.svg"
-                    alt="InterviewLeap logo"
-                  />
-                </b-col>
-                <b-col cols="8" class="pt-5 pb-2 pl-4">
-                  <h4 class="text-left font-weight-bold">
-                    {{ interviewer_insights.interview_created }}
-                  </h4>
-                  <p class="text-left text-secondary">
-                    Interviews Created by You
-                  </p>
-                </b-col>
-              </b-row>
-            </b-container>
-          </b-card>
+          <nuxt-link to="/interview-request" style="text-decoration: none;">
+            <b-card no-body class="text-center border-0">
+              <b-container class="bg-white">
+                <b-row>
+                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                    <b-img
+                      src="@/static/interview_taken.svg"
+                      alt="InterviewLeap logo"
+                    />
+                  </b-col>
+                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                    <h4 class="text-left font-weight-bold">
+                      {{ interviewer_insights.interview_taken }}
+                    </h4>
+                    <p class="text-left text-secondary">
+                      Total Interviews Conducted
+                    </p>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </b-card>
+          </nuxt-link>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
-          <b-card no-body class="text-center border-0">
-            <b-container class="bg-white">
-              <b-row>
-                <b-col cols="4" class="pt-4 pb-2 pl-4">
-                  <b-img
-                    src="@/static/earning.svg"
-                    alt="InterviewLeap logo"
-                  />
-                </b-col>
-                <b-col cols="8" class="pt-5 pb-2 pl-4">
-                  <h4 class="text-left font-weight-bold">
-                    {{ interviewer_insights.total_earnings }}
-                  </h4>
-                  <p class="text-left text-secondary">
-                    Total Earnings
-                  </p>
-                </b-col>
-              </b-row>
-            </b-container>
-          </b-card>
+          <nuxt-link to="/created-interview" style="text-decoration: none;">
+            <b-card no-body class="text-center border-0">
+              <b-container class="bg-white">
+                <b-row>
+                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                    <b-img
+                      src="@/static/interview_created.svg"
+                      alt="InterviewLeap logo"
+                    />
+                  </b-col>
+                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                    <h4 class="text-left font-weight-bold">
+                      {{ interviewer_insights.interview_created }}
+                    </h4>
+                    <p class="text-left text-secondary">
+                      Interviews Created by You
+                    </p>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </b-card>
+          </nuxt-link>
+        </b-col>
+        <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
+          <nuxt-link to="/interview-request" style="text-decoration: none;">
+            <b-card no-body class="text-center border-0">
+              <b-container class="bg-white">
+                <b-row>
+                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                    <b-img
+                      src="@/static/earning.svg"
+                      alt="InterviewLeap logo"
+                    />
+                  </b-col>
+                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                    <h4 class="text-left font-weight-bold">
+                      {{ interviewer_insights.total_earnings }}
+                    </h4>
+                    <p class="text-left text-secondary">
+                      Total Earnings
+                    </p>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </b-card>
+          </nuxt-link>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" class="mt-5">
           <h4 class="text-left font-weight-bold">
@@ -205,7 +213,7 @@
             <p class="text-secondary">
               No worries you can Create an Interview
             </p>
-            <b-button to="/create-interview" variant="primary" class="mt-4 mb-4">
+            <b-button to="/create-interview" variant="primary" class="text-white mt-4 mb-4">
               Create an Interview
             </b-button>
           </div>
@@ -213,8 +221,8 @@
         <b-col v-if="$store.getters.is_interviewer" cols="12" class="mt-5 mb-5">
           <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="" class="pt-5 pb-5 pl-4 border-bottom border-light">
+              <b-row class="p-4 mt-3">
+                <b-col cols="2" md="" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -222,48 +230,47 @@
                     {{ date(idx, interview_requests) }}
                   </h4>
                 </b-col>
-                <b-col cols="12" md="6" class="mt-3">
+                <b-col cols="5" class="pb-4 text-left">
                   <b-button
                     v-for="(badge, idy) in request.time_slots"
                     :key="idy"
                     pill
                     size="sm"
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     :class="{
                       'bg-primary': badge === selected_slot[0],
                       'text-white': badge == selected_slot[0],
+                      'border-0': badge == selected_slot[0],
                       'text-dark': badge !== selected_slot[0]
                     }"
-                    class="p-3 mt-5 ml-1 cursor-pointer"
+                    class="p-3 cursor-pointer ml-2 mt-2"
                     @click="select_slot(idx, idy)"
                   >
                     {{ badge }}
                   </b-button>
                 </b-col>
-                <b-col cols="2" class="border-bottom border-light">
-                  <b-button squared class="alert-danger text-danger-dark mt-5 mb-5" @click="decline_interview_slot(idx)">
+                <b-col cols="5" class="pb-4 text-right">
+                  <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
-                </b-col>
-                <b-col cols="2" class="border-bottom border-light">
-                  <b-button squared :disabled="selected_slot.length === 0" class="alert-primary text-primary mt-5 mb-5" @click="accpet_interview_slot(idx)">
+                  <b-button squared :disabled="selected_slot.length === 0" class="alert-primary text-primary ml-3" @click="accpet_interview_slot(idx)">
                     Accept
                   </b-button>
                 </b-col>
-                <b-col cols="5" class="pt-5 pb-5 pl-4">
+                <b-col cols="5" class="border-top border-light pt-4">
                   <p class="text-left text-danger-dark font-weight-bold">
                     Role - Front-end developer
                   </p>
                 </b-col>
-                <b-col cols="4">
-                  <div class="pt-5 mb-5">
+                <b-col cols="4 border-top border-light pt-4">
+                  <div class="">
                     <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
                       View Candidate Profile >
                     </p>
                   </div>
                 </b-col>
-                <b-col cols="3">
-                  <div class="pt-5 mb-5">
+                <b-col cols="3 border-top border-light pt-4">
+                  <div class="">
                     <p class="text-right font-weight-bold" @click="resume(request)">
                       Download Resume
                     </p>
@@ -297,10 +304,10 @@ export default {
       showProfile: false,
       profileResponse: {},
       interviewer_insights: {
-        new_interview_requests: 1,
-        interview_created: 1,
-        interview_taken: 1,
-        total_earnings: 1,
+        new_interview_requests: '',
+        interview_created: '',
+        interview_taken: '',
+        total_earnings: '',
         interview_requests: [
           // {
           //   applied_designation: null,

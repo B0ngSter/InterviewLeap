@@ -24,7 +24,7 @@
           </p>
         </b-col>
         <b-col cols="12" md="4" class="text-right">
-          <b-button to="/create-interview" variant="primary">
+          <b-button class="text-white" to="/create-interview" variant="primary">
             Past Interviews
           </b-button>
         </b-col>
@@ -40,10 +40,10 @@
           </div>
         </b-col>
         <b-col v-if="interview_requests.length > 0" cols="12" class="mt-2">
-          <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
+          <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="2" class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col cols="2" md="" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -51,58 +51,51 @@
                     {{ date_Interview_request(idx) }}
                   </h4>
                 </b-col>
-                <b-col cols="12" md="6" class="mt-3">
+                <b-col cols="5" class="pb-4 text-left">
                   <b-button
                     v-for="(badge, idy) in request.time_slots"
                     :key="idy"
                     pill
                     size="sm"
-                    variant="outline-primary"
+                    variant="outline-secondary"
                     :class="{
-                      'bg-primary': badge === selected_slot[0],
-                      'text-white': badge == selected_slot[0],
-                      'text-dark': badge !== selected_slot[0]
+                      'bg-primary': badge === selected_slot[0] && idx === selected_slot[1],
+                      'text-white': selected_slot[1] === idx && badge === selected_slot[0],
+                      'text-dark': badge !== selected_slot[0] || selected_slot[1] !== idx,
+                      'border-0': badge === selected_slot[0] && idx === selected_slot[1]
                     }"
-                    class="p-3 mt-5 ml-1 cursor-pointer"
+                    class="p-3 cursor-pointer ml-2 mt-2"
                     @click="select_slot(idx, idy)"
                   >
                     {{ badge }}
                   </b-button>
                 </b-col>
-                <b-col cols="2" md="2">
-                  <b-button squared class="alert-danger text-danger-dark mt-5 mb-5" @click="decline_interview_slot(idx)">
+                <b-col cols="5" class="pb-4 text-right">
+                  <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
-                </b-col>
-                <b-col cols="2" md="2">
-                  <b-button squared :disabled="selected_slot.length === 0" class="alert-primary text-primary mt-5 mb-5" @click="accpet_interview_slot(idx)">
+                  <b-button squared :disabled="selected_slot[1] !== idx" class="alert-primary text-primary ml-3" @click="accpet_interview_slot(idx)">
                     Accept
                   </b-button>
                 </b-col>
-                <b-col cols="12" class="pa-5">
-                  <b-container class="border-top border-light">
-                    <b-row>
-                      <b-col cols="5" class="pt-5 pb-5 pl-4">
-                        <p class="text-left text-danger-dark font-weight-bold">
-                          Role - {{ request.applied_designation }}
-                        </p>
-                      </b-col>
-                      <b-col cols="4">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
-                            View Candidate Profile >
-                          </p>
-                        </div>
-                      </b-col>
-                      <b-col cols="3">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold" @click="resume(request)">
-                            Downloud Resume >
-                          </p>
-                        </div>
-                      </b-col>
-                    </b-row>
-                  </b-container>
+                <b-col cols="5" class="border-top border-light pt-4">
+                  <p class="text-left text-danger-dark font-weight-bold">
+                    Role - {{ request.applied_designation }}
+                  </p>
+                </b-col>
+                <b-col cols="4 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
+                      View Candidate Profile >
+                    </p>
+                  </div>
+                </b-col>
+                <b-col cols="3 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold" @click="resume(request)">
+                      Download Resume
+                    </p>
+                  </div>
                 </b-col>
               </b-row>
             </b-container>
@@ -111,8 +104,8 @@
         <b-col v-if="feedback.length > 0" cols="12">
           <b-card v-for="(request, idx) in feedback" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col cols="4" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -120,45 +113,39 @@
                     {{ date_feedback(idx) }}
                   </h4>
                 </b-col>
-                <b-col cols="3" md="3" offset-md="5">
-                  <b-button class="alert-primary text-primary mt-5 mb-5" @click="feedbacks(idx)">
-                    Feedback
+                <b-col offset="3" :disabled="interview_duration(idx)" cols="5" class=" text-right pb-4">
+                  <b-button squared class="alert-primary text-primary" @click="feedbacks(idx)">
+                    feedback
                   </b-button>
                 </b-col>
-                <b-col cols="12" class="pa-5">
-                  <b-container class="border-top border-light">
-                    <b-row>
-                      <b-col cols="5" class="pt-5 pb-5 pl-4">
-                        <p class="text-left text-danger-dark font-weight-bold">
-                          Role - {{ request.applied_designation }}
-                        </p>
-                      </b-col>
-                      <b-col cols="4">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
-                            View Candidate Profile >
-                          </p>
-                        </div>
-                      </b-col>
-                      <b-col cols="3">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold" @click="resume(request)">
-                            Downloud Resume >
-                          </p>
-                        </div>
-                      </b-col>
-                    </b-row>
-                  </b-container>
+                <b-col cols="5" class="border-top border-light pt-4">
+                  <p class="text-left text-danger-dark font-weight-bold">
+                    Role - {{ request.applied_designation }}
+                  </p>
+                </b-col>
+                <b-col cols="4 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
+                      View Candidate Profile >
+                    </p>
+                  </div>
+                </b-col>
+                <b-col cols="3 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold" @click="resume(request)">
+                      Download Resume
+                    </p>
+                  </div>
                 </b-col>
               </b-row>
             </b-container>
           </b-card>
         </b-col>
         <b-col v-if="upcoming_interviews.length > 0" cols="12">
-          <b-card v-for="(request, idx) in upcoming_interviews" :key="idx" no-body class="text-center border-0 mt-2">
+          <b-card v-for="(request, idx) in upcoming_interviews" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="4" md="4" class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col cols="4" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -166,42 +153,47 @@
                     {{ date_upcomming(idx) }}
                   </h4>
                 </b-col>
-                <b-col :disabled="interview_duration(idx)" cols="3" md="3" offset-md="5">
-                  <b-button squared class="alert-primary text-primary mt-5 mb-5" @click="interview_join_link(idx)">
+                <b-col offset="3" :disabled="interview_duration(idx)" cols="5" class=" text-right pb-4">
+                  <b-button squared class="alert-primary text-primary" @click="interview_join_link(idx)">
                     Join
                   </b-button>
                 </b-col>
-                <b-col cols="12" class="pa-5">
-                  <b-container class="border-top border-light">
-                    <b-row>
-                      <b-col cols="5" class="pt-5 pb-5 pl-4">
-                        <p class="text-left text-danger-dark font-weight-bold">
-                          Role - {{ request.applied_designation }}
-                        </p>
-                      </b-col>
-                      <b-col cols="4">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
-                            View Candidate Profile >
-                          </p>
-                        </div>
-                      </b-col>
-                      <b-col cols="3">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold" @click="resume(request)">
-                            Downloud Resume >
-                          </p>
-                        </div>
-                      </b-col>
-                    </b-row>
-                  </b-container>
+                <b-col cols="5" class="border-top border-light pt-4">
+                  <p class="text-left text-danger-dark font-weight-bold">
+                    Role - {{ request.applied_designation }}
+                  </p>
+                </b-col>
+                <b-col cols="4 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
+                      View Candidate Profile >
+                    </p>
+                  </div>
+                </b-col>
+                <b-col cols="3 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold" @click="resume(request)">
+                      Download Resume
+                    </p>
+                  </div>
                 </b-col>
               </b-row>
             </b-container>
           </b-card>
         </b-col>
-        <b-col cols="12" class="mt-5">
+        <b-col cols="12" md="6" class="mt-5">
           <h3>Past Completed Interviews ({{ sum_of_interviews() }})</h3>
+        </b-col>
+        <b-col cols="12" md="6" class="mt-5 cursor-pointer text-right pr-3">
+          <h4 @click="sortPastInterviews">
+            <span>
+              <b-img
+                src="@/static/sort.png"
+                alt="InterviewLeap logo"
+              />
+            </span>
+            <span class="pl-3">Sort</span>
+          </h4>
         </b-col>
         <b-col v-if="Object.keys(past_interviews).length === 0" cols="12" class="mt-5">
           <div class="text-center pt-4">
@@ -216,46 +208,40 @@
         </b-col>
         <b-col v-for="(months, idx) in Object.keys(past_interviews)" :key="idx" cols="12" class="mt-5">
           <h4>{{ months }} ({{ past_interviews[months].length }})</h4>
-          <b-card v-for="(interview, idy) in past_interviews[Object.keys(past_interviews)[idx]]" :key="idy" no-body class="text-center border-0 mt-2">
+          <b-card v-for="(interview, idy) in past_interviews[Object.keys(past_interviews)[idx]]" :key="idy" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="4" class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col cols="4" class="pb-4">
                   <p class="text-left text-secondary">
-                    Date &amp; times
+                    Date &amp; time
                   </p>
                   <h4 class="text-left text-dark">
                     {{ date_past(idx, idy) }}
                   </h4>
                 </b-col>
-                <b-col cols="3" offset-md="5">
-                  <b-button squared class="alert-primary text-primary mt-5 mb-5" @click="viewReport(interview)">
+                <b-col offset="3" cols="5" class=" text-right pb-4">
+                  <b-button squared class="alert-primary text-primary" @click="viewReport(interview)">
                     View Feedback
                   </b-button>
                 </b-col>
-                <b-col cols="12" class="pa-5">
-                  <b-container class="border-top border-light">
-                    <b-row>
-                      <b-col cols="5" class="pt-5 pb-5 pl-4">
-                        <p class="text-left text-danger-dark font-weight-bold">
-                          Role - {{ interview.role }}
-                        </p>
-                      </b-col>
-                      <b-col cols="4">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(interview)">
-                            View Candidate Profile >
-                          </p>
-                        </div>
-                      </b-col>
-                      <b-col cols="3">
-                        <div class="pt-5 mb-5">
-                          <p class="text-right font-weight-bold" @click="resume(interview)">
-                            Downloud Resume >
-                          </p>
-                        </div>
-                      </b-col>
-                    </b-row>
-                  </b-container>
+                <b-col cols="5" class="border-top border-light pt-4">
+                  <p class="text-left text-danger-dark font-weight-bold">
+                    Role - {{ interview.role }}
+                  </p>
+                </b-col>
+                <b-col cols="4 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
+                      View Candidate Profile >
+                    </p>
+                  </div>
+                </b-col>
+                <b-col cols="3 border-top border-light pt-4">
+                  <div>
+                    <p class="text-right font-weight-bold" @click="resume(request)">
+                      Download Resume
+                    </p>
+                  </div>
                 </b-col>
               </b-row>
             </b-container>
@@ -306,7 +292,7 @@ export default {
         //     interview_start_time: '2020-08-10T13:00:00Z',
         //     interview_end_time: '2020-08-10T14:00:00Z',
         //     candidate_email: 'madhu@candidate.com',
-        //     role: 'Django Developer',
+        //     role: 'Django aug',
         //     resume: 'https://www.youtube.com/',
         //     feedback: {
         //       technical_skill: ['Exceptional', 'good knowledge'],
@@ -322,7 +308,41 @@ export default {
         //     interview_start_time: '2020-08-10T13:00:00Z',
         //     interview_end_time: '2020-08-10T14:00:00Z',
         //     candidate_email: 'madhu@candidate.com',
-        //     role: 'Django Developer',
+        //     role: 'Django aug',
+        //     resume: 'https://www.youtube.com/',
+        //     feedback: {
+        //       technical_skill: ['Exceptional', 'good knowledge'],
+        //       communicational_skill: ['Meets Requirenment', 'good knowledge'],
+        //       presentation_skill: ['Need Training', 'good knowledge'],
+        //       understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
+        //       strength: 'coding skills',
+        //       limitations: 'understanding the problem',
+        //       consider_for_job: 'no'
+        //     }
+        //   }
+        // ],
+        // July: [
+        //   {
+        //     interview_start_time: '2020-08-10T13:00:00Z',
+        //     interview_end_time: '2020-08-10T14:00:00Z',
+        //     candidate_email: 'madhu@candidate.com',
+        //     role: 'Django july',
+        //     resume: 'https://www.youtube.com/',
+        //     feedback: {
+        //       technical_skill: ['Exceptional', 'good knowledge'],
+        //       communicational_skill: ['Meets Requirenment', 'good knowledge'],
+        //       presentation_skill: ['Need Training', 'good knowledge'],
+        //       understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
+        //       strength: 'coding skills',
+        //       limitations: 'understanding the problem',
+        //       consider_for_job: 'no'
+        //     }
+        //   },
+        //   {
+        //     interview_start_time: '2020-08-10T13:00:00Z',
+        //     interview_end_time: '2020-08-10T14:00:00Z',
+        //     candidate_email: 'madhu@candidate.com',
+        //     role: 'Django july',
         //     resume: 'https://www.youtube.com/',
         //     feedback: {
         //       technical_skill: ['Exceptional', 'good knowledge'],
@@ -336,6 +356,7 @@ export default {
         //   }
         // ]
       },
+      badge_slot: [],
       interview_requests: [
         // {
         //   slug: 'tqt0b4lt',
@@ -387,6 +408,17 @@ export default {
       })
   },
   methods: {
+    sortPastInterviews () {
+      const result = {}
+      const stack = []
+      for (const property in this.past_interviews) {
+        stack.push({ property, value: this.past_interviews[property] })
+      }
+      for (let i = stack.length - 1; i >= 0; i--) {
+        result[stack[i].property] = stack[i].value
+      }
+      this.past_interviews = result
+    },
     candidate_profile (obj) {
       this.showProfile = true
       this.email = obj.candidate_email
@@ -465,10 +497,13 @@ export default {
       }
     },
     select_slot (idx, idy) {
-      this.selected_slot.includes(this.interview_requests[idx].time_slots[idy]) ? this.selected_slot.splice(this.selected_slot.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : this.selected_slot.push(this.interview_requests[idx].time_slots[idy])
-      if (this.selected_slot.length === 2) {
-        this.selected_slot.splice(0, 1)
+      const dummyarray = []
+      dummyarray.includes(this.interview_requests[idx].time_slots[idy]) ? dummyarray.splice(dummyarray.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : dummyarray.push(this.interview_requests[idx].time_slots[idy])
+      if (dummyarray.length === 2) {
+        dummyarray.splice(0, 1)
       }
+      this.selected_slot = dummyarray
+      this.selected_slot.push(idx)
     },
     decline_interview_slot (idx) {
       const payload = {}

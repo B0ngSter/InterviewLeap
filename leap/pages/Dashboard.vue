@@ -26,14 +26,12 @@
             </p>
           </div>
         </b-col>
-        <b-col v-if="$store.getters.is_candidate" :offset-md="upcoming_interviews.length === 0 ? 0 : 6" cols="12" md="3" class="pb-5 mb-5">
-          <div class="text-right">
-            <b-button class="text-white" variant="primary" to="/book-interview">
-              Book interview
-            </b-button>
-          </div>
+        <b-col v-if="$store.getters.is_candidate" :offset-md="upcoming_interviews.length === 0 ? 0 : 6" cols="12" md="3" class="pb-5 mb-5 text-center">
+          <b-button class="text-white" variant="primary" to="/book-interview">
+            Book interview
+          </b-button>
         </b-col>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" md="4" offset-md="5" class="text-right">
+        <b-col v-if="$store.getters.is_interviewer" cols="12" md="4" offset-md="5" class="text-center">
           <b-button class="text-white" to="/create-interview" variant="primary">
             Create an Interview
           </b-button>
@@ -107,13 +105,13 @@
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>
-                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                  <b-col cols="6" md="4" class="pt-4 pb-2 pl-4">
                     <b-img
                       src="@/static/interview_requests.svg"
                       alt="InterviewLeap logo"
                     />
                   </b-col>
-                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                  <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
                     <h4 class="text-left text-dark font-weight-bold">
                       {{ interviewer_insights.new_interview_requests }}
                     </h4>
@@ -131,13 +129,13 @@
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>
-                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                  <b-col cols="6" md="4" class="pt-4 pb-2 pl-4">
                     <b-img
                       src="@/static/interview_taken.svg"
                       alt="InterviewLeap logo"
                     />
                   </b-col>
-                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                  <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
                     <h4 class="text-left font-weight-bold">
                       {{ interviewer_insights.interview_taken }}
                     </h4>
@@ -155,13 +153,13 @@
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>
-                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                  <b-col cols="6" md="4" class="pt-4 pb-2 pl-4">
                     <b-img
                       src="@/static/interview_created.svg"
                       alt="InterviewLeap logo"
                     />
                   </b-col>
-                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                  <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
                     <h4 class="text-left font-weight-bold">
                       {{ interviewer_insights.interview_created }}
                     </h4>
@@ -179,13 +177,13 @@
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>
-                  <b-col cols="4" class="pt-4 pb-2 pl-4">
+                  <b-col cols="6" md="4" class="pt-4 pb-2 pl-4">
                     <b-img
                       src="@/static/earning.svg"
                       alt="InterviewLeap logo"
                     />
                   </b-col>
-                  <b-col cols="8" class="pt-5 pb-2 pl-4">
+                  <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
                     <h4 class="text-left font-weight-bold">
                       {{ interviewer_insights.total_earnings }}
                     </h4>

@@ -41,7 +41,7 @@
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row class="p-4 mt-3">
-                  <b-col :cols="$store.state.is_mock ? 3 : 4">
+                  <b-col cols="12" :md="$store.state.is_mock ? 3 : 4">
                     <p class="text-left text-secondary">
                       Date
                     </p>
@@ -49,7 +49,7 @@
                       {{ date(idx, upcoming_interviews) }}
                     </p>
                   </b-col>
-                  <b-col v-if="$store.state.is_mock" cols="3">
+                  <b-col v-if="$store.state.is_mock" cols="12" md="3">
                     <p class="text-left text-secondary">
                       Interview from
                     </p>
@@ -57,16 +57,16 @@
                       {{ interviews.job_title }}
                     </p>
                   </b-col>
-                  <b-col cols="3" offset-md="2">
+                  <b-col cols="6" md="3" offset-md="2">
                     <div class="text-right">
-                      <b-button squared class="alert-danger text-danger-dark" @click="model=true">
-                        Cancel
+                      <b-button squared class="alert-danger  text-danger-dark" @click="model=true">
+                        Cancle
                       </b-button>
                     </div>
                   </b-col>
-                  <b-col cols="3">
+                  <b-col cols="6" md="3">
                     <div class="text-right">
-                      <b-button squared class="alert-primary text-primary" :to="`/book-interview/${upcoming_interviews[idx].slug}`">
+                      <b-button squared class="alert-primary cancle-btn-padding text-primary" :to="`/book-interview/${upcoming_interviews[idx].slug}`">
                         Reschedule
                       </b-button>
                     </div>
@@ -220,7 +220,7 @@
           <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">
-                <b-col cols="2" md="" class="pb-4">
+                <b-col cols="12" md="2" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -228,7 +228,7 @@
                     {{ date(idx, interview_requests) }}
                   </h4>
                 </b-col>
-                <b-col cols="5" class="pb-4 text-left">
+                <b-col cols="12" md="5" class="pb-4 text-left">
                   <b-button
                     v-for="(badge, idy) in request.time_slots"
                     :key="idy"
@@ -247,7 +247,7 @@
                     {{ badge }}
                   </b-button>
                 </b-col>
-                <b-col cols="5" class="pb-4 text-right">
+                <b-col cols="12" md="5" class="pb-4 text-right">
                   <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
@@ -255,19 +255,19 @@
                     Accept
                   </b-button>
                 </b-col>
-                <b-col cols="5" class="border-top border-light pt-4">
+                <b-col md="5" cols="12" class="border-top border-light pt-4">
                   <p class="text-left text-danger-dark font-weight-bold">
                     Role - Front-end developer
                   </p>
                 </b-col>
-                <b-col cols="4 border-top border-light pt-4">
+                <b-col md="4" cols="12" class="border-top border-light pt-4">
                   <div class="">
                     <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
                       View Candidate Profile >
                     </p>
                   </div>
                 </b-col>
-                <b-col cols="3 border-top border-light pt-4">
+                <b-col md="3" cols="12" class="border-top border-light pt-4">
                   <div class="">
                     <p class="text-right font-weight-bold" @click="resume(request)">
                       Download Resume
@@ -305,23 +305,36 @@ export default {
         new_interview_requests: '',
         interview_created: '',
         interview_taken: '',
-        total_earnings: '',
-        interview_requests: [
-          // {
-          //   applied_designation: null,
-          //   time_slots: [],
-          //   date: '2020-08-21',
-          //   candidate: 'FK'
-          // },
-          // {
-          //   applied_designation: null,
-          //   time_slots: [],
-          //   date: '2020-08-21',
-          //   candidate: 'FK'
-          // }
-        ]
+        total_earnings: ''
+        // interview_requests: [
+        //   {
+        //     applied_designation: null,
+        //     time_slots: [],
+        //     date: '2020-08-21',
+        //     candidate: 'FK'
+        //   },
+        //   {
+        //     applied_designation: null,
+        //     time_slots: [],
+        //     date: '2020-08-21',
+        //     candidate: 'FK'
+        //   }
+        // ]
       },
-      interview_requests: [],
+      interview_requests: [
+        // {
+        //   applied_designation: null,
+        //   time_slots: ['9PM - 12AM', '12AM - 3AM'],
+        //   date: '2020-08-21',
+        //   candidate: 'FK'
+        // },
+        // {
+        //   applied_designation: null,
+        //   time_slots: [],
+        //   date: '2020-08-21',
+        //   candidate: 'FK'
+        // }
+      ],
       upcoming_interviews: [
         // {
         //   date: '2020-08-21',
@@ -458,5 +471,8 @@ export default {
 <style scoped>
 .btn-padding {
   padding: 1.34rem 5rem 1.34rem 5rem;
+}
+.cancle-btn-padding {
+  padding: 1.34rem 1.8rem 1.34rem 1.8rem;
 }
 </style>

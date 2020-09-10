@@ -163,7 +163,7 @@ class Interview(models.Model):
 
 
 class InterviewSlots(models.Model):
-    interview = models.ForeignKey(Interview, on_delete=models.CASCADE)
+    interview = models.ForeignKey(Interview, on_delete=models.CASCADE, related_name='time_slots')
     interview_start_time = models.DateTimeField()
     interview_end_time = models.DateTimeField()
     candidate = models.ForeignKey(CandidateProfile, on_delete=models.CASCADE, null=True, blank=True)

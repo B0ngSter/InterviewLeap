@@ -41,7 +41,8 @@ from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
     ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
     CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer, \
-    CandidateFresherCreateSerializer, CandidateExperiencedCreateSerializer, InterviewListSerializer
+    CandidateFresherCreateSerializer, CandidateExperiencedCreateSerializer, InterviewListSerializer, \
+    InterviewGetSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -781,6 +782,10 @@ class InterviewCreateView(ListCreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def get(self, request, *args, **kwargs):
+        if 'slug' in request.data:
+            interview = Interview.objects.get(interviewer=self.request.user, slug=request.data['slug'])
+            serialize = InterviewGetSerializer(interview).data
+            return Response(serialize, status=status.HTTP_200_OK)
         interviews = Interview.objects.filter(interviewer=self.request.user, is_active=True)
         serialize = InterviewListSerializer(interviews, many=True).data
         return Response(serialize, status=status.HTTP_200_OK)

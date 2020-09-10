@@ -9,7 +9,7 @@ from root.models import BookInterview
 from .models import User, Interview, InterviewSlots
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
-
+import pytz
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
@@ -298,6 +298,36 @@ class InterviewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interview
         fields = ['slug', 'job_title', 'exp_years']
+
+
+class InterviewSlotSerializer(serializers.ModelSerializer):
+    interview_start_time = serializers.SerializerMethodField()
+    interview_end_time = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+
+    def get_date(self, obj):
+        return obj.interview_start_time.date().isoformat()
+
+    def get_interview_start_time(self, obj):
+        start_time = obj.interview_start_time.time().isoformat()
+        return start_time
+
+    def get_interview_end_time(self, obj):
+        end_time = obj.interview_end_time.time().isoformat()
+        return end_time
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['interview_start_time', 'interview_end_time', 'date']
+
+
+class InterviewGetSerializer(serializers.ModelSerializer):
+    time_slots = InterviewSlotSerializer(many=True)
+    skills = SkillSerializer(many=True)
+
+    class Meta:
+        model = Interview
+        fields = ['slug', 'job_title', 'exp_years', 'description', 'timezone', 'skills', 'time_slots']
 
 
 class InterviewerRequestsListSerializer(serializers.ModelSerializer):

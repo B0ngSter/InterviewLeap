@@ -782,8 +782,8 @@ class InterviewCreateView(ListCreateAPIView):
     serializer_class = InterviewCreateSerializer
 
     def get(self, request, *args, **kwargs):
-        if 'slug' in request.data:
-            interview = Interview.objects.get(interviewer=self.request.user, slug=request.data.get('slug'))
+        if 'slug' in request.GET:
+            interview = Interview.objects.get(interviewer=self.request.user, slug=request.GET.get('slug'))
             serialize = InterviewGetSerializer(interview).data
             return Response(serialize, status=status.HTTP_200_OK)
         interviews = Interview.objects.filter(interviewer=self.request.user, is_active=True)
@@ -805,7 +805,7 @@ class InterviewCreateView(ListCreateAPIView):
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
-        interview_obj = Interview.objects.get(interviewer=self.request.user, slug=request.data.get('slug'))
+        interview_obj = Interview.objects.get(interviewer=self.request.user, slug=request.GET.get('slug'))
         interview_obj.is_active = False
         interview_obj.save()
         return Response({"message": "Interview Deleted Successfully"}, status=status.HTTP_200_OK)

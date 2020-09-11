@@ -102,9 +102,6 @@
                   id="textarea"
                   v-model="technical_skill_text"
                 />
-                <b-button variant="primary" class="mt-5">
-                  Save
-                </b-button>
               </b-col>
             </b-row>
           </b-container>
@@ -150,9 +147,6 @@
                   id="textarea"
                   v-model="communicational_skill_text"
                 />
-                <b-button variant="primary" class="mt-5">
-                  Save
-                </b-button>
               </b-col>
             </b-row>
           </b-container>
@@ -198,9 +192,6 @@
                   id="textarea"
                   v-model="presentation_skill_text"
                 />
-                <b-button variant="primary" class="mt-5">
-                  Save
-                </b-button>
               </b-col>
             </b-row>
           </b-container>
@@ -246,9 +237,6 @@
                   id="textarea"
                   v-model="understanding_of_role_text"
                 />
-                <b-button variant="primary" class="mt-5">
-                  Save
-                </b-button>
               </b-col>
             </b-row>
           </b-container>
@@ -310,7 +298,7 @@
       </b-col>
       <b-col cols="12">
         <div class="text-center mb-5 pb-5">
-          <b-button variant="primary" class="mt-5" @click="submit">
+          <b-button variant="primary" class="mt-5 text-white" @click="submit">
             Save
           </b-button>
         </div>

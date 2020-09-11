@@ -26,23 +26,23 @@
         <b-col cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row align-v="center" align-content="start">
-                <b-col cols="4" md="5" class="pt-5 pb-5 ml-4">
+              <b-row align-v="center" align-content="start" class="p-4 mt-3">
+                <b-col cols="12" md="5" class="">
                   <p class="text-left text-secondary">
                     Select Company Type you want to be interviewed for
                   </p>
                 </b-col>
-                <b-col cols="2">
+                <b-col cols="12" md="2" class="text-left">
                   <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="product" size="md">
                     Product
                   </b-form-radio>
                 </b-col>
-                <b-col cols="2">
+                <b-col cols="12" md="2" class="text-left">
                   <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="service" size="md">
                     Service
                   </b-form-radio>
                 </b-col>
-                <b-col cols="2">
+                <b-col cols="12" md="2" class="text-left">
                   <b-form-radio v-model="candidate_info.company_type" class="font-weight-bold" value="captive" size="md">
                     Captive
                   </b-form-radio>
@@ -54,22 +54,24 @@
         <b-col cols="12" class="mt-2">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row align-v="center" align-content="start">
-                <b-col cols="12" md="12" class="pl-3 pr-3 pt-4">
+              <b-row class="p-4 mt-3" align-v="center" align-content="start">
+                <b-col cols="12" md="12" class="">
                   <b-input-group>
                     <b-form-input
                       v-model="skill_search_query"
                       list="skill-options"
+                      debounce="300"
                       placeholder="Core Skills"
                       :disabled="skills_filled"
                       @keypress="fetchSkills"
+                      @keydown.enter="addSkill"
                     />
                     <datalist id="skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                         {{ Skill }}
                       </option>
                     </datalist>
-                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                    <b-button class="text-white" variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
                   </b-input-group>
@@ -100,10 +102,10 @@
           </b-card>
         </b-col>
         <b-col cols="12" class="mt-2">
-          <b-card no-body class="text-center border-0">
+          <b-card no-body class="border-0">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="4" class="pt-5 pb-5">
+              <b-row class="p-4 mt-3">
+                <b-col cols="12" md="4" class="">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.candidate_info.time_zone.$model"
@@ -127,7 +129,7 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </b-col>
-                <b-col cols="12" md="4" class="pt-5 pb-5">
+                <b-col cols="12" md="4" class="mb-3">
                   <b-form-datepicker
                     v-model="candidate_info.date"
                     :date-disabled-fn="allowedDates"
@@ -136,7 +138,7 @@
                     calendar-width="100%"
                   />
                 </b-col>
-                <b-col cols="12" md="4" class="pt-5 pb-5">
+                <b-col cols="12" md="4" class="">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.candidate_info.applied_designation.$model"
@@ -171,23 +173,32 @@
           </span>
           <span>Select 3 suitable time slots for interview.</span>
         </b-col>
-        <b-col
-          v-for="(timeslot, idy) in time_slots"
-          :key="idy"
-          class="mt-5 cursor-pointer"
-        >
-          <b-card
-            no-body
-            class="p-3 pl-5 mt-3 border-0"
-            :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]) }"
-            @click="addSlot(idy)"
-          >
-            {{ timeslot }}
-          </b-card>
+        <b-col cols="12">
+          <b-container>
+            <b-row cols="1" cols-sm="2" cols-md="5">
+              <b-col
+                v-for="(timeslot, idy) in time_slots"
+                :key="idy"
+                class="mt-5 cursor-pointer"
+              >
+                <b-card
+                  no-body
+                  class="p-4 mt-2 text-center"
+                  :class="{ 'alert-primary': candidate_info.time_slots.includes(time_slots[idy]),
+                            'border-primary': candidate_info.time_slots.includes(time_slots[idy]),
+                            'border-0': !candidate_info.time_slots.includes(time_slots[idy])
+                  }"
+                  @click="addSlot(idy)"
+                >
+                  {{ timeslot }}
+                </b-card>
+              </b-col>
+            </b-row>
+          </b-container>
         </b-col>
         <b-col cols="12">
           <div class="text-center mt-5">
-            <b-button variant="primary" :disabled="candidate_info.company_type === '' || candidate_info.skills.length === 0 || candidate_info.time_slots.length === 0 || candidate_info.applied_designation == null || candidate_info.time_zone == null || candidate_info.date == null" @click="submit">
+            <b-button class="text-white" variant="primary" :disabled="candidate_info.company_type === '' || candidate_info.skills.length === 0 || candidate_info.time_slots.length === 0 || candidate_info.applied_designation == null || candidate_info.time_zone == null || candidate_info.date == null" @click="submit">
               Book  Interview
             </b-button>
           </div>
@@ -308,10 +319,9 @@ export default {
       this.candidate_info.skills.splice(skillIndex, 1)
     },
     addSkill () {
-      if (!this.candidate_info.skills.includes(this.skill_search_query)) {
+      if (this.skill_search_query.length === 0) {
+      } else if (!this.candidate_info.skills.includes(this.skill_search_query)) {
         this.candidate_info.skills.push(this.skill_search_query)
-      } else if (this.skill_search_query === '') {
-        return
       }
       this.skill_search_query = ''
     },
@@ -355,6 +365,9 @@ export default {
   padding: 1.4rem;
 }
 .b-form-btn-label-control.form-control > label {
-  padding-right: 6rem;
+  padding-right: 0rem;
+}
+.btn {
+  color: rgb(0, 0, 0);
 }
 </style>

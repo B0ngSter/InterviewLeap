@@ -140,10 +140,22 @@
           </b-row>
           <b-row :class="action === 'login' ? 'mt-2' : 'mt-5'">
             <b-col offset-md="5" offset="3">
-              <b-button v-if="action === 'signup'" :disabled="!userInfo.first_name || !userInfo.role || !userInfo.confirm_password || !userInfo.password || !userInfo.email || !userInfo.last_name" class="submit_btn" variant="primary" @click="submitForm">
+              <b-button
+                v-if="action === 'signup'"
+                :disabled="!userInfo.first_name || !userInfo.role || !userInfo.confirm_password || !userInfo.password || !userInfo.email || !userInfo.last_name"
+                class="submit_btn text-white"
+                variant="primary"
+                @click="submitForm"
+              >
                 <span>SignUp</span>
               </b-button>
-              <b-button v-if="action === 'login'" :disabled="!userInfo.password || !userInfo.email" class="submit_btn" variant="primary" @click="submitForm">
+              <b-button
+                v-if="action === 'login'"
+                :disabled="!userInfo.password || !userInfo.email"
+                class="submit_btn text-white"
+                variant="primary"
+                @click="submitForm"
+              >
                 <span>Login</span>
               </b-button>
             </b-col>

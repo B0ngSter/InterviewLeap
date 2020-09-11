@@ -1,23 +1,28 @@
 <template>
-  <div style="position:absolute; width: 100%">
-    <input
-      class="form-control"
-      type="text"
-      v-model="selection"
-      @keydown.enter='enter'
-      @keydown.down='down'
-      @keydown.up='up'
-      @input='change'
-      @blur="inputBlurred"
-      @focus="open=true"
-    />
-    <b-list-group style="position: relative; z-index: 1" v-bind:class="openSuggestion ? 'd-block' : 'd-none'">
+  <div style="position:absolute; width: 90%">
+    <b-input-group size="md" class="mb-2">
+      <b-form-input
+        v-model="selection"
+        class="form-control bg-light"
+        type="text"
+        @keydown.enter="enter"
+        @keydown.down="down"
+        @keydown.up="up"
+        @input="change"
+        @blur="inputBlurred"
+        @focus="open=true"
+      />
+      <b-input-group-prepend is-text>
+        <b-icon icon="search" />
+      </b-input-group-prepend>
+    </b-input-group>
+    <b-list-group style="position: relative; z-index: 1" :class="openSuggestion ? 'd-block' : 'd-none'">
       <b-list-group-item
         v-for="(suggestion, idx) in suggestions"
         :key="idx"
-        v-bind:class="{'active': isActive(idx)}"
-        @click="suggestionClick(idx)"
+        :class="{'active': isActive(idx)}"
         button
+        @click="suggestionClick(idx)"
       >
         {{ itemTitleKey ? suggestion[itemTitleKey] : suggestion }}
       </b-list-group-item>

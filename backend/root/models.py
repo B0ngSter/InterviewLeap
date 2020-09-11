@@ -48,6 +48,7 @@ class BookInterview(models.Model):
     payment_detail = models.ForeignKey(PaymentDetails, null=True, blank=True, on_delete=models.DO_NOTHING)
     meet_link = models.CharField(max_length=368, null=True, blank=True)
     feedback = JSONField(blank=True, null=True)
+    state = models.CharField(choices=[('Cancelled', 'Cancelled'), ('Refunded', 'Refunded')], max_length=40, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

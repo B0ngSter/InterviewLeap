@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django_rest_passwordreset.models import get_password_reset_token_expiry_time, ResetPasswordToken
 from django_rest_passwordreset.serializers import PasswordTokenSerializer
 from rest_framework import status
-from django.conf import settings
+from backend import settings
 from datetime import datetime, timedelta
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes, authentication_classes

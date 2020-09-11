@@ -19,7 +19,7 @@
         </b-col>
         <b-col offset-md="6" cols="12" md="3" class="mt-2 pt-2">
           <div class="text-right">
-            <b-button variant="primary" to="/book-interview">
+            <b-button class="text-white" variant="primary" to="/book-interview">
               Book interview >
             </b-button>
           </div>
@@ -40,8 +40,8 @@
         <b-col v-for="(interviews, idx) in past_interviews" :key="idx" cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row>
-                <b-col class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col class="">
                   <p class="text-left text-secondary">
                     Date. &amp; Time
                   </p>
@@ -49,7 +49,7 @@
                     {{ date(idx) }}, {{ interviews.time_slot }}
                   </p>
                 </b-col>
-                <b-col v-if="interviews.interview_type === 'Open Mock Interview'" class="pt-5 pb-5 pl-4">
+                <b-col v-if="interviews.interview_type === 'Open Mock Interview'" class="">
                   <p class="text-left text-secondary">
                     Interview from
                   </p>
@@ -57,8 +57,8 @@
                     {{ interviews.company }}
                   </p>
                 </b-col>
-                <b-col cols="3" offset-md="2">
-                  <div class="mt-5 mb-5">
+                <b-col md="3" cols="12" offset-md="2">
+                  <div class="">
                     <b-button squared class="alert-success text-primary" @click="viewReport(interviews)">
                       View Report
                     </b-button>
@@ -67,6 +67,11 @@
               </b-row>
             </b-container>
           </b-card>
+        </b-col>
+        <b-col cols="12">
+          <div class="text-center text-secondary mt-5">
+            2020 Stellar Software Technologies Pvt ltd
+          </div>
         </b-col>
       </b-row>
     </b-container>
@@ -89,33 +94,33 @@ export default {
       report: null,
       hide_Report_details: false,
       past_interviews: [
-        {
-          time_slots: ['12PM - 3PM'],
-          company: 'dedes',
-          date: '2020-08-28',
-          feedback: {
-            technical_skill: ['Exceptional', 'good knowledge'],
-            communicational_skill: ['Meets Requirenment', 'good knowledge'],
-            presentation_skill: ['Need Training', 'good knowledge'],
-            understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
-            strength: 'coding skills',
-            limitations: 'understanding the problem',
-            consider_for_job: 'no'
-          }
-        },
-        {
-          time_slots: ['9PM - 12AM'],
-          date: '2020-08-28',
-          feedback: {
-            technical_skill: ['Exceptional', 'good knowledge'],
-            communicational_skill: ['Exceptional', 'good knowledge'],
-            presentation_skill: ['Exceptional', 'good knowledge'],
-            understanding_of_role: ['Exceptional', 'good knowledge'],
-            strength: 'coding skills',
-            limitations: 'understanding the problem',
-            consider_for_job: 'yes'
-          }
-        }
+        // {
+        //   time_slots: ['12PM - 3PM'],
+        //   company: 'dedes',
+        //   date: '2020-08-28',
+        //   feedback: {
+        //     technical_skill: ['Exceptional', 'good knowledge'],
+        //     communicational_skill: ['Meets Requirenment', 'good knowledge'],
+        //     presentation_skill: ['Need Training', 'good knowledge'],
+        //     understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
+        //     strength: 'coding skills',
+        //     limitations: 'understanding the problem',
+        //     consider_for_job: 'no'
+        //   }
+        // },
+        // {
+        //   time_slots: ['9PM - 12AM'],
+        //   date: '2020-08-28',
+        //   feedback: {
+        //     technical_skill: ['Exceptional', 'good knowledge'],
+        //     communicational_skill: ['Exceptional', 'good knowledge'],
+        //     presentation_skill: ['Exceptional', 'good knowledge'],
+        //     understanding_of_role: ['Exceptional', 'good knowledge'],
+        //     strength: 'coding skills',
+        //     limitations: 'understanding the problem',
+        //     consider_for_job: 'yes'
+        //   }
+        // }
       ]
     }
   },

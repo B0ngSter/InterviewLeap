@@ -22,7 +22,7 @@
               placeholder="Re-Enter your new password"
             />
             <div class="text-center mt-5">
-              <b-button variant="primary" @click="set_password">
+              <b-button class="text-white" variant="primary" @click="set_password">
                 <b-icon-reply-fill />
                 Update my password
               </b-button>
@@ -44,7 +44,7 @@
               placeholder="Enter your email ID"
             />
             <div class="text-center mt-5">
-              <b-button variant="primary" @click="send_instructions">
+              <b-button class="text-white" variant="primary" @click="send_instructions">
                 <b-icon-reply-fill />
                 Send me instructions
               </b-button>

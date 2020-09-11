@@ -18,7 +18,7 @@
       </b-col>
       <b-col cols="6">
         <div class="text-right">
-          <b-button variant="primary">
+          <b-button variant="primary" class="text-white">
             Download Resume
           </b-button>
         </div>

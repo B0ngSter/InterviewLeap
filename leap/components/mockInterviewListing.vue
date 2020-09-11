@@ -69,11 +69,6 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col cols="12">
-        <p class="text-secondary mt-5 mb-5 pb-5 pt-5 text-center">
-          2020 Stellar Software Technologies Pvt ltd
-        </p>
-      </b-col>
     </b-row>
   </b-container>
 </template>

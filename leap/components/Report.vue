@@ -6,7 +6,7 @@
           <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item v-if="!reporTypeInterviewer" to="/past-interview">
+          <b-breadcrumb-item v-if="!reporTypeInterviewer" to="/past-interview" @click="goBack">
             Past Interviews
           </b-breadcrumb-item>
           <b-breadcrumb-item v-if="!reporTypeInterviewer" active>
@@ -350,6 +350,9 @@ export default {
           errorResponse.response.data.message || 'Please try again later'
         )
       })
+    },
+    goBack () {
+      this.$emit('Back', false)
     }
     // fetch_interview () {
     //   this.$axios.get('/past-interview').then((response) => {

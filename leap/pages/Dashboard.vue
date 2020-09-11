@@ -136,7 +136,7 @@
                     />
                   </b-col>
                   <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
-                    <h4 class="text-left font-weight-bold">
+                    <h4 class="text-left text-dark font-weight-bold">
                       {{ interviewer_insights.interview_taken }}
                     </h4>
                     <p class="text-left text-secondary">
@@ -160,7 +160,7 @@
                     />
                   </b-col>
                   <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
-                    <h4 class="text-left font-weight-bold">
+                    <h4 class="text-left text-dark font-weight-bold">
                       {{ interviewer_insights.interview_created }}
                     </h4>
                     <p class="text-left text-secondary">
@@ -184,7 +184,7 @@
                     />
                   </b-col>
                   <b-col cols="6" md="8" class="pt-5 pb-2 pl-4">
-                    <h4 class="text-left font-weight-bold">
+                    <h4 class="text-left text-dark font-weight-bold">
                       {{ interviewer_insights.total_earnings }}
                     </h4>
                     <p class="text-left text-secondary">
@@ -236,10 +236,10 @@
                     size="sm"
                     variant="outline-secondary"
                     :class="{
-                      'bg-primary': badge === selected_slot[0],
-                      'text-white': badge == selected_slot[0],
-                      'border-0': badge == selected_slot[0],
-                      'text-dark': badge !== selected_slot[0]
+                      'bg-primary': badge === selected_slot[0] && idx === selected_slot[1],
+                      'text-white': selected_slot[1] === idx && badge === selected_slot[0],
+                      'text-dark': badge !== selected_slot[0] || selected_slot[1] !== idx,
+                      'border-0': badge === selected_slot[0] && idx === selected_slot[1]
                     }"
                     class="p-3 cursor-pointer ml-2 mt-2"
                     @click="select_slot(idx, idy)"
@@ -251,7 +251,7 @@
                   <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
-                  <b-button squared :disabled="selected_slot.length === 0" class="alert-primary text-primary ml-3" @click="accpet_interview_slot(idx)">
+                  <b-button squared :disabled="selected_slot[1] !== idx" class="alert-primary text-primary ml-3" @click="accpet_interview_slot(idx)">
                     Accept
                   </b-button>
                 </b-col>
@@ -280,6 +280,11 @@
         </b-col>
         <b-col v-if="$store.getters.is_candidate" cols="12">
           <mockInterviewListing />
+        </b-col>
+        <b-col cols="12">
+          <div class="text-center text-secondary mt-5 mb-5">
+            2020 Stellar Software Technologies Pvt ltd
+          </div>
         </b-col>
       </b-row>
     </b-container>
@@ -383,10 +388,13 @@ export default {
       return day.slice(0, 3) + ',' + day.slice(3, 10)
     },
     select_slot (idx, idy) {
-      this.selected_slot.includes(this.interview_requests[idx].time_slots[idy]) ? this.selected_slot.splice(this.selected_slot.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : this.selected_slot.push(this.interview_requests[idx].time_slots[idy])
-      if (this.selected_slot.length === 2) {
-        this.selected_slot.splice(0, 1)
+      const dummyarray = []
+      dummyarray.includes(this.interview_requests[idx].time_slots[idy]) ? dummyarray.splice(dummyarray.indexOf(this.interview_requests[idx].time_slots[idy]), 1) : dummyarray.push(this.interview_requests[idx].time_slots[idy])
+      if (dummyarray.length === 2) {
+        dummyarray.splice(0, 1)
       }
+      this.selected_slot = dummyarray
+      this.selected_slot.push(idx)
     },
     decline_interview_slot (idx) {
       const payload = {}

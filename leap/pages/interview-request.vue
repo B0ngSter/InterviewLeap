@@ -94,7 +94,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -134,7 +134,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -174,7 +174,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -242,7 +242,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -263,7 +263,7 @@
       :id="id"
       :feedbacks="feedback"
     />
-    <profile v-if="showProfile" :profile-response="profileResponse" />
+    <profile v-if="showProfile" :profile-response="profileResponse" @Back="showProfile = $event" />
     <Report
       v-if="hide_Report_details"
       :repor-type-interviewer="true"

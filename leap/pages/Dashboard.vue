@@ -456,14 +456,16 @@ export default {
         })
     },
     fetch_interview () {
-      this.$axios.get('/interview-list/').then((response) => {
-        this.upcoming_interviews = response.data.upcoming_interviews
-      })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Something went wrong'
-          )
+      if (this.$store.getters.is_candidate) {
+        this.$axios.get('/interview-list/').then((response) => {
+          this.upcoming_interviews = response.data.upcoming_interviews
         })
+          .catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Something went wrong'
+            )
+          })
+      }
     }
   }
 }

@@ -24,9 +24,11 @@
           </p>
         </b-col>
         <b-col cols="12" md="4" class="text-right">
-          <b-button class="text-white" to="/create-interview" variant="primary">
-            Past Interviews
-          </b-button>
+          <a href="#pastInterviews">
+            <b-button class="text-white" variant="primary">
+              Past Interviews
+            </b-button>
+          </a>
         </b-col>
         <b-col v-if="interview_requests.length === 0 && feedback.length === 0 && upcoming_interviews.length === 0" cols="12" class="mt-5">
           <div class="text-center pt-4">
@@ -182,7 +184,9 @@
           </b-card>
         </b-col>
         <b-col cols="12" md="6" class="mt-5">
-          <h3>Past Completed Interviews ({{ sum_of_interviews() }})</h3>
+          <h3 id="pastInterviews">
+            Past Completed Interviews ({{ sum_of_interviews() }})
+          </h3>
         </b-col>
         <b-col cols="12" md="6" class="mt-5 cursor-pointer text-right pr-3">
           <h4 @click="sortPastInterviews">

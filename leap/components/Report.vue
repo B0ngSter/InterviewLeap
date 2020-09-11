@@ -198,7 +198,7 @@
           </b-container>
         </b-card>
       </b-col>
-      <b-col cols="12" class="mt-3 mb-5 pb-5">
+      <b-col v-if="report.feedback.consider_for_job !== ''" cols="12" class="mt-3 mb-5 pb-5">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
             <b-row>
@@ -213,6 +213,11 @@
             </b-row>
           </b-container>
         </b-card>
+      </b-col>
+      <b-col cols="12">
+        <div class="text-center text-secondary mt-5 mb-5">
+          2020 Stellar Software Technologies Pvt ltd
+        </div>
       </b-col>
     </b-row>
   </b-container>
@@ -240,33 +245,33 @@ export default {
       understanding_of_role_progress_value: 0,
       report_pdf: null,
       past_interviews: [
-        {
-          time_slots: ['12PM - 3PM'],
-          company: 'dedes',
-          date: '2020-08-28',
-          feedback: {
-            technical_skill: ['Exceptional', 'good knowledge'],
-            communicational_skill: ['Meets Requirenment', 'good knowledge'],
-            presentation_skill: ['Need Training', 'good knowledge'],
-            understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
-            strength: 'coding skills',
-            limitations: 'understanding the problem',
-            consider_for_job: 'no'
-          }
-        },
-        {
-          time_slots: ['9PM - 12AM'],
-          date: '2020-08-28',
-          feedback: {
-            technical_skill: ['Exceptional', 'good knowledge'],
-            communicational_skill: ['Exceptional', 'good knowledge'],
-            presentation_skill: ['Exceptional', 'good knowledge'],
-            understanding_of_role: ['Exceptional', 'good knowledge'],
-            strength: 'coding skills',
-            limitations: 'understanding the problem',
-            consider_for_job: 'no'
-          }
-        }
+        // {
+        //   time_slots: ['12PM - 3PM'],
+        //   company: 'dedes',
+        //   date: '2020-08-28',
+        //   feedback: {
+        //     technical_skill: ['Exceptional', 'good knowledge'],
+        //     communicational_skill: ['Meets Requirenment', 'good knowledge'],
+        //     presentation_skill: ['Need Training', 'good knowledge'],
+        //     understanding_of_role: ['Doesn\'t meet requirenment', 'good knowledge'],
+        //     strength: 'coding skills',
+        //     limitations: 'understanding the problem',
+        //     consider_for_job: 'no'
+        //   }
+        // },
+        // {
+        //   time_slots: ['9PM - 12AM'],
+        //   date: '2020-08-28',
+        //   feedback: {
+        //     technical_skill: ['Exceptional', 'good knowledge'],
+        //     communicational_skill: ['Exceptional', 'good knowledge'],
+        //     presentation_skill: ['Exceptional', 'good knowledge'],
+        //     understanding_of_role: ['Exceptional', 'good knowledge'],
+        //     strength: 'coding skills',
+        //     limitations: 'understanding the problem',
+        //     consider_for_job: 'no'
+        //   }
+        // }
       ]
     }
   },

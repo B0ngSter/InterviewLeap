@@ -549,7 +549,7 @@ class InterviewListView(ListAPIView):
             ]
         }
     """
-    queryset = Interview.objects.all()
+    queryset = Interview.objects.filter(is_active=True)
     serializer_class = CustomBookingCancelViewSerializer
 
     def get(self, request, *args, **kwargs):
@@ -569,7 +569,7 @@ class InterviewListView(ListAPIView):
                                     "slug": data.slug
                                     })
         for data in queryset:
-            check = data.interviewslots_set.filter(interview_start_time__date__gte=timezone.now())
+            check = data.time_slots.filter(interview_start_time__date__gte=timezone.now())
             if check:
                 profile_obj = InterviewerProfile.objects.filter(user=data.interviewer).first()
                 mock_list.append({"job_title": data.job_title,

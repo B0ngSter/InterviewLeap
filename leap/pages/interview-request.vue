@@ -479,21 +479,23 @@ export default {
     },
     interview_duration (idx) {
       // const oneSpan = 3 * 60 * 60 * 1000 // in milliseconds
-      const dateString = this.upcoming_interviews[idx].date
-      const year = dateString.substring(0, 4)
-      const month = dateString.substring(5, 7)
-      const day = dateString.substring(8, 10)
-      const interviewDay = new Date(year, month - 1, day).getTime()
-      const starTime = interviewDay + this.upcoming_interviews[idx].interview_start_time.substring(11, 13) * 60 * 60 * 1000
-      const EndTime = interviewDay + this.upcoming_interviews[idx].interview_end_time.substring(11, 13) * 60 * 60 * 1000
-      // const timeSlots = ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM']
-      // const interviewArray = [starTime, starTime + oneSpan, starTime + 2 * oneSpan, starTime + 3 * oneSpan, starTime + 4 * oneSpan]
-      // const interviewSlot = interviewArray[timeSlots.indexOf(this.upcoming_interviews[idx].time_slots[0])]
-      const timesNow = new Date().getTime()
-      if (timesNow > starTime && timesNow < EndTime) {
-        return true
-      } else {
-        return false
+      if (this.upcoming_interviews.length > idx) {
+        const dateString = this.upcoming_interviews[idx].date
+        const year = dateString.substring(0, 4)
+        const month = dateString.substring(5, 7)
+        const day = dateString.substring(8, 10)
+        const interviewDay = new Date(year, month - 1, day).getTime()
+        const starTime = interviewDay + this.upcoming_interviews[idx].interview_start_time.substring(11, 13) * 60 * 60 * 1000
+        const EndTime = interviewDay + this.upcoming_interviews[idx].interview_end_time.substring(11, 13) * 60 * 60 * 1000
+        // const timeSlots = ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM']
+        // const interviewArray = [starTime, starTime + oneSpan, starTime + 2 * oneSpan, starTime + 3 * oneSpan, starTime + 4 * oneSpan]
+        // const interviewSlot = interviewArray[timeSlots.indexOf(this.upcoming_interviews[idx].time_slots[0])]
+        const timesNow = new Date().getTime()
+        if (timesNow > starTime && timesNow < EndTime) {
+          return true
+        } else {
+          return false
+        }
       }
     },
     select_slot (idx, idy) {

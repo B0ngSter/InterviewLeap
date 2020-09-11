@@ -78,6 +78,7 @@
     <Report
       v-if="hide_Report_details"
       :report="report"
+      @Back="hide_Report_details = $event"
     />
   </div>
 </template>

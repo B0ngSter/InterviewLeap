@@ -24,9 +24,11 @@
           </p>
         </b-col>
         <b-col cols="12" md="4" class="text-right">
-          <b-button class="text-white" to="/create-interview" variant="primary">
-            Past Interviews
-          </b-button>
+          <a href="#pastInterviews">
+            <b-button class="text-white" variant="primary">
+              Past Interviews
+            </b-button>
+          </a>
         </b-col>
         <b-col v-if="interview_requests.length === 0 && feedback.length === 0 && upcoming_interviews.length === 0" cols="12" class="mt-5">
           <div class="text-center pt-4">
@@ -92,7 +94,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -132,7 +134,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -172,7 +174,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -182,7 +184,9 @@
           </b-card>
         </b-col>
         <b-col cols="12" md="6" class="mt-5">
-          <h3>Past Completed Interviews ({{ sum_of_interviews() }})</h3>
+          <h3 id="pastInterviews">
+            Past Completed Interviews ({{ sum_of_interviews() }})
+          </h3>
         </b-col>
         <b-col cols="12" md="6" class="mt-5 cursor-pointer text-right pr-3">
           <h4 @click="sortPastInterviews">
@@ -238,7 +242,7 @@
                 </b-col>
                 <b-col cols="3 border-top border-light pt-4">
                   <div>
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -259,7 +263,7 @@
       :id="id"
       :feedbacks="feedback"
     />
-    <profile v-if="showProfile" :profile-response="profileResponse" />
+    <profile v-if="showProfile" :profile-response="profileResponse" @Back="showProfile = $event" />
     <Report
       v-if="hide_Report_details"
       :repor-type-interviewer="true"
@@ -479,21 +483,23 @@ export default {
     },
     interview_duration (idx) {
       // const oneSpan = 3 * 60 * 60 * 1000 // in milliseconds
-      const dateString = this.upcoming_interviews[idx].date
-      const year = dateString.substring(0, 4)
-      const month = dateString.substring(5, 7)
-      const day = dateString.substring(8, 10)
-      const interviewDay = new Date(year, month - 1, day).getTime()
-      const starTime = interviewDay + this.upcoming_interviews[idx].interview_start_time.substring(11, 13) * 60 * 60 * 1000
-      const EndTime = interviewDay + this.upcoming_interviews[idx].interview_end_time.substring(11, 13) * 60 * 60 * 1000
-      // const timeSlots = ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM']
-      // const interviewArray = [starTime, starTime + oneSpan, starTime + 2 * oneSpan, starTime + 3 * oneSpan, starTime + 4 * oneSpan]
-      // const interviewSlot = interviewArray[timeSlots.indexOf(this.upcoming_interviews[idx].time_slots[0])]
-      const timesNow = new Date().getTime()
-      if (timesNow > starTime && timesNow < EndTime) {
-        return true
-      } else {
-        return false
+      if (this.upcoming_interviews.length > idx) {
+        const dateString = this.upcoming_interviews[idx].date
+        const year = dateString.substring(0, 4)
+        const month = dateString.substring(5, 7)
+        const day = dateString.substring(8, 10)
+        const interviewDay = new Date(year, month - 1, day).getTime()
+        const starTime = interviewDay + this.upcoming_interviews[idx].interview_start_time.substring(11, 13) * 60 * 60 * 1000
+        const EndTime = interviewDay + this.upcoming_interviews[idx].interview_end_time.substring(11, 13) * 60 * 60 * 1000
+        // const timeSlots = ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM']
+        // const interviewArray = [starTime, starTime + oneSpan, starTime + 2 * oneSpan, starTime + 3 * oneSpan, starTime + 4 * oneSpan]
+        // const interviewSlot = interviewArray[timeSlots.indexOf(this.upcoming_interviews[idx].time_slots[0])]
+        const timesNow = new Date().getTime()
+        if (timesNow > starTime && timesNow < EndTime) {
+          return true
+        } else {
+          return false
+        }
       }
     },
     select_slot (idx, idy) {

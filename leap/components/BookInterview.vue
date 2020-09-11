@@ -237,7 +237,7 @@ export default {
         skills: [],
         company_type: '',
         time_slots: [],
-        time_zone: null,
+        time_zone: 'Asia/Kolkata',
         applied_designation: null
       },
       skill_search_query: '',

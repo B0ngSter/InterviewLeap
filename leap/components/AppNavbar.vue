@@ -29,11 +29,43 @@
               class="ml-3"
             />
           </template>
-          <b-dropdown-item to="/profile" active-class="text-primary">
-            Profile
+          <b-dropdown-item to="/profile" class="border-bottom border-light" active-class="text-dark">
+            <p class="p-3 mt-2">
+              <span>
+                <b-img
+                  src="@/static/login.svg"
+                  alt="InterviewLeap logo"
+                />
+              </span>
+              <span class="pl-3">Profile</span>
+            </p>
           </b-dropdown-item>
-          <b-dropdown-item @click="logout">
-            Logout
+          <b-dropdown-item v-if="$store.getters.is_interviewer" to="/interview-request" class="border-bottom border-light" active-class="text-dark">
+            <p class="p-3 mt-2">
+              <span>
+                <b-img
+                  src="@/static/pay.svg"
+                  alt="InterviewLeap logo"
+                />
+              </span>
+              <span class="pl-3">Transactions</span>
+            </p>
+          </b-dropdown-item>
+          <b-dropdown-item to="/profile" class="border-bottom border-light" active-class="text-dark">
+            <p class="p-3 mt-2">
+              <span>
+                <b-img
+                  src="@/static/headphones.svg"
+                  alt="InterviewLeap logo"
+                />
+              </span>
+              <span class="pl-3">Support</span>
+            </p>
+          </b-dropdown-item>
+          <b-dropdown-item class="bg-primary" active-class="text-white" @click="logout">
+            <b-button variant="primary" style="width: 100%;" class="text-white">
+              Logout
+            </b-button>
           </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -99,3 +131,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.hoover:hover {
+  background-color: #5dcc99;
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
-  <div style="position:absolute; width: 90%">
+  <div style="position:absolute; width: 100%">
     <b-input-group size="md" class="mb-2">
-      <b-form-input
+      <input
         v-model="selection"
         class="form-control bg-light"
         type="text"
@@ -11,8 +11,8 @@
         @input="change"
         @blur="inputBlurred"
         @focus="open=true"
-      />
-      <b-input-group-prepend is-text>
+      >
+      <b-input-group-prepend is-text class="pr-3">
         <b-icon icon="search" />
       </b-input-group-prepend>
     </b-input-group>
@@ -67,7 +67,6 @@ export default {
         return str.includes(this.selection)
       })
     }, */
-
     // The flag
     openSuggestion () {
       return this.selection !== '' &&
@@ -87,26 +86,22 @@ export default {
       // this.selection = this.suggestions[this.current]
       // this.open = false
     },
-
     // When up pressed while suggestions are open
     up () {
       if (this.current > 0) {
         this.current--
       }
     },
-
     // When up pressed while suggestions are open
     down () {
       if (this.current < this.suggestions.length - 1) {
         this.current++
       }
     },
-
     // For highlighting element
     isActive (index) {
       return index === this.current
     },
-
     // When the user changes input
     change ($event) {
       this._perform_keyword_search($event.target.value)
@@ -115,14 +110,12 @@ export default {
         this.current = 0
       }
     },
-
     _perform_keyword_search (searchQuery) {
       this.$axios.get(`${this.searchEndpoint}?${this.searchParamName}=${searchQuery}`)
         .then((response) => {
           this.suggestions = this.resultKey ? response.data[this.resultKey] : response.data
         })
     },
-
     // When one of the suggestion is clicked
     suggestionClick (index) {
       this.selection = this.itemTitleKey ? this.suggestions[index][this.itemTitleKey] : this.suggestions[index]

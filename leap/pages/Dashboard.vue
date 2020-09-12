@@ -60,7 +60,7 @@
                   <b-col cols="6" md="3" offset-md="2">
                     <div class="text-right">
                       <b-button squared class="alert-danger  text-danger-dark" @click="model=true">
-                        Cancle
+                        Cancel
                       </b-button>
                     </div>
                   </b-col>

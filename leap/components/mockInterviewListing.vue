@@ -6,7 +6,7 @@
           Open Mock Interviews
         </h4>
       </b-col>
-      <b-col cols="12" md="6" class="mt-5 mb-5">
+      <b-col cols="12" md="6" class="mt-5 mb-5 pb-4">
         <autocomplete
           search-endpoint="/interview-list"
           search-param-name="keyword"
@@ -38,8 +38,8 @@
       <b-col v-for="(mockInterview, idx) in mocks" :key="idx" class="mt-3" cols="12">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
-            <b-row align-v="center" class="p-4 mt-3 mb-1" align-content="start">
-              <b-col cols="3">
+            <b-row align-v="center" class="p-4 mt-3" align-content="start">
+              <b-col cols="6" md="3">
                 <p class="text-left font-weight-bold">
                   {{ mockInterview.job_title }}
                 </p>
@@ -47,7 +47,7 @@
                   {{ mockInterview.exp_years }} year
                 </p>
               </b-col>
-              <b-col cols="5" class="border-left border-light">
+              <b-col cols="6" md="5" class="border-left border-light">
                 <p class="text-left text-secondary pl-3 pb-0 pt-2">
                   Interviewer From
                 </p>
@@ -55,7 +55,7 @@
                   {{ mockInterview.company }}
                 </p>
               </b-col>
-              <b-col cols="4">
+              <b-col cols="12" md="4">
                 <div class="text-right">
                   <b-button
                     class="alert-success text-primary"

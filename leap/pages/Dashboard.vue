@@ -173,7 +173,7 @@
           </nuxt-link>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
-          <nuxt-link to="/interview-request" style="text-decoration: none;">
+          <nuxt-link to="/transaction" style="text-decoration: none;">
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>

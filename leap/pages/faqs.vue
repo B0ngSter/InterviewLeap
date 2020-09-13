@@ -48,7 +48,7 @@ export default {
   layout: 'app-page',
   data () {
     return {
-      ext: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      ext: [],
       counter: 0,
       faq: [
         {
@@ -59,6 +59,9 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    this.ext = Array.from(Array(50).keys())
   },
   methods: {
     openTheQuestion (idx) {

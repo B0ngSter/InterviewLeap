@@ -27,6 +27,12 @@ export const actions = {
   login (context, payload) {
     this.$auth.loginWith('local', { data: payload.Authpayload })
       .then((response) => {
+        this.$axios.get('/book-interview/')
+          .then((response) => {
+            if (response.data.is_profile_completed) {
+              this.$router.push('/dashboard')
+            }
+          })
       })
       .catch((errorResponse) => {
         this.$toast.error(

@@ -9,7 +9,7 @@ from root.models import BookInterview
 from .models import User, Interview, InterviewSlots
 from django.conf import settings
 from authentication.models import CandidateProfile, InterviewerProfile, Skill
-
+import pytz
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
@@ -140,11 +140,47 @@ class CandidateProfileCreateListSerializer(serializers.ModelSerializer):
         return candidate
 
 
-class CandidateFresherSerializer(serializers.ModelSerializer):
+class CandidateFresherCreateSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
+
+    class Meta:
+        model = CandidateProfile
+        fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title']
+
+    def create(self, validated_data):
+        skills = validated_data.pop('skills')
+        skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+        candidate, created = CandidateProfile.objects.get_or_create(user=self.context['request'].user)
+        candidate.skills.set(skill_obj)
+        candidate.__dict__.update(**validated_data)
+        candidate.save()
+        return candidate
+
+
+class CandidateExperiencedCreateSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
+
     class Meta:
         model = CandidateProfile
         fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
                   'linkedin', 'industry', 'designation', 'skills', 'job_title', 'company', 'exp_years']
+
+    def create(self, validated_data):
+        skills = validated_data.pop('skills')
+        skill_obj = [Skill.objects.get_or_create(title=skill.get('title'))[0] for skill in skills]
+        candidate, created = CandidateProfile.objects.get_or_create(user=self.context['request'].user)
+        candidate.skills.set(skill_obj)
+        candidate.__dict__.update(**validated_data)
+        candidate.save()
+        return candidate
+
+
+class CandidateFresherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CandidateProfile
+        fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title']
 
 
 class CandidateExperienceSerializer(serializers.ModelSerializer):
@@ -153,7 +189,7 @@ class CandidateExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CandidateProfile
         fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',
-                  'linkedin', 'industry', 'designation', 'skills', 'job_title']
+                  'linkedin', 'industry', 'designation', 'skills', 'job_title', 'company', 'exp_years']
 
 
 class InterviewerProfileCreateListSerializer(serializers.ModelSerializer):
@@ -255,6 +291,43 @@ class InterviewCreateSerializer(serializers.ModelSerializer):
         date_time = date + ' ' + time
         naive = datetime.datetime.strptime(date_time, "%m-%d-%Y %H:%M")
         return naive
+
+
+class InterviewListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Interview
+        fields = ['slug', 'job_title', 'exp_years']
+
+
+class InterviewSlotSerializer(serializers.ModelSerializer):
+    interview_start_time = serializers.SerializerMethodField()
+    interview_end_time = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+
+    def get_date(self, obj):
+        return obj.interview_start_time.date().isoformat()
+
+    def get_interview_start_time(self, obj):
+        start_time = obj.interview_start_time.time().isoformat()
+        return start_time
+
+    def get_interview_end_time(self, obj):
+        end_time = obj.interview_end_time.time().isoformat()
+        return end_time
+
+    class Meta:
+        model = InterviewSlots
+        fields = ['interview_start_time', 'interview_end_time', 'date']
+
+
+class InterviewGetSerializer(serializers.ModelSerializer):
+    time_slots = InterviewSlotSerializer(many=True)
+    skills = SkillSerializer(many=True)
+
+    class Meta:
+        model = Interview
+        fields = ['slug', 'job_title', 'exp_years', 'description', 'timezone', 'skills', 'time_slots']
 
 
 class InterviewerRequestsListSerializer(serializers.ModelSerializer):

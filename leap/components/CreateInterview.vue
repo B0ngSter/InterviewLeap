@@ -4,7 +4,7 @@
       <b-row align-v="start" align-content="start" class="flex-grow-1">
         <b-col cols="12">
           <b-breadcrumb class="bg-light pl-0">
-            <b-breadcrumb-item>
+            <b-breadcrumb-item to="/dashboard">
               Dashboard
             </b-breadcrumb-item>
             <b-breadcrumb-item active>
@@ -23,12 +23,11 @@
         <b-col cols="12" class="mt-5">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="6" class="pt-5 pb-5">
+              <b-row class="p-4 mt-3">
+                <b-col cols="12" md="6">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.interviewInfo.job_title.$model"
-                      class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       name="example-input-1"
                       placeholder="Job Title"
                       :state="validateState('job_title')"
@@ -41,12 +40,11 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </b-col>
-                <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
+                <b-col cols="12" md="6">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.interviewInfo.exp_years.$model"
                       min="0"
-                      class="mb-2 mb-sm-0 mr-md-4 ml-md-3"
                       placeholder="Experience Required (Optional)"
                       :state="validateState('exp_years')"
                       aria-describedby="input-1-live-feedback"
@@ -65,8 +63,8 @@
         <b-col cols="12" class="mt-2">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row align-v="center" align-content="start">
-                <b-col cols="12" md="12" class="p-4">
+              <b-row class="p-4 mt-3" align-v="center" align-content="start">
+                <b-col cols="12" md="12" class="">
                   <b-input-group>
                     <b-form-input
                       v-model="skill_search_query"
@@ -74,13 +72,14 @@
                       list="Skill-options"
                       :disabled="skills_filled"
                       @keypress="fetchSkills"
+                      @keydown.enter="addSkill"
                     />
                     <datalist id="Skill-options">
                       <option v-for="(Skill, idp) in fetchedSkill" :key="idp">
                         {{ Skill }}
                       </option>
                     </datalist>
-                    <b-button variant="primary" :disabled="skills_filled" @click="addSkill">
+                    <b-button class="text-white" variant="primary" :disabled="skills_filled" @click="addSkill">
                       Add
                     </b-button>
                   </b-input-group>
@@ -113,8 +112,8 @@
         <b-col cols="12" class="mt-2">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
-              <b-row>
-                <b-col cols="12" md="6" class="pt-5 pb-5 pl-4">
+              <b-row class="p-4 mt-3">
+                <b-col cols="12" md="6" class="">
                   <b-form-group>
                     <b-form-input
                       v-model="$v.interviewInfo.description.$model"
@@ -131,14 +130,14 @@
                     </b-form-invalid-feedback>
                   </b-form-group>
                 </b-col>
-                <b-col cols="12" md="6" class="pt-5 pb-5 pr-5">
+                <b-col cols="12" md="6" class="">
                   <b-form-group>
                     <b-input
                       id="timeZones"
                       v-model="$v.interviewInfo.timezone.$model"
                       required
                       list="timeZones-options"
-                      class="mb-2 mb-sm-0 ml-md-4 mr-md-3"
+                      class=""
                       :state="validateState('timezone')"
                       placeholder="Time Zone"
                       autocomplete="off"
@@ -189,11 +188,12 @@
             {{ dayZ(idx) }}
           </b-badge>
           <h4
-            class="p-4"
+            class="p-4 cursor-pointer"
             :class="{
               'text-dark': date !== selected_date,
               'text-primary': date == selected_date
             }"
+            @click="select_date(date)"
           >
             {{ currentDate(idx) }}
           </h4>
@@ -222,6 +222,7 @@
           <div class="text-center mt-5 mb-5">
             <b-button
               variant="primary"
+              class="text-white"
               :disabled="interviewInfo.job_title === null || interviewInfo.skills.length === 0 || interviewInfo.exp_years == null || interviewInfo.timezone == null || interviewInfo.description == null"
               @click="submit"
             >
@@ -253,7 +254,7 @@ export default {
         job_title: null,
         exp_years: null,
         description: null,
-        timezone: null,
+        timezone: 'Asia/Kolkata',
         slug: null
       },
       timeZone: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(num => `static ${num}`),
@@ -269,7 +270,7 @@ export default {
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
-    // this.updateInterview()
+    this.updateInterview()
     // this.fetch_timeSlots()
   },
   validations: {
@@ -285,25 +286,30 @@ export default {
       const { $dirty, $error } = this.$v.interviewInfo[name]
       return $dirty ? !$error : null
     },
-    // fetch_timeSlots () {
-    //   this.$axios.get('/time-slot')
-    //     .then((response) => {
-    //       this.time_slots = response.data.time_slot
-    //     })
-    // },
-    // updateInterview () {
-    //   this.$axios.get('/auth/create-interview/')
-    //     .then((response) => {
-    //       if (response.data.includes('pk')) {
-    //         this.interviewInfo = this.response.data
-    //       }
-    //     })
-    //     .catch((errorResponse) => {
-    //       this.$toast.error(
-    //         errorResponse.response.data.message || 'Something went wrong'
-    //       )
-    //     })
-    // },
+    updateInterview () {
+      if (this.$route.params.slug) {
+        this.$axios.get(`/interview/create-interview?slug=${this.$route.params.slug}`)
+          .then((response) => {
+            response.data.skills = response.data.skills.map((key) => {
+              return key.title
+            })
+            response.data.time_slots.map((key) => {
+              const newdate = key.date.slice(5, 7) + '-' + key.date.slice(8, 10) + '-' + key.date.slice(0, 4)
+              const start = key.interview_start_time.slice(0, 5)
+              const end = key.interview_end_time.slice(0, 5)
+              if (Object.keys(this.date_row).includes(newdate)) {
+                this.date_row[newdate].push(start + ' - ' + end)
+              }
+            })
+            this.interviewInfo = response.data
+          })
+          .catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Something went wrong'
+            )
+          })
+      }
+    },
     fetch_timeZone () {
       this.$axios.get('/book-interview')
         .then((response) => {
@@ -377,22 +383,41 @@ export default {
           delete payload.interview_time[key] // remove date keys which are empty
         }
       })
-      this.$axios.post('/interview/create-interview/', payload)
-        .then((response) => {
-          this.$toast.success('Your profile changes were saved', {
-            action: {
-              text: 'Close',
-              onClick: (e, toastObject) => {
-                toastObject.goAway(0)
+      if (this.$route.params.slug) {
+        this.$axios.post(`/interview/create-interview/?slug=${this.$route.params.slug}`, payload)
+          .then((response) => {
+            this.$toast.success('Interview has been updated', {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
               }
-            }
+            })
           })
-        })
-        .catch((errorResponse) => {
-          this.$toast.error(
-            errorResponse.response.data.message || 'Interview has been created. Please try again later'
-          )
-        })
+          .catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Something went wrong. Please try again later'
+            )
+          })
+      } else {
+        this.$axios.post('/interview/create-interview/', payload)
+          .then((response) => {
+            this.$toast.success('Interview has been created', {
+              action: {
+                text: 'Close',
+                onClick: (e, toastObject) => {
+                  toastObject.goAway(0)
+                }
+              }
+            })
+          })
+          .catch((errorResponse) => {
+            this.$toast.error(
+              errorResponse.response.data.message || 'Something went wrong. Please try again later'
+            )
+          })
+      }
     },
     removeTag (skillIndex) {
       this.interviewInfo.skills.splice(skillIndex, 1)

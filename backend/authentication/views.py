@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django_rest_passwordreset.models import get_password_reset_token_expiry_time, ResetPasswordToken
 from django_rest_passwordreset.serializers import PasswordTokenSerializer
 from rest_framework import status
-from django.conf import settings
+from backend import settings
 from datetime import datetime, timedelta
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -40,7 +40,9 @@ from authentication.dates import by_month
 from .interview_schedule import interview_schedule
 from .serializers import RegistrationSerializer, VerifyUserSerializer, UserProfileSerializer, UserDetailSerializer, \
     ResendVerificationTokenSerializer, InterviewerRequestsListSerializer, PastInterviewSerializer, \
-    CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer
+    CustomInterviewSerializer, MockInterviewSerializer, CandidateFresherSerializer, CandidateExperienceSerializer, \
+    CandidateFresherCreateSerializer, CandidateExperiencedCreateSerializer, InterviewListSerializer, \
+    InterviewGetSerializer
 from .models import User, CandidateProfile, InterviewerProfile, Interview, InterviewSlots
 from django_rest_passwordreset.signals import reset_password_token_created, pre_password_reset, post_password_reset
 from django.views.decorators.csrf import csrf_protect
@@ -547,19 +549,28 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         profile_data = request.data.dict()
         profile_data['user'] = request.user.id
+
         try:
             candidate_obj = CandidateProfile.objects.get(user=self.request.user.id)
             if not request.data.get('resume', None) and candidate_obj.resume:
                 profile_data['resume'] = candidate_obj.resume
         except ObjectDoesNotExist:
             pass
+
         user_serializer = UserProfileSerializer(request.user, data=profile_data, partial=True,
                                                 context={"request": request})
         if user_serializer.is_valid():
             user_serializer.save()
         if 'skills' in profile_data:
             profile_data['skills'] = [{'title': skill} for skill in profile_data['skills'].split(",")]
-        serializer = self.get_serializer(data=profile_data, context={"request": request})
+
+        if request.data.get('professional_status', None) == 'Fresher':
+            serializer = CandidateFresherCreateSerializer(data=profile_data, context={"request": request})
+        elif request.data.get('professional_status', None) == 'Experienced':
+            serializer = CandidateExperiencedCreateSerializer(data=profile_data, context={"request": request})
+        else:
+            return Response({"message": "Please select Professional Status"})
+
         if serializer.is_valid():
             serializer.save()
             response = serializer.data
@@ -568,6 +579,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
         else:
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
+            if 'resume' in serializer.errors.keys():
+                error_message = "Please upload valid Resume"
+            if 'exp_years' in serializer.errors.keys():
+                error_message = "Please provide correct Year of Experience"
+            if 'linkedin' in serializer.errors.keys():
+                error_message = "Please enter valid Linkedin address"
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -634,6 +651,12 @@ class InterviewerProfileCreateListView(ListCreateAPIView):
                 else:
                     error_message = ", ".join([error for error in serializer.errors.keys()])
                     error_message = "Invalid value for {}".format(error_message)
+                if 'resume' in serializer.errors.keys():
+                    error_message = "Please upload valid Resume"
+                if 'exp_years' in serializer.errors.keys():
+                    error_message = "Please provide correct Year of Experience"
+                if 'linkedin' in serializer.errors.keys():
+                    error_message = "Please enter valid Linkedin address"
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -732,7 +755,7 @@ class IndustryListView(APIView):
         return Response({"industries": industries})
 
 
-class InterviewCreateView(CreateAPIView):
+class InterviewCreateView(ListCreateAPIView):
     """
         InterviewCreationDetails   -- Authenticated Interviewer can Post Interveiw details!
         actions -- Post -- Interview Details(Interviewer)
@@ -758,6 +781,15 @@ class InterviewCreateView(CreateAPIView):
 
     serializer_class = InterviewCreateSerializer
 
+    def get(self, request, *args, **kwargs):
+        if 'slug' in request.GET:
+            interview = Interview.objects.get(interviewer=self.request.user, slug=request.GET.get('slug'))
+            serialize = InterviewGetSerializer(interview).data
+            return Response(serialize, status=status.HTTP_200_OK)
+        interviews = Interview.objects.filter(interviewer=self.request.user, is_active=True)
+        serialize = InterviewListSerializer(interviews, many=True).data
+        return Response(serialize, status=status.HTTP_200_OK)
+
     def create(self, request, *args, **kwargs):
         interview_dict = request.data
         interview_dict['interviewer'] = request.user.id
@@ -771,6 +803,12 @@ class InterviewCreateView(CreateAPIView):
             error_message = ", ".join([error for error in serializer.errors.keys()])
             error_message = "Invalid value for {}".format(error_message)
             return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        interview_obj = Interview.objects.get(interviewer=self.request.user, slug=request.GET.get('slug'))
+        interview_obj.is_active = False
+        interview_obj.save()
+        return Response({"message": "Interview Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
 class InterviewAcceptDeclineView(CreateAPIView):

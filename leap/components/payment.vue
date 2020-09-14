@@ -6,7 +6,7 @@
           <b-breadcrumb-item to="/dashboard">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item to="/book-interview">
+          <b-breadcrumb-item v-if="!isMock" @click="reschedule">
             Book Interview
           </b-breadcrumb-item>
           <b-breadcrumb-item active>
@@ -19,11 +19,17 @@
           Interview Summary
         </h2>
       </b-col>
+      <b-col cols="6">
+        <div class="text-right text-danger-dark mt-5">
+          *Cancelation of scheduled interview
+          is non refundable
+        </div>
+      </b-col>
       <b-col cols="12" class="mt-5">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
-            <b-row>
-              <b-col :cols="isMock ? 3 : 4" class="pt-5 pb-5 pl-4">
+            <b-row class="p-4">
+              <b-col :cols="isMock ? 3 : 4" class="mt-3">
                 <p class="text-left text-secondary">
                   Date
                 </p>
@@ -31,7 +37,7 @@
                   {{ date() }}
                 </p>
               </b-col>
-              <b-col v-if="isMock" cols="3" class="pt-5 pb-5 pl-4">
+              <b-col v-if="isMock" cols="3" class="mt-3">
                 <p class="text-left text-secondary">
                   Interview from
                 </p>
@@ -40,14 +46,14 @@
                 </p>
               </b-col>
               <b-col cols="3" :offset-md="isMock ? 0 : 2">
-                <div class="mt-5 mb-5">
+                <div class="mt-3">
                   <b-button squared class="alert-danger text-danger-dark" @click="cancel">
                     Cancel
                   </b-button>
                 </div>
               </b-col>
               <b-col cols="3">
-                <div class="mt-5 mb-5">
+                <div class="mt-3">
                   <b-button squared class="alert-primary text-primary" @click="reschedule">
                     Reschedule
                   </b-button>
@@ -60,8 +66,8 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row v-if="!isMock">
-              <b-col cols="12" class="pt-5 pl-4">
+            <b-row v-if="!isMock" class="p-4">
+              <b-col cols="12" class="">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
                 </p>
@@ -70,18 +76,18 @@
                 v-for="(timeslot, idy) in candidateInfo.time_slots"
                 :key="idy"
                 cols="3"
-                class="mb-3 cursor-pointer"
+                class="cursor-pointer"
               >
                 <b-card
                   no-body
-                  class="p-3 pl-5 mt-3 border-0 alert-primary"
+                  class="p-3 mt-3 border-0 alert-primary"
                 >
                   {{ timeslot }}
                 </b-card>
               </b-col>
             </b-row>
-            <b-row v-if="isMock">
-              <b-col cols="12" class="pt-5 pl-4">
+            <b-row v-if="isMock" class="p-4">
+              <b-col cols="12" class="">
                 <p class="text-left text-secondary">
                   Time Slots you have selected
                 </p>
@@ -90,7 +96,7 @@
                 v-for="(timeslot, idy) in timeSlotsMock"
                 :key="idy"
                 cols="3"
-                class="mb-3 cursor-pointer"
+                class="cursor-pointer"
               >
                 <b-card
                   no-body
@@ -106,34 +112,33 @@
       <b-col cols="12">
         <b-card no-body class="text-center border-0 mt-2">
           <b-container class="bg-white">
-            <b-row>
-              <b-col cols="6" class="pt-5 pl-4">
+            <b-row class="p-4">
+              <b-col cols="6" class="pt-4">
                 <p class="text-left text-secondary">
                   Interview Charges
                 </p>
               </b-col>
-              <b-col cols="6" class="pt-5 pr-4">
+              <b-col cols="6" class="pt-4">
                 <h4 class="text-right text-secondary">
                   ₹{{ amount }}
                 </h4>
               </b-col>
-              <b-col cols="6" class="pt-2 pl-4">
+              <b-col cols="6" class="pt-4">
                 <p class="text-left text-secondary">
                   Taxes
                 </p>
               </b-col>
-              <b-col cols="6" class="pt-2 pr-4">
+              <b-col cols="6" class="pt-4">
                 <h4 class="text-right text-secondary">
                   ₹{{ tax }}
                 </h4>
               </b-col>
-              <hr>
-              <b-col cols="6" class="pt-5 pl-4">
-                <p class="text-left font-weight-bold">
+              <b-col cols="6" class="pt-4 border-top border-light">
+                <h4 class="text-left text-secondary">
                   Total Payable Amount
-                </p>
+                </h4>
               </b-col>
-              <b-col cols="6" class="pt-5 pr-4">
+              <b-col cols="6" class="pt-4 border-top border-light">
                 <h4 class="text-right font-weight-bold">
                   ₹{{ total_amount }}
                 </h4>
@@ -144,8 +149,8 @@
       </b-col>
       <b-col cols="12">
         <div class="text-center mt-5">
-          <b-button variant="primary" @click="submit">
-            proceed to pay
+          <b-button class="text-white" variant="primary" @click="submit">
+            Proceed to pay
           </b-button>
         </div>
       </b-col>

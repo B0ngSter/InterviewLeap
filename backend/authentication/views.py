@@ -81,20 +81,24 @@ class SignupView(CreateAPIView):
     serializer_class = RegistrationSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            self.perform_create(serializer)
-            user = User.objects.get(email=serializer.data['email'])
-            token = generate_token(user)
-            self.account_email_verify_token(request, token, serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            if serializer.errors.get('message'):
-                error_message = serializer.errors.get('message')[0]
+        try:
+            User.objects.get(email=request.data.get('email'))
+            return Response({"message": "User with this email already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                self.perform_create(serializer)
+                user = User.objects.get(email=serializer.data['email'])
+                token = generate_token(user)
+                self.account_email_verify_token(request, token, serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
-                error_message = ", ".join([error.replace('_', ' ') for error in serializer.errors.keys()])
-                error_message = "Invalid value for {}".format(error_message)
-            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+                if serializer.errors.get('message'):
+                    error_message = serializer.errors.get('message')[0]
+                else:
+                    error_message = ", ".join([error.replace('_', ' ') for error in serializer.errors.keys()])
+                    error_message = "Invalid value for {}".format(error_message)
+                return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
     def account_email_verify_token(self, request, token, data):
         try:

@@ -106,7 +106,7 @@
                   type="password"
                   required
                   placeholder="Confirm Password"
-                  :state="validateState('confirm_password')"
+                  :state="validateState('confirm_password') && userInfo.confirm_password === userInfo.password"
                   aria-describedby="input-1-live-feedback"
                 />
                 <b-form-invalid-feedback

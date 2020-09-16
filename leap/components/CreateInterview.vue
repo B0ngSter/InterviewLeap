@@ -45,6 +45,7 @@
                     <b-form-input
                       v-model="$v.interviewInfo.exp_years.$model"
                       min="0"
+                      type="number"
                       placeholder="Experience Required (Optional)"
                       :state="validateState('exp_years')"
                       aria-describedby="input-1-live-feedback"
@@ -209,9 +210,11 @@
           <b-card
             v-if="selected_date"
             no-body
-            class="p-3 pl-5 mt-3 border-0 cursor-pointer"
+            class="p-3 pl-5 mt-3 cursor-pointer"
             :class="{
-              'alert-primary': date_row[selected_date].includes(time_slots_to_be_sent[idy])
+              'alert-primary': date_row[selected_date].includes(time_slots_to_be_sent[idy]),
+              'border-primary': date_row[selected_date].includes(time_slots_to_be_sent[idy]),
+              'border-0': !date_row[selected_date].includes(time_slots_to_be_sent[idy])
             }"
             @click="toggle_timeslot(idy)"
           >
@@ -223,7 +226,7 @@
             <b-button
               variant="primary"
               class="text-white"
-              :disabled="interviewInfo.job_title === null || interviewInfo.skills.length === 0 || interviewInfo.exp_years == null || interviewInfo.timezone == null || interviewInfo.description == null"
+              :disabled="interviewInfo.job_title === null || dateRowValidation || interviewInfo.skills.length === 0 || interviewInfo.exp_years == null || interviewInfo.timezone == null || interviewInfo.description == null"
               @click="submit"
             >
               Create Interview
@@ -246,7 +249,7 @@ export default {
     return {
       time_slots: ['9AM - 12PM', '12PM - 3PM', '3PM - 6PM', '6PM - 9PM', '9PM - 12AM'],
       time_slots_to_be_sent: ['09:00 - 12:00', '12:00 - 15:00', '15:00 - 18:00', '18:00 - 21:00', '21:00 - 00:00'], // time slotes requested for backend are in this form
-      selected_date: null,
+      selected_date: '',
       date_row: {},
       job_exp: '',
       interviewInfo: {
@@ -265,13 +268,22 @@ export default {
   computed: {
     skills_filled () {
       return this.interviewInfo.skills.length >= 5
+    },
+    dateRowValidation () {
+      const payload = { ...this.date_row }
+      Object.keys(payload).map((key) => {
+        if (payload[key].length === 0) {
+          delete payload[key] // remove date keys which are empty
+        }
+      })
+      return Object.keys(payload).length === 0
     }
   },
   mounted () {
     this.fetch_timeZone()
     this.generate_dates()
     this.updateInterview()
-    // this.fetch_timeSlots()
+    // this.updateInterviewSlot()
   },
   validations: {
     interviewInfo: {
@@ -282,6 +294,14 @@ export default {
     }
   },
   methods: {
+    // updateInterviewSlot () {
+    //   for (let i = 0; i >= Object.keys(this.date_row).length; i++) {
+    //     if (this.date_row[Object.keys(this.date_row)[i]].length !== 0) {
+    //       this.selected_date = this.date_row[Object.keys(this.date_row)[i]]
+    //     }
+    //     break
+    //   }
+    // },
     validateState (name) {
       const { $dirty, $error } = this.$v.interviewInfo[name]
       return $dirty ? !$error : null
@@ -301,6 +321,14 @@ export default {
                 this.date_row[newdate].push(start + ' - ' + end)
               }
             })
+            for (let i = 0; i <= response.data.time_slots.length; i++) {
+              const newdate = response.data.time_slots[0].date.slice(5, 7) + '-' + response.data.time_slots[0].date.slice(8, 10) + '-' + response.data.time_slots[0].date.slice(0, 4)
+              if (Object.keys(this.date_row).includes(newdate)) {
+                this.selected_date = newdate
+              }
+              break
+            }
+            // this.selected_date = date
             this.interviewInfo = response.data
           })
           .catch((errorResponse) => {
@@ -386,6 +414,7 @@ export default {
       if (this.$route.params.slug) {
         this.$axios.post(`/interview/create-interview/?slug=${this.$route.params.slug}`, payload)
           .then((response) => {
+            this.$router.push('/dashboard')
             this.$toast.success('Interview has been updated', {
               action: {
                 text: 'Close',
@@ -403,6 +432,7 @@ export default {
       } else {
         this.$axios.post('/interview/create-interview/', payload)
           .then((response) => {
+            this.$router.push('/dashboard')
             this.$toast.success('Interview has been created', {
               action: {
                 text: 'Close',

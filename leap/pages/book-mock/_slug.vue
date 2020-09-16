@@ -76,8 +76,11 @@
         >
           <b-card
             no-body
-            class="p-3 pl-5 mt-3 border-0"
-            :class="{ 'alert-primary': time_slot.includes(idy) }"
+            class="p-3 pl-5 mt-3"
+            :class="{ 'alert-primary': time_slot.includes(idy),
+                      'border-primary': time_slot.includes(idy),
+                      'border-0': !time_slot.includes(idy)
+            }"
             @click="addSlot(idy)"
           >
             {{ timeslot }}
@@ -133,7 +136,7 @@ export default {
       is_profile_completed: null,
       time_slots_mock: [],
       candidate_info: {
-        time_zone: null,
+        time_zone: 'Asia/Kolkata',
         time_slots: []
       }
     }

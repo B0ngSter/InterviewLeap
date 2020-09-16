@@ -298,7 +298,12 @@ export default {
         })
     },
     addSlot (idy) {
-      this.candidate_info.time_slots.includes(this.time_slots[idy]) ? this.candidate_info.time_slots.splice(this.candidate_info.time_slots.indexOf(this.time_slots[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots[idy])
+      if (this.candidate_info.time_slots.includes(this.time_slots[idy])) {
+        this.candidate_info.time_slots.splice(this.candidate_info.time_slots.indexOf(this.time_slots[idy]), 1)
+      } else if (this.candidate_info.time_slots.length >= 3) {
+      } else if (!this.candidate_info.time_slots.includes(this.time_slots[idy])) {
+        this.candidate_info.time_slots.push(this.time_slots[idy])
+      }
     },
     allowedDates (val) {
       const today = new Date()
@@ -369,5 +374,9 @@ export default {
 }
 .btn {
   color: rgb(0, 0, 0);
+}
+.b-form-btn-label-control.form-control > .btn {
+    padding: 0rem;
+    visibility: hidden;
 }
 </style>

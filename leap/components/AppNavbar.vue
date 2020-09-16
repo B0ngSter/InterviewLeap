@@ -40,7 +40,7 @@
               <span class="pl-3">Profile</span>
             </p>
           </b-dropdown-item>
-          <b-dropdown-item v-if="$store.getters.is_interviewer" to="/interview-request" class="border-bottom border-light" active-class="text-dark">
+          <b-dropdown-item v-if="$store.getters.is_interviewer" to="/transaction" class="border-bottom border-light" active-class="text-dark">
             <p class="p-3 mt-2">
               <span>
                 <b-img

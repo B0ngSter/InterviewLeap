@@ -177,6 +177,8 @@ class CandidateExperiencedCreateSerializer(serializers.ModelSerializer):
 
 
 class CandidateFresherSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True)
+
     class Meta:
         model = CandidateProfile
         fields = ['user', 'professional_status', 'education', 'college', 'year_of_passing', 'resume',

@@ -12,15 +12,15 @@
             </b-breadcrumb-item>
           </b-breadcrumb>
         </b-col>
-        <b-col cols="12" md="3" class="mt-2 pt-2">
+        <b-col cols="12" md="5" class="mt-2 pt-2">
           <h3 class="font-weight-bold">
             Past Interviews
           </h3>
         </b-col>
-        <b-col offset-md="6" cols="12" md="3" class="mt-2 pt-2">
+        <b-col offset-md="4" cols="12" md="3" class="mt-2 pt-2">
           <div class="text-right">
             <b-button class="text-white" variant="primary" to="/book-interview">
-              Book interview >
+              Book interview
             </b-button>
           </div>
         </b-col>

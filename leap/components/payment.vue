@@ -251,9 +251,9 @@ export default {
       this.$axios.post(endpoint, payload)
         .then((response) => {
           if (response.data.long_url) {
-            window.open(response.data.long_url, '_blank')
+            window.open(response.data.long_url, '_self')
           } else if (response.data.message) {
-            this.$toast.success(response.data.message, {
+            this.$toast.error(response.data.message, {
               action: {
                 text: 'Close',
                 onClick: (e, toastObject) => {

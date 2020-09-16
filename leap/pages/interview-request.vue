@@ -262,6 +262,7 @@
       v-if="showFeedbackPage"
       :id="id"
       :feedbacks="feedback"
+      @Back="showFeedbackPage = $event"
     />
     <profile v-if="showProfile" :profile-response="profileResponse" @Back="showProfile = $event" />
     <Report

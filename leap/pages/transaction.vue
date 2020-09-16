@@ -18,7 +18,7 @@
           </h3>
         </b-col>
         <b-col offset-md="6" cols="12" md="3" class="mt-2 pt-2 text-right">
-          <h4 class="cursor-pointer">
+          <h4 class="cursor-pointer" @click="sortTransactions">
             <span>
               <b-img
                 src="@/static/sort.png"
@@ -156,12 +156,46 @@
                   </b-col>
                 </transition>
                 <transition name="slide-fade">
-                  <b-col v-if="!ext.includes(idx)" cols="6" class="pt-4 pb-4" md="6">
-                    <h4 class="text-left text-danger-dark">
-                      Deductions
+                  <b-col v-if="!ext.includes(idx)" cols="6" md="6">
+                    <h4 class="text-left text-danger-dark pt-4 pb-4">
+                      <span>
+                        Deductions
+                      </span>
+                      <span>
+                        <b-img
+                          src="@/static/info.svg"
+                          style="margin-top: -10px;"
+                          class="pointer-cursor"
+                          alt="info"
+                          @click="model=true"
+                        />
+                      </span>
                     </h4>
                   </b-col>
                 </transition>
+                <b-modal
+                  id="modal-center"
+                  v-model="model"
+                  centered
+                  hide-footer
+                  hide-header
+                >
+                  <h4 class="pa-5 mt-5 pb-5 text-left">
+                    Deductions might happen
+                  </h4>
+                  <p class="text-secondary">lorem ipsum</p>
+                  <p class="text-secondary">lorem ipsum</p>
+                  <p class="text-center mt-5">To know more contact our Customer Support team</p>
+                  <div class="text-center mt-5 mb-5">
+                    <b-button
+                      squared
+                      variant="danger"
+                      @click="model=false"
+                    >
+                      Contact
+                    </b-button>
+                  </div>
+                </b-modal>
                 <transition name="slide-fade">
                   <b-col v-if="!ext.includes(idx)" cols="6" class="pt-4 pb-4" md="6">
                     <h4 class="text-right text-danger-dark">
@@ -213,6 +247,7 @@ export default {
     return {
       report: null,
       hide_Report_details: false,
+      model: false,
       ext: [],
       transactions: [
         {
@@ -241,6 +276,11 @@ export default {
   methods: {
     openDetails (idx) {
       this.ext.includes(idx) ? this.ext.splice(this.ext.indexOf(idx), 1) : this.ext.push(idx)
+    },
+    sortTransactions () {
+      let stack = this.transactions
+      stack = stack.reverse()
+      this.transactions = stack
     }
     // date (idx) {
     //   let month = ''

@@ -356,7 +356,7 @@ class InterviewerRequestsListSerializer(serializers.ModelSerializer):
 
 class CustomInterviewSerializer(serializers.ModelSerializer):
     candidate_email = serializers.SerializerMethodField()
-    custome_interview = serializers.SerializerMethodField()
+    custom_interview = serializers.SerializerMethodField()
     resume = serializers.SerializerMethodField()
 
     def get_candidate_email(self, obj):
@@ -366,13 +366,13 @@ class CustomInterviewSerializer(serializers.ModelSerializer):
         resume = CandidateProfile.objects.get(user__email=obj.candidate.email).resume.url
         return resume
 
-    def get_custome_interview(self, obj):
+    def get_custom_interview(self, obj):
         return True
 
     class Meta:
         model = BookInterview
         fields = ['slug', 'applied_designation', 'date', 'interview_start_time', 'interview_end_time',
-                  'candidate_email', 'mock_interview', 'meet_link', 'resume']
+                  'candidate_email', 'custom_interview', 'meet_link', 'resume']
 
 
 class MockInterviewSerializer(serializers.ModelSerializer):

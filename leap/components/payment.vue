@@ -25,11 +25,11 @@
           is non refundable
         </div>
       </b-col>
-      <b-col cols="12" class="mt-5">
+      <b-col cols="12" class="mt-5" style="width: 100%;">
         <b-card no-body class="text-center border-0">
           <b-container class="bg-white">
-            <b-row class="p-4">
-              <b-col :cols="isMock ? 3 : 4" class="mt-3">
+            <b-row class="p-4 mt-3">
+              <b-col cols="12" md="3">
                 <p class="text-left text-secondary">
                   Date
                 </p>
@@ -37,7 +37,7 @@
                   {{ date() }}
                 </p>
               </b-col>
-              <b-col v-if="isMock" cols="3" class="mt-3">
+              <b-col v-if="isMock" cols="12" md="3">
                 <p class="text-left text-secondary">
                   Interview from
                 </p>
@@ -45,16 +45,18 @@
                   {{ company_name }}
                 </p>
               </b-col>
-              <b-col cols="3" :offset-md="isMock ? 0 : 2">
-                <div class="mt-3">
-                  <b-button squared class="alert-danger text-danger-dark" @click="cancel">
-                    Cancel
+              <b-col cols="6" md="2" :offset-md="isMock ? 2 : 4">
+                <div class="text-right">
+                  <b-button squared class="alert-danger" @click="cancel">
+                    <span class="text-danger-dark">
+                      Cancel
+                    </span>
                   </b-button>
                 </div>
               </b-col>
-              <b-col cols="3">
-                <div class="mt-3">
-                  <b-button squared class="alert-primary text-primary" @click="reschedule">
+              <b-col cols="6" md="2">
+                <div class="text-right">
+                  <b-button squared class="alert-primary custom_btn text-primary" @click="reschedule">
                     Reschedule
                   </b-button>
                 </div>
@@ -277,4 +279,7 @@ export default {
 </script>
 
 <style>
+.custom_btn {
+  padding: 1.34rem 1.8rem 1.34rem 1.8rem;
+}
 </style>

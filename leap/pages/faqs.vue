@@ -5,7 +5,7 @@
         <b-col cols="12">
           <h2>FAQ's</h2>
         </b-col>
-        <b-col v-for="(question, idx) in faq" :key="idx" cols="12" class="mt-4" @click="openTheQuestion(idx)">
+        <b-col v-for="(question, idx) in faq" :key="idx" cols="12" class="mt-3" @click="openTheQuestion(idx)">
           <a v-b-toggle :href="'#accordion-'+ idx" style="text-decoration: none;" @click.prevent>
             <b-card no-body class="border-0">
               <b-container class="bg-white">

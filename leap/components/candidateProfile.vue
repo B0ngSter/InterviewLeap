@@ -3,10 +3,10 @@
     <b-row>
       <b-col cols="12">
         <b-breadcrumb class="bg-light pl-0">
-          <b-breadcrumb-item to="/dashboard">
+          <b-breadcrumb-item v-if="hideIr" @click="goBack">
             Dashboard
           </b-breadcrumb-item>
-          <b-breadcrumb-item @click="goBack">
+          <b-breadcrumb-item v-if="!hideIr" @click="goBack">
             Interview Requests
           </b-breadcrumb-item>
           <b-breadcrumb-item active>
@@ -21,7 +21,7 @@
       </b-col>
       <b-col cols="6">
         <div class="text-right">
-          <b-button variant="primary" class="text-white">
+          <b-button variant="primary" class="text-white" @click="resume">
             Download Resume
           </b-button>
         </div>
@@ -58,7 +58,7 @@
           <span class="text-secondary">Total Years of Experience:</span> <span>{{ profileResponse.exp_years }}</span>
         </p>
         <p><span class="text-secondary">LinkedIn Profile:</span> <span>{{ profileResponse.linkedin }}</span></p>
-        <p><span class="text-secondary">Skills:</span> <span v-for="(skill, idx) in profileResponse.skills" :key="idx">{{ skill }}  </span></p>
+        <p><span class="text-secondary">Skills:</span> <span v-for="(skill, idx) in profileResponse.skills" :key="idx">{{ skill.title }} </span></p>
       </b-col>
       <b-col cols="12">
         <div class="text-center text-secondary mt-5">
@@ -75,11 +75,18 @@ export default {
     profileResponse: {
       type: Object,
       required: true
+    },
+    hideIr: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
     goBack () {
       this.$emit('Back', false)
+    },
+    resume () {
+      window.open(this.profileResponse.resume, '_blank')
     }
   }
 }

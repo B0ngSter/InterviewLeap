@@ -131,8 +131,11 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
 .hoover:hover {
   background-color: #5dcc99;
+}
+.navbar-nav .dropdown-menu {
+  padding: 0;
 }
 </style>

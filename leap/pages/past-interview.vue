@@ -37,7 +37,7 @@
             </p>
           </div>
         </b-col>
-        <b-col v-for="(interviews, idx) in past_interviews" :key="idx" cols="12" class="mt-5">
+        <b-col v-for="(interviews, idx) in past_interviews" :key="idx" cols="12" class="mt-3">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">

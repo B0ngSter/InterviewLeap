@@ -37,7 +37,7 @@
           </b-button>
         </b-col>
         <div v-if="$store.getters.is_candidate" style="width: 100%;">
-          <b-col v-for="(interviews, idx) in upcoming_interviews" :key="idx" cols="12" class="mt-4">
+          <b-col v-for="(interviews, idx) in upcoming_interviews" :key="idx" cols="12" class="mt-3">
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row class="p-4 mt-3">
@@ -57,14 +57,14 @@
                       {{ interviews.job_title }}
                     </p>
                   </b-col>
-                  <b-col cols="6" md="3" offset-md="2">
+                  <b-col cols="6" md="2" offset-md="4">
                     <div class="text-right">
                       <b-button squared class="alert-danger  text-danger-dark" @click="model=true">
                         Cancel
                       </b-button>
                     </div>
                   </b-col>
-                  <b-col cols="6" md="3">
+                  <b-col cols="6" md="2">
                     <div class="text-right">
                       <b-button squared class="alert-primary cancle-btn-padding text-primary" :to="`/book-interview/${upcoming_interviews[idx].slug}`">
                         Reschedule
@@ -101,7 +101,7 @@
           </b-col>
         </div>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4 cursor-pointer">
-          <nuxt-link to="/interview-request" style="text-decoration: none;">
+          <a href="#interview-request" style="text-decoration: none;">
             <b-card no-body class="text-center border-0">
               <b-container class="bg-white">
                 <b-row>
@@ -122,7 +122,7 @@
                 </b-row>
               </b-container>
             </b-card>
-          </nuxt-link>
+          </a>
         </b-col>
         <b-col v-if="$store.getters.is_interviewer" cols="12" md="6" class="mt-4">
           <nuxt-link to="/interview-request" style="text-decoration: none;">
@@ -196,7 +196,7 @@
             </b-card>
           </nuxt-link>
         </b-col>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" class="mt-5">
+        <b-col v-if="$store.getters.is_interviewer" id="interview-request" cols="12" class="pt-4 mt-5">
           <h4 class="text-left font-weight-bold">
             New Interview Requests
           </h4>
@@ -216,11 +216,11 @@
             </b-button>
           </div>
         </b-col>
-        <b-col v-if="$store.getters.is_interviewer" cols="12" class="mt-5 mb-5">
-          <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-5">
+        <b-col v-if="$store.getters.is_interviewer" cols="12" class="mb-5">
+          <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">
-                <b-col cols="12" md="2" class="pb-4">
+                <b-col cols="12" md="2" style="padding-left: 0;" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -257,7 +257,7 @@
                 </b-col>
                 <b-col md="5" cols="12" class="border-top border-light pt-4">
                   <p class="text-left text-danger-dark font-weight-bold">
-                    Role - Front-end developer
+                    Role - {{ request.applied_designation }}
                   </p>
                 </b-col>
                 <b-col md="4" cols="12" class="border-top border-light pt-4">
@@ -269,7 +269,7 @@
                 </b-col>
                 <b-col md="3" cols="12" class="border-top border-light pt-4">
                   <div class="">
-                    <p class="text-right font-weight-bold" @click="resume(request)">
+                    <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume
                     </p>
                   </div>
@@ -288,7 +288,7 @@
         </b-col>
       </b-row>
     </b-container>
-    <profile v-if="showProfile" :profile-response="profileResponse" />
+    <profile v-if="showProfile" :hide-ir="true" :profile-response="profileResponse" @Back="showProfile = $event" />
   </div>
 </template>
 <script>
@@ -365,15 +365,26 @@ export default {
           this.interview_requests = response.data.interview_requests
         })
     }
+    if (this.$route.query.payment_id) {
+      this.$toast.success('Your payment has been done successfully!! Thank you to connect with us. Your interview will schedule shortly.', {
+        action: {
+          text: 'Close',
+          onClick: (e, toastObject) => {
+            toastObject.goAway(0)
+          }
+        }
+      })
+    }
     this.fetch_interview()
   },
   methods: {
-    candidate_profile (obj, idx) {
+    candidate_profile (obj) {
       this.showProfile = true
       this.email = obj.candidate_email
       this.$axios.get(`/auth/candidate-profile?email=${this.email}`)
         .then((response) => {
           this.profileResponse = response.data
+          this.profileResponse.resume = obj.resume
         })
     },
     date (idx, object) {

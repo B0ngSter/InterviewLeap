@@ -944,12 +944,14 @@ class InterviewerRequestsListView(ListCreateAPIView):
         try:
             skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title', flat=True)
 
-            interview_requests = BookInterview.objects.filter(
-                                                              is_interview_scheduled=False, interviewer__isnull=True,
-                                                              is_declined=False)
-            for skill in skills:
-                interview_requests = interview_requests.filter(skills__title__icontains=skill)
-            serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
+            if skills:
+                interview_requests = BookInterview.objects.filter(
+                    is_interview_scheduled=False, interviewer__isnull=True,
+                    is_declined=False, skills__title__in=skills).distinct()
+                serializer['interview_requests'] = self.get_serializer(interview_requests, many=True).data
+            else:
+                serializer['interview_requests'] = []
+
         except ObjectDoesNotExist:
             serializer['interview_requests'] = []
 

@@ -266,24 +266,28 @@ class CandidateInterviewerDashboardView(ListAPIView):
         if request.user.role == 'Interviewer':
             dashboard_details = {"new_interview_requests": 0,
                                  "interview_requests": []}
-            interviews_created = InterviewSlots.objects.filter(interview__interviewer=request.user)
-            interviews_taken = interviews_created.filter(candidate__isnull=False,
-                                                         interview_end_time__lt=timezone.now())
+            interviews_taken = InterviewSlots.objects.filter(interview__interviewer=request.user)
+            mock_interviews_taken = interviews_taken.filter(candidate__isnull=False,
+                                                            interview_end_time__lt=timezone.now())
+            custom_interviews_taken = BookInterview.objects.filter(interviewer__user=request.user,
+                                                                   interview_end_time__lt=timezone.now())
+            interviews_created = Interview.objects.filter(interviewer=request.user)
+
             try:
                 skills = InterviewerProfile.objects.get(user=self.request.user).skills.values_list('title',
                                                                                                    flat=True)
                 if skills:
-                    for skill in skills:
-                        interview_requests = BookInterview.objects.filter(
-                            is_interview_scheduled=False, interviewer__isnull=True,
-                            is_declined=False)
+                    interview_requests = BookInterview.objects.filter(
+                        is_interview_scheduled=False, interviewer__isnull=True,
+                        is_declined=False, skills__title__in=skills).distinct()
+
                     dashboard_details['new_interview_requests'] = interview_requests.count()
                     interview_requests_serialize = self.get_serializer(interview_requests, many=True).data
                     dashboard_details['interview_requests'] = interview_requests_serialize
             except ObjectDoesNotExist:
                 pass
             dashboard_details['interview_created'] = interviews_created.count()
-            dashboard_details['interview_taken'] = interviews_taken.count()
+            dashboard_details['interview_taken'] = mock_interviews_taken.count() + custom_interviews_taken.count()
             dashboard_details['total_earnings'] = 0  # need to implement
 
             return Response(dashboard_details, status=status.HTTP_200_OK)
@@ -385,8 +389,8 @@ class MockBookingView(APIView):
                 return Response({"message": "Some server error happen."}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({
-                                "message": "The slot you are trying to book is already booked by someone else, Please try another slot"},
-                            status=status.HTTP_200_OK)
+                "message": "The slot you are trying to book is already booked by someone else, Please try another slot"},
+                status=status.HTTP_200_OK)
 
 
 def _date_time_format(date, time, timezone):
@@ -594,7 +598,8 @@ class InterviewListView(ListAPIView):
             serializer.save()
             return Response({"message": "Your booked interview has been cancelled."}, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "Some issue occurred while cancelling the booking."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Some issue occurred while cancelling the booking."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class PastInterviewListView(ListAPIView):

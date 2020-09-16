@@ -528,9 +528,12 @@ class CandidateProfileCreateListView(ListCreateAPIView):
     def get(self, request, *args, **kwargs):
 
         if request.GET.get('email'):
-            user = User.objects.get(email=request.GET.get('email'))
-            candidate_user_info = UserDetailSerializer(user).data
-            candidate = CandidateProfile.objects.get(user__email=request.GET.get('email'))
+            try:
+                user = User.objects.get(email=request.GET.get('email'))
+                candidate_user_info = UserDetailSerializer(user).data
+                candidate = CandidateProfile.objects.get(user__email=request.GET.get('email'), user__role='Candidate')
+            except ObjectDoesNotExist:
+                return Response({"message": "Candidate is Not Found"}, status=status.HTTP_200_OK)
             if candidate.professional_status == 'Fresher':
                 serialize = CandidateFresherSerializer(candidate).data
                 serialize.update(candidate_user_info)

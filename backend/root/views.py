@@ -147,19 +147,17 @@ class TimeSlotListView(APIView):
 
 def send_mail_on_subscription(request, email, full_name, amount, invoice_number, paid_on, tax, total_amount):
     try:
-
+        actual_amount = amount - tax
         send_by = settings.DEFAULT_FROM_EMAIL
         context = {
             "full_name": full_name,
-            "amount": amount,
+            "amount": actual_amount,
             "invoice_number": invoice_number,
-            "paid_on": paid_on,
+            "paid_on": paid_on.strftime("%d %B %Y"),
             "tax": tax,
-            "coupon_code": '',
             "total_amount": total_amount,
             "logo_url": settings.STATIC_ROOT + '/img/logo.png',
             "email": email,
-            "discount_amount": 0
         }
         subject = 'Payment Invoice for Interview Leap!'
         email_plaintext_message = render_to_string('emailer/payment_success_mail.html', context)
@@ -356,10 +354,9 @@ class MockBookingView(APIView):
                                                  candidate__isnull=True
                                                  )
         if slot_obj.exists():
-            payment_amount = int(slot_obj.first().interview.quoted_price)
-            tax = settings.TAX_PERCENTAGE
-            tax_amount = (payment_amount * tax) / 100
-            total_amount = payment_amount + (payment_amount * tax) / 100
+            payment_amount = request.data.get('amount')
+            tax_amount = request.data.get('tax')
+            total_amount = request.data.get('total_amount')
             link = "{frontend_url}/dashboard".format(frontend_url=settings.FRONTEND_URL)
             webhook_url = "{domain}/webhook/mock-interview/".format(domain=settings.WEBHOOK_STAGING_URL)
             response = api.payment_request_create(
@@ -582,7 +579,7 @@ class InterviewListView(ListAPIView):
                                   "slug": data.slug
                                   })
         custom_booking_obj = BookInterview.objects.filter(is_payment_done=True, is_interview_scheduled=False,
-                                                          date__gte=timezone.now()).exclude(state='Cancelled')
+                                                          date__gte=timezone.now()).exclude(state='Cancelled').order_by('-created_at')
         booking_list = []
         for each_row in custom_booking_obj:
             booking_list.append(

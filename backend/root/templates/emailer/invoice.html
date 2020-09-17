@@ -13,8 +13,8 @@
             width: 100%;
             max-width: 100%;
             margin-bottom: 5px;
-            background-color: #fff;
-            border: 1px solid black;
+            color: #82919c;
+            font-size: 16px;
             border-collapse: collapse;
         }
 
@@ -23,7 +23,7 @@
           text-align: left;
         }
         .table .table {
-            background-color: #fff;
+
         }
 
         .list-group {
@@ -50,37 +50,37 @@
 <div class="container">
     <div class="card">
 <!--        add logo here-->
+        <img src="{{logo_url}}" alt="">
         <div class="card-header">
             <br><br>
-            <h3 style="font-size:21px;">Hello {{full_name}}!</h3>
+            <h3 style="font-size:21px;">Hello {{full_name}},</h3>
         </div>
 
-        <div class="list-group">
-            <p class="common_font_color" style="font-size:15px;">We are happy to guide you</p>
-            <p class="common_font_color" style="font-size:15px;" >Here's a copy of your payment towards the subscription for any future reference.</p>
+        <div style="font-size: 14px; color: #6a737d;">
+            <p>Happy to arrange interview!!</p>
+            <p>Here's a copy of your payment for your booking reference.</p>
         </div>
-        <br><br>
-
-        <table class="common_font_color" style="font-size:15px;">
-            <thead>
-                <tr style="margin-left:-30%;">
+        <br>
+        <table>
+            <thead class="table1">
+                <tr style="margin-left:-30%; color: #1b1f23; font-size: 16px;">
                     <th>Invoice No.</th>
                     <th>Date</th>
                 </tr>
                 <tr style="margin-left:-30%;">
-                    <th class="text-uppercase" style="color:#5F5D5D;">{{invoice_number}}</th>
-                    <th style="color:#5F5D5D;">{{paid_on}}</th>
+                    <th class="text-uppercase">INV-{{invoice_number}}</th>
+                    <th>{{paid_on}}</th>
                 </tr>
             </thead>
         </table>
         <br>
         <div>
-            <h4 style="font-size:21px;">Subscription Charges</h4>
+            <h4 style="font-size:21px;">Interview Charges</h4>
         </div>
         <table class="table1">
-            <thead style="font-size:13px;">
+            <thead>
                 <tr>
-                    <th>Interview Leap(charged amount) <span style="font-size:10px; color:gray;">including 18% GST</span></th>
+                    <th>Mock Interview </th>
                     <th>Rs. {{amount}}</th>
 
                 </tr>
@@ -89,7 +89,7 @@
                     <th>Rs. {{tax}}</th>
 
                 </tr>
-                <tr style="font-size:21px;">
+                <tr style="color: #0e293c; font-size: 20px;">
                     <th>Total INR</th>
                     <th>Rs. {{total_amount}}</th>
                 </tr>
@@ -97,11 +97,11 @@
         </table>
         <br><br>
         <div style="">
-        <table style="background-color:#3B3838; color:white; border:1px solid #3B3838;">
+        <table style="background-color:#1b1f23; color:white; border:1px solid #1b1f23;">
             <tbody>
                 <thead style="font-size:11px;">
-                    <tr>
-                        <th>****</th>
+                    <tr style="font-size: 16px;">
+                        <th>Invoice For:</th>
                         <th colspan="2">From:</th>
                     </tr>
                     <tr>
@@ -123,7 +123,7 @@
                         <th colspan="2">CIN: U72200TG2015PTC098351</th>
                     </tr>
                     <tr>
-                        <th>-</th>
+                        <th>**************</th>
                         <th colspan="2">Contact us at: support@equiv.in</th>
                     </tr>
                 </thead>

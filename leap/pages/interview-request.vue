@@ -45,7 +45,7 @@
           <b-card v-for="(request, idx) in interview_requests" :key="idx" no-body class="text-center border-0 mt-3">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">
-                <b-col cols="2" md="" class="pb-4">
+                <b-col cols="12" md="2" style="padding-left: 0;" class="pb-4">
                   <p class="text-left text-secondary">
                     Date &amp; time
                   </p>
@@ -53,7 +53,7 @@
                     {{ date_Interview_request(idx) }}
                   </h4>
                 </b-col>
-                <b-col cols="5" class="pb-4 text-left">
+                <b-col cols="12" md="5" class="pb-4 text-left">
                   <b-button
                     v-for="(badge, idy) in request.time_slots"
                     :key="idy"
@@ -72,7 +72,7 @@
                     {{ badge }}
                   </b-button>
                 </b-col>
-                <b-col cols="5" class="pb-4 text-right">
+                <b-col cols="12" md="5" class="pb-4 text-right">
                   <b-button squared class="alert-danger text-danger-dark" @click="decline_interview_slot(idx)">
                     Decline
                   </b-button>
@@ -80,19 +80,19 @@
                     Accept
                   </b-button>
                 </b-col>
-                <b-col cols="5" class="border-top border-light pt-4">
+                <b-col cols="12" md="5" class="border-top border-light pt-4">
                   <p class="text-left text-danger-dark font-weight-bold">
                     Role - {{ request.applied_designation }}
                   </p>
                 </b-col>
-                <b-col cols="4 border-top border-light pt-4">
+                <b-col cols="12" md="4 border-top border-light pt-4">
                   <div>
                     <p class="text-right font-weight-bold cursor-pointer" @click="candidate_profile(request)">
                       View Candidate Profile >
                     </p>
                   </div>
                 </b-col>
-                <b-col cols="3 border-top border-light pt-4">
+                <b-col cols="12" md="3 border-top border-light pt-4">
                   <div>
                     <p class="text-right font-weight-bold cursor-pointer" @click="resume(request)">
                       Download Resume

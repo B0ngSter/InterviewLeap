@@ -61,7 +61,7 @@
             </b-container>
           </b-card>
         </b-col>
-        <b-col cols="12" class="mt-2">
+        <b-col cols="12" class="mt-3">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3" align-v="center" align-content="start">
@@ -110,7 +110,7 @@
             </b-container>
           </b-card>
         </b-col>
-        <b-col cols="12" class="mt-2">
+        <b-col cols="12" class="mt-3">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">

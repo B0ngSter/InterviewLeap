@@ -421,7 +421,8 @@ export default {
       window.open(interview.resume, '_blank')
     },
     submit () {
-      const payload = { ...this.feedback }
+      const payload = {}
+      payload.date = this.feedbacks[this.id].date
       payload.technical_skill = [this.technical_skill, this.technical_skill_text]
       payload.communicational_skill = [this.communicational_skill, this.communicational_skill_text]
       payload.presentation_skill = [this.presentation_skill, this.presentation_skill_text]
@@ -429,11 +430,16 @@ export default {
       let endpoint
       if (this.feedbacks[this.id].custom_interview === true) {
         endpoint = `custom-interview/${this.feedbacks[this.id].slug}/feedback/`
+        payload.start_time = this.feedbacks[this.id].interview_start_time.slice(11, 16)
+        payload.end_time = this.feedbacks[this.id].interview_end_time.slice(11, 16)
       } else if (this.feedbacks[this.id].mock_interview === true) {
         endpoint = `mock-interview/${this.feedbacks[this.id].slug}/feedback/`
+        payload.start_time = this.feedbacks[this.id].interview_start_time.slice(0, 5)
+        payload.end_time = this.feedbacks[this.id].interview_end_time.slice(0, 5)
       }
       this.$axios.post(endpoint, payload)
         .then((response) => {
+          this.$router.push('/dashboard')
           this.$toast.success('Your feedback has been saved', {
             action: {
               text: 'Close',

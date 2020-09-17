@@ -47,7 +47,7 @@
               <b-row class="p-4 mt-3">
                 <b-col cols="12" md="3" class="pb-2">
                   <p class="text-left text-secondary">
-                    Month {{ !ext.includes(idx) }}
+                    Month
                   </p>
                   <p class="text-left text-dark font-weight-bold">
                     {{ interviews.month }}

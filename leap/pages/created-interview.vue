@@ -30,7 +30,7 @@
             </p>
           </div>
         </b-col>
-        <b-col v-for="(interviews, idx) in created_interviews" :key="idx" cols="12" class="mt-5">
+        <b-col v-for="(interviews, idx) in created_interviews" :key="idx" cols="12" class="mt-3">
           <b-card no-body class="text-center border-0">
             <b-container class="bg-white">
               <b-row class="p-4 mt-3">
@@ -42,19 +42,15 @@
                     {{ interviews.exp_years }} years
                   </p>
                 </b-col>
-                <b-col cols="3" md="3" offset-md="2">
-                  <div class="">
-                    <b-button squared class="alert-danger text-danger-dark" @click="deleteInterview(interviews.slug, idx)">
-                      Delete
-                    </b-button>
-                  </div>
+                <b-col cols="3" md="2" offset-md="4">
+                  <b-button squared class="alert-danger text-danger-dark" @click="deleteInterview(interviews.slug, idx)">
+                    Delete
+                  </b-button>
                 </b-col>
-                <b-col cols="3" md="3">
-                  <div class="">
-                    <b-button squared class="alert-success text-primary" :to="`/create-interview/${created_interviews[idx].slug}`">
-                      Edit
-                    </b-button>
-                  </div>
+                <b-col cols="3" md="2">
+                  <b-button squared class="alert-success text-primary" :to="`/create-interview/${created_interviews[idx].slug}`">
+                    Edit
+                  </b-button>
                 </b-col>
               </b-row>
             </b-container>

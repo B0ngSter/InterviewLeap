@@ -177,8 +177,17 @@ export default {
     },
     addSlot (idy) {
       this.time_slot.includes(idy) ? this.time_slot.splice(this.time_slot.indexOf(idy), 1) : this.time_slot.push(idy)
+      if (this.time_slot.length > 1) {
+        this.time_slot.splice(0, 1)
+      }
       this.candidate_info.time_slots.includes(this.time_slots_to_be_sent[idy]) ? this.candidate_info.time_slots.splice(this.time_slot.indexOf(this.time_slots_to_be_sent[idy]), 1) : this.candidate_info.time_slots.push(this.time_slots_to_be_sent[idy])
+      if (this.candidate_info.time_slots.length > 1) {
+        this.candidate_info.time_slots.splice(0, 1)
+      }
       this.time_slots_mock.includes(this.time_slots[idy]) ? this.time_slots_mock.splice(this.time_slot.indexOf(this.time_slots[idy]), 1) : this.time_slots_mock.push(this.time_slots[idy])
+      if (this.time_slots_mock.length > 1) {
+        this.time_slots_mock.splice(0, 1)
+      }
     },
     allowedDates (val) {
       const today = new Date()

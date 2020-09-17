@@ -32,7 +32,7 @@
             src="@/static/down-arrow.svg"
             alt="Mock"
           />
-          <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Downloud report</span>
+          <span class="text-secondary pl-4 cursor-pointer" @click="downloud_report">Download report</span>
         </div>
       </b-col>
       <b-col v-if="!reporTypeInterviewer" cols="12" md="4" class="mt-2 pt-2">

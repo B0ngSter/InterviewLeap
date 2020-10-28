@@ -118,6 +118,7 @@ export default {
     },
     // When one of the suggestion is clicked
     suggestionClick (index) {
+      debugger
       this.selection = this.itemTitleKey ? this.suggestions[index][this.itemTitleKey] : this.suggestions[index]
       this.$emit('select', this.suggestions[index])
       this.open = false

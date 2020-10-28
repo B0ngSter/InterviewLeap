@@ -15,7 +15,7 @@
               industry experts from
             </p>
             <p class="h4 font-weight-normal text-danger-dark mb-5">Google, Facebook, & more…</p>
-            <b-button variant="outline-light mb-5 mb-md-0">Register Now</b-button>
+            <b-button variant="outline-light mb-5 mb-md-0" to="/dashboard">Register Now</b-button>
           </b-col>
         </b-row>
       </b-container>

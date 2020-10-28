@@ -4,7 +4,7 @@
       <b-row class="mt-5">
         <b-col cols="12" md="3" class="mb-5">
           <h3 class="font-weight-bold">
-            Hello, {{ this.$store.state.auth.user.first_name }}
+            Hello, {{ $store.state.auth.user.first_name }}
           </h3>
           <p v-if="$store.getters.is_interviewer" class="text-secondary">
             Below are your insights

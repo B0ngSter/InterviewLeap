@@ -206,8 +206,8 @@ export default {
       userInfo: {
         first_name: null,
         last_name: null,
-        email: null,
-        password: null,
+        email: 'nit35h.7@gmail.com',
+        password: '12162221N',
         confirm_password: null
       }
     }
